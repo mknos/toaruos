@@ -70,7 +70,7 @@ int main(int argc, char * argv[]) {
 		int chars = 0;
 		int words = 0;
 		int ch;
-		uint32_t state, c;
+		uint32_t c;
 		int last_was_whitespace = 0;
 
 		while (!feof(f)) {
@@ -79,6 +79,7 @@ int main(int argc, char * argv[]) {
 
 			if (show_chars) {
 #ifdef __toaru__
+				uint32_t state;
 				if (!decode(&state, &c, ch)) {
 				} else if (state == UTF8_REJECT) {
 					state = 0;
@@ -93,9 +94,9 @@ int main(int argc, char * argv[]) {
 
 			chars++;
 			if (c == '\n') {
+				if (!last_was_whitespace) words++;
 				last_was_whitespace = 1;
 				lines++;
-				words++;
 			} else if (c == ' ') {
 				if (last_was_whitespace) continue;
 				last_was_whitespace = 1;
