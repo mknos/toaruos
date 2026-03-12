@@ -7,11 +7,14 @@
  * Copyright (C) 2018 K. Lange
  */
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <errno.h>
+#ifdef __toaru__
 #include <toaru/decodeutf8.h>
+#endif
 
 int main(int argc, char * argv[]) {
 	int show_lines = 0;
@@ -75,10 +78,15 @@ int main(int argc, char * argv[]) {
 			if (ch < 0) break;
 
 			if (show_chars) {
+#ifdef __toaru__
 				if (!decode(&state, &c, ch)) {
 				} else if (state == UTF8_REJECT) {
 					state = 0;
 				}
+#else
+				fprintf(stderr, "option -m not implemented\n");
+				return 1;
+#endif
 			} else {
 				c = ch;
 			}
