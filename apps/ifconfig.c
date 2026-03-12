@@ -11,6 +11,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2021 K. Lange
  */
+#include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -67,14 +68,25 @@ static int print_human_readable_size(char * _out, size_t s) {
 }
 
 static int open_netdev(const char * if_name) {
+	const char *c = if_name;
+	if (!isalpha((unsigned char) *c++)) {
+		errno = EINVAL;
+		return -1;
+	}
+	for (; *c != '\0'; c++)
+		if (!isalnum((unsigned char) *c)) {
+			errno = EINVAL;
+			return -1;
+		}
+
 	char if_path[100];
 	snprintf(if_path, 100, "/dev/net/%s", if_name);
 	return open(if_path, O_RDONLY);
 }
 
-static int print_interface(const char * if_name) {
-	int netdev = open_netdev(if_name);
-
+static int print_interface(int netdev, const char *if_name) {
+	if (netdev < 0)
+		netdev = open_netdev(if_name);
 	if (netdev < 0) {
 		perror(_argv_0);
 		return 1;
@@ -155,9 +167,8 @@ static int print_all_interfaces(void) {
 		if (ent->d_name[0] == '.') continue;
 
 		/* Retrieve data for the interface and print the results. */
-		if (print_interface(ent->d_name)) {
+		if (print_interface(-1, ent->d_name))
 			retval = 1;
-		}
 	}
 
 	closedir(d);
@@ -214,16 +225,15 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 
+
 	/* If there is an interface name and nothing else, print and be done with it. */
-	if (argc == 2) return print_interface(argv[1]);
-
-	/* All other options here require a leading interface. */
 	int netdev = open_netdev(argv[1]);
-
 	if (netdev < 0) {
 		perror(argv[0]);
 		return 1;
 	}
+	if (argc == 2)
+		return print_interface(netdev, argv[1]);
 
 	/* Now let's figure out what we want to do with remaining options */
 	int collected_address = 0;
