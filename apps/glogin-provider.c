@@ -249,9 +249,11 @@ int main (int argc, char ** argv) {
 		TRACE("Loading complete");
 	}
 
+#if 0
 	TRACE("Loading logo...");
 	load_sprite(&logo, LOGO);
 	TRACE("... done.");
+#endif
 
 	/* Generate surface for background */
 	sprite_t * bg_sprite;
@@ -277,10 +279,9 @@ redo_everything:
 	win_height = height;
 
 	TRACE("Loading wallpaper...");
+	sprite_t * wallpaper = malloc(sizeof(sprite_t));
+	if (load_sprite(wallpaper, WALLPAPER) == 0)
 	{
-		sprite_t * wallpaper = malloc(sizeof(sprite_t));
-		load_sprite(wallpaper, WALLPAPER);
-
 		float x = (float)width  / (float)wallpaper->width;
 		float y = (float)height / (float)wallpaper->height;
 
@@ -302,8 +303,8 @@ redo_everything:
 		blur_context_box(bg, 20);
 
 		free(bg);
-		free(wallpaper);
 	}
+	free(wallpaper);
 	TRACE("... done.");
 
 	draw_fill(ctx, rgb(0,0,0));
@@ -382,7 +383,9 @@ redo_everything:
 				get_updated_hostname_with_time_info(hostname);
 
 				memcpy(ctx->backbuffer, bg_cache, sizeof(uint32_t) * width * height);
+#if 0
 				draw_sprite(ctx, &logo, center_x(logo.width), center_y(logo.height) - LOGO_FINAL_OFFSET);
+#endif
 
 				tt_draw_string_shadow(ctx, tt_font_bold, hostname, 12, hostname_label_left, height - 22, rgb(255,255,255), rgb(0,0,0), 4);
 				tt_draw_string_shadow(ctx, tt_font_bold, kernel_v, 12, kernel_v_label_left, height - 22, rgb(255,255,255), rgb(0,0,0), 4);
