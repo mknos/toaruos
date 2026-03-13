@@ -1265,7 +1265,7 @@ static void draw_background(int width, int height) {
 		fprintf(stderr, "%s: failed to load sprite\n", wallpaper_path);
 		if (free_it)
 			free(wallpaper_path);
-		sprite_free(wallpaper);
+		free(wallpaper);
 		return;
 	}
 	if (free_it)
@@ -1298,7 +1298,7 @@ static void draw_background(int width, int height) {
 	}
 
 	/* Free the original wallpaper. */
-	sprite_free(wallpaper);
+	free(wallpaper);
 	free(ctx);
 }
 
