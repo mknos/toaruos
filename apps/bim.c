@@ -11237,7 +11237,9 @@ static void findBim(char * argv[]) {
 			binpath = realpath(argv[0], NULL);
 		} else {
 			/* Search PATH for argv[0] */
-			char * _path = strdup(getenv("PATH"));
+			char * epath = getenv("PATH");
+			if (!epath) return;
+			char * _path = strdup(epath);
 			char * path = _path;
 			while (path) {
 				char * next = strchr(path,':');
