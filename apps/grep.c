@@ -10,6 +10,7 @@
  */
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
@@ -242,10 +243,10 @@ static int subsearch_matches(struct Line * line, int j, char * needle, int *len)
 	return regex_matches(line, j, needle, ignorecase, len, NULL);
 }
 
-int usage(char ** argv) {
+void usage(void) {
 #define _I "\033[3m"
 #define _E "\033[0m\n"
-	fprintf(stderr, "usage: %s [-cilnoqsvxF] PATTERN [FILE...]\n"
+	fprintf(stderr, "usage: grep [-cilnoqsvxF] PATTERN [FILE...]\n"
 		"\n"
 		"Search for PATTERN in each file.\n"
 		"Take care that this grep's pattern engine is limited and not POSIX-compliant.\n"
@@ -287,11 +288,11 @@ int usage(char ** argv) {
 		"  \\+      " _I "Match at least one occurance" _E
 		"\n"
 		" Some characters can be escaped in the pattern with \\.\n"
-		" The regex engine is not Unicode-aware.\n",
-		argv[0]);
+		" The regex engine is not Unicode-aware.\n"
+		);
 #undef _I
 #undef _E
-	return 1;
+	exit(2);
 }
 
 /*
@@ -317,11 +318,8 @@ static char * simple_basename(char * path) {
 
 int main(int argc, char ** argv) {
 	int opt;
-	while ((opt = getopt(argc, argv, "?hivqocFxlns-:")) != -1) {
+	while ((opt = getopt(argc, argv, "ivqocFxlns-:")) != -1) {
 		switch (opt) {
-			case 'h':
-			case '?':
-				return usage(argv);
 			case 'i':
 				ignorecase = 1;
 				break;
@@ -354,7 +352,7 @@ int main(int argc, char ** argv) {
 				break;
 			case '-':
 				if (!strcmp(optarg,"help")) {
-					return usage(argv);
+					usage();
 				} else if (!strcmp(optarg,"color=never")) {
 					use_color = 0; /* Overrides previous instances of conflicting option */
 				} else if (!strcmp(optarg,"color") || !strcmp(optarg,"-color=auto")) {
@@ -363,6 +361,8 @@ int main(int argc, char ** argv) {
 					use_color = 2;
 				}
 				break;
+			default:
+				usage();
 		}
 	}
 
@@ -372,7 +372,7 @@ int main(int argc, char ** argv) {
 	}
 
 	/* Require at least a PATTERN argument. */
-	if (optind == argc) return usage(argv);
+	if (optind == argc) usage();
 	char * needle = argv[optind++];
 
 	int ret = 1; /* Normal exit status: 0 if something matched, 1 if not. */
