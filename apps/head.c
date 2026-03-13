@@ -41,28 +41,32 @@ int main(int argc, char * argv[]) {
 	}
 
 	for (int i = optind; i < argc; ++i) {
-		FILE * f = (!strcmp(argv[i],"-")) ? stdin : fopen(argv[i],"r");
+		int is_stdin = !strcmp(argv[i], "-");
+		FILE *f = is_stdin ? stdin : fopen(argv[i], "r");
 		if (!f) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
 			retval = 1;
 			continue;
 		}
 
-		if (print_names) {
-			fprintf(stdout, "==> %s <==\n", (f == stdin) ? "standard input" : argv[i]);
-		}
+		char *fname = is_stdin ? "standard input" : argv[i];
+		if (print_names)
+			fprintf(stdout, "==> %s <==\n", fname);
 
 		int line = 1;
 
 		while (!feof(f)) {
 			int c = fgetc(f);
-			if (c >= 0) {
-				fputc(c, stdout);
+			if (ferror(f)) {
+				fprintf(stderr, "%s: read error: %s\n", fname, strerror(errno));
+				retval = 1;
+				break;
+			}
+			fputc(c, stdout);
 
-				if (c == '\n') {
-					line++;
-					if (line > n) break;
-				}
+			if (c == '\n') {
+				line++;
+				if (line > n) break;
 			}
 		}
 
