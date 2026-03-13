@@ -57,7 +57,10 @@ static int rm_directory(char * source) {
 
 static int rm_thing(char * tmp) {
 	struct stat statbuf;
-	lstat(tmp,&statbuf);
+	if (lstat(tmp, &statbuf) == -1) {
+		fprintf(stderr, APP_NAME ": stat failed for '%s': %s\n", tmp, strerror(errno));
+		return 1;
+	}
 	if (S_ISDIR(statbuf.st_mode)) {
 		if (!recursive) {
 			fprintf(stderr, APP_NAME ": %s: is a directory\n", tmp);
