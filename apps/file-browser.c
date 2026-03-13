@@ -1261,11 +1261,15 @@ static void draw_background(int width, int height) {
 		}
 	}
 
-	load_sprite(wallpaper, wallpaper_path);
-
-	if (free_it) {
-		free(wallpaper_path);
+	if (load_sprite(wallpaper, wallpaper_path)) {
+		fprintf(stderr, "%s: failed to load sprite\n", wallpaper_path);
+		if (free_it)
+			free(wallpaper_path);
+		sprite_free(wallpaper);
+		return;
 	}
+	if (free_it)
+		free(wallpaper_path);
 
 	/* Create a new buffer to hold the baked wallpaper */
 	wallpaper_buffer = create_sprite(width, height, 0);
