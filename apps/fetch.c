@@ -450,7 +450,8 @@ int main(int argc, char * argv[]) {
 			"\r\n", my_req.path, my_req.domain);
 	}
 
-	http_fetch(f);
+	if (http_fetch(f))
+		return 1;
 
 	fflush(fetch_options.out);
 
