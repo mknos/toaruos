@@ -25,7 +25,7 @@ static void read_file(FILE * f) {
 	while (!feof(f)) {
 		int c = fgetc(f);
 		if (c < 0) break;
-		if (!isprint(c)) {
+		if (c != '\t' && !isprint(c)) {
 			if (ind >= min_chars) {
 				switch (format) {
 					case 'x':
@@ -44,13 +44,9 @@ static void read_file(FILE * f) {
 			offset++;
 			continue;
 		}
-		if (!isprint(c)) {
-			ind = 0;
-		} else {
-			if (ind < 1024) {
-				buf[ind] = c;
-				ind++;
-			}
+		if (ind < 1024) {
+			buf[ind] = c;
+			ind++;
 		}
 		offset++;
 	}
