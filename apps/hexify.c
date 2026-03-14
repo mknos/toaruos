@@ -66,34 +66,31 @@ static int stoih(size_t w, char c[w], size_t *out) {
 	return 0;
 }
 
-static int usage(char * argv[]) {
+static void usage(void) {
 	fprintf(stderr,
-			"heixfy - convert to and from hexadecimal representation\n"
-			"\n"
-			"usage: %s [-w width] [-d] [file]\n"
+			"usage: hexify [-w width] [-d] [file]\n"
 			"\n"
 			" -w width  \033[3mdisplay 'width' bytes per line\033[0m\n"
 			"           \033[3m(default is 16, max is 256)\033[0m\n"
 			" -d        \033[3mconvert output from hexify back to binary data\033[0m\n"
-			" -?        \033[3mshow this help text\033[0m\n"
-			"\n", argv[0]);
-	return 1;
+			"\n");
+	exit(1);
 }
 
 int main(int argc, char * argv[]) {
-	size_t width = 16; /* TODO make configurable */
+	size_t width = 16;
 	int opt;
 	int direction = 0;
 
-	while ((opt = getopt(argc, argv, "?w:d")) != -1) {
+	while ((opt = getopt(argc, argv, "w:d")) != -1) {
 		switch (opt) {
 			default:
-			case '?':
-				return usage(argv);
+				usage();
 			case 'w':
 				width = strtoul(optarg, NULL, 0);
-				if (width == 0) width = 16;
-				if (width > 256) {
+				if (width == 0)
+					width = 16;
+				else if (width > 256) {
 					fprintf(stderr, "%s: invalid width\n", argv[0]);
 					return 1;
 				}
@@ -106,14 +103,19 @@ int main(int argc, char * argv[]) {
 
 	FILE * f;
 	char * name;
-
-	if (optind < argc) {
-		f = fopen(argv[optind], "r");
-		name = argv[optind];
-		if (!f) goto _fail;
-	} else {
-		name = "[stdin]";
-		f = stdin;
+	switch (argc - optind) {
+		case 0:
+			name = "[stdin]";
+			f = stdin;
+			break;
+		case 1:
+			f = fopen(argv[optind], "r");
+			name = argv[optind];
+			if (!f) goto _fail;
+			break;
+		default:
+			fprintf(stderr, "hexify: extra operand '%s'\n", argv[optind + 1]);
+			usage();
 	}
 
 	if (direction == 0) {
