@@ -216,20 +216,13 @@ static int _set_address(int netdev, const char * cmd, const char * arg, const ch
 #define command_with_address(cmd, itype) if (!strcmp(argv[i], cmd)) { if (_set_address(netdev, argv[i], argv[i+1], #itype, itype)) { return 1; } continue; }
 
 int main(int argc, char * argv[]) {
-	/* Figure out what we're trying to do. */
 	if (argc < 2) return print_all_interfaces();
-
-	/* Handle (ignore) some common commands */
-	if (!strcmp(argv[1], "up") || !strcmp(argv[1],"down")) {
-		fprintf(stderr, "%s: 'up' and 'down' commands are unsupported\n", argv[0]);
-		return 1;
-	}
-
-
-	/* If there is an interface name and nothing else, print and be done with it. */
 	int netdev = open_netdev(argv[1]);
 	if (netdev < 0) {
-		perror(argv[0]);
+		if (errno == ENOENT)
+			fprintf(stderr, "%s: No such interface\n", argv[1]);
+		else
+			perror(argv[1]);
 		return 1;
 	}
 	if (argc == 2)
