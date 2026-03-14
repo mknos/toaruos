@@ -114,23 +114,22 @@ int main(int argc, char * argv[]) {
 				all = 0;
 				break;
 			default:
-				fprintf(stderr, "%s: unrecognized option '%c'\n", argv[0], opt);
-				break;
+				return 1;
 		}
 	}
 
 	int ret = 0;
 	uint64_t total = 0;
-
 	for (int i = optind; i < argc; ++i) {
 		is_arg = 1;
 		total += count_thing(argv[i]);
 	}
-
-	if (show_total) {
-		print_size(total, "total");
+	if ((argc - optind) == 0) {
+		is_arg = 1;
+		total += count_thing(".");
 	}
-
+	if (show_total)
+		print_size(total, "total");
 	return ret;
 }
 
