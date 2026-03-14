@@ -21,9 +21,13 @@ int main(int argc, char * argv[]) {
 			fprintf(stderr,"Must be root to set hostname.\n");
 			return 1;
 		} else {
-			sethostname(argv[1], strlen(argv[1]));
+			if (sethostname(argv[1], strlen(argv[1])) == -1) {
+				perror("sethostname");
+				return 1;
+			}
 			FILE * file = fopen("/etc/hostname", "w");
 			if (!file) {
+				perror("fopen");
 				return 1;
 			} else {
 				fprintf(file, "%s\n", argv[1]);
