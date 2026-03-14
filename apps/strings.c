@@ -25,7 +25,7 @@ static void read_file(FILE * f) {
 	while (!feof(f)) {
 		int c = fgetc(f);
 		if (c < 0) break;
-		if (c == '\n' || c == '\0') {
+		if (!isprint(c)) {
 			if (ind >= min_chars) {
 				switch (format) {
 					case 'x':
