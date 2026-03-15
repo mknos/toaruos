@@ -482,6 +482,10 @@ static void redraw_window_callback(struct menu_bar * self) {
 int main(int argc, char * argv[]) {
 
 	yctx = yutani_init();
+	if (!yctx) {
+		fprintf(stderr, "%s: failed to connect to compositor\n", argv[0]);
+		return 1;
+	}
 	init_decorations();
 	main_window = yutani_window_create(yctx, 640, 480);
 	yutani_window_move(yctx, main_window, yctx->display_width / 2 - main_window->width / 2, yctx->display_height / 2 - main_window->height / 2);

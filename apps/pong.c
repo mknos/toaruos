@@ -199,6 +199,10 @@ void update_stuff(void) {
 int main (int argc, char ** argv) {
 
 	yctx = yutani_init();
+	if (!yctx) {
+		fprintf(stderr, "%s: failed to connect to compositor\n", argv[0]);
+		return 1;
+	}
 
 	left.width   = PADDLE_WIDTH;
 	left.height  = PADDLE_HEIGHT;

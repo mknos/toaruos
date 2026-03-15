@@ -1937,6 +1937,10 @@ static void set_signal_handler(int signum, void (*handler)(int)) {
 int main(int argc, char * argv[]) {
 
 	yctx = yutani_init();
+	if (!yctx) {
+		fprintf(stderr, "%s: failed to connect to compositor\n", argv[0]);
+		return 1;
+	}
 	init_decorations();
 
 	tt_font_thin = tt_font_from_shm("sans-serif");
