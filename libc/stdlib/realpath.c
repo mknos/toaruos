@@ -40,9 +40,10 @@ char *realpath(const char *path, char *resolved_path) {
 		return NULL;
 	}
 
-	if (!resolved_path) {
+	if (!resolved_path)
 		resolved_path = malloc(PATH_MAX+1);
-	}
+	if (!resolved_path)
+		return NULL;
 
 	/* If we're lucky, we can do this with no allocations, so let's start here... */
 	char working_path[PATH_MAX+1];

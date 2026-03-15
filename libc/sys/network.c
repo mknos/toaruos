@@ -420,12 +420,16 @@ int getaddrinfo(const char *node, const char *service,
 	if (!ent) return -EINVAL; /* EAI_FAIL */
 
 	*res = malloc(sizeof(struct addrinfo));
+	if (*res == NULL)
+		return -ENOMEM;
 	(*res)->ai_flags = 0;
 	(*res)->ai_family = AF_INET;
 	(*res)->ai_socktype = 0;
 	(*res)->ai_protocol = 0;
 	(*res)->ai_addrlen = sizeof(struct sockaddr_in);
 	struct sockaddr_in * addr = malloc(sizeof(struct sockaddr_in));
+	if (addr == NULL)
+		return -ENOMEM;
 	addr->sin_family = AF_INET;
 	memcpy(&addr->sin_addr.s_addr, ent->h_addr, ent->h_length);
 	(*res)->ai_addr = (struct sockaddr *)addr;

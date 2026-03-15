@@ -17,6 +17,8 @@ DIR * opendir (const char * dirname) {
 	}
 
 	DIR * dir = (DIR *)malloc(sizeof(DIR));
+	if (dir == NULL)
+		return NULL;
 	dir->fd = fd;
 	dir->cur_entry = -1;
 	return dir;

@@ -41,17 +41,19 @@ static struct passwd * pw_ent;
 static char * pw_blob;
 
 struct passwd * fgetpwent(FILE * stream) {
-	if (!stream) {
+	if (!stream)
 		return NULL;
-	}
 	if (!pw_ent) {
 		pw_ent = malloc(sizeof(struct passwd));
+		if (pw_ent == NULL)
+			return NULL;
 		pw_blob = malloc(LINE_LEN);
+		if (pw_blob == NULL)
+			return NULL;
 	}
 
 	memset(pw_blob, 0x00, LINE_LEN);
 	fgets(pw_blob, LINE_LEN, stream);
-
 
 	if (pw_blob[strlen(pw_blob)-1] == '\n') {
 		pw_blob[strlen(pw_blob)-1] = '\0'; /* erase newline */

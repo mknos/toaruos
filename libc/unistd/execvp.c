@@ -30,6 +30,8 @@ int execvpe(const char *file, char *const argv[], char *const envp[]) {
 			int r;
 			struct stat stat_buf;
 			char * exe = malloc(strlen(p) + strlen(file) + 2);
+			if (exe == NULL)
+				return -1;
 			strcpy(exe, p);
 			strcat(exe, "/");
 			strcat(exe, file);

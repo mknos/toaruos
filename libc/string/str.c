@@ -70,8 +70,11 @@ size_t strlen(const char * s) {
 }
 
 char * strdup(const char * s) {
-	size_t l = strlen(s);
-	return memcpy(malloc(l+1), s, l+1);
+	size_t l = strlen(s) + 1;
+	void * new = malloc(l);
+	if (new == NULL)
+		return NULL;
+	return memcpy(new, s, l);
 }
 
 char * stpcpy(char * restrict d, const char * restrict s) {

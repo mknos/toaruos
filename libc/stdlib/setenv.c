@@ -18,6 +18,8 @@ int setenv(const char *name, const char *value, int overwrite) {
 	}
 
 	char * tmp = malloc(strlen(name) + strlen(value) + 2);
+	if (tmp == NULL)
+		return -1;
 	*tmp = '\0';
 	strcat(tmp, name);
 	strcat(tmp, "=");
