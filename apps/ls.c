@@ -56,6 +56,7 @@ static int this_year = 0;
 static int show_hidden = 0;
 static int long_mode   = 0;
 static int print_dir   = 0;
+static int is_ls1 = 0;
 static int term_width = DEFAULT_TERM_WIDTH;
 static int term_height = DEFAULT_TERM_HEIGHT;
 
@@ -248,17 +249,16 @@ static void print_entry_long(int * widths, struct tfile * file) {
 	printf("\n");
 }
 
-static void show_usage(int argc, char * argv[]) {
+static void usage(void) {
 	printf(
-			"ls - list files\n"
-			"\n"
-			"usage: %s [-lha] [path]\n"
+			"usage: ls [-1lha] [path]\n"
 			"\n"
 			" -a     \033[3mlist all files (including . files)\033[0m\n"
 			" -l     \033[3muse a long listing format\033[0m\n"
 			" -h     \033[3mhuman-readable file sizes\033[0m\n"
-			" -?     \033[3mshow this help text\033[0m\n"
-			"\n", argv[0]);
+			" -1     \033[3mlist one file per line\033[0m\n"
+			"\n");
+	exit(1);
 }
 
 static void display_tfiles(struct tfile ** ents_array, int numents) {
@@ -272,6 +272,9 @@ static void display_tfiles(struct tfile ** ents_array, int numents) {
 		for (int i = 0; i < numents; i++) {
 			print_entry_long(widths, ents_array[i]);
 		}
+	} else if (is_ls1) {
+		for (int i = 0; i < numents; i++)
+			puts(ents_array[i]->name);
 	} else {
 		/* Determine the gridding dimensions */
 		int ent_max_len = 0;
@@ -368,7 +371,7 @@ int main (int argc, char * argv[]) {
 
 	if (argc > 1) {
 		int c;
-		while ((c = getopt(argc, argv, "ahl?")) != -1) {
+		while ((c = getopt(argc, argv, "1ahl")) != -1) {
 			switch (c) {
 				case 'a':
 					show_hidden = 1;
@@ -379,9 +382,11 @@ int main (int argc, char * argv[]) {
 				case 'l':
 					long_mode = 1;
 					break;
-				case '?':
-					show_usage(argc, argv);
-					return 0;
+				case '1':
+					is_ls1 = 1;
+					break;
+				default:
+					usage();
 			}
 		}
 
