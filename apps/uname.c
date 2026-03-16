@@ -125,7 +125,7 @@ int main(int argc, char * argv[]) {
 
 	if (flags & FLAG_OSNAME) {
 		if (space++) printf(" ");
-		printf("%s", "ToaruOS");
+		printf("%s", "Toweru");
 	}
 
 	printf("\n");
