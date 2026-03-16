@@ -1056,10 +1056,12 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 	unsigned int depth = 0;
 	/* Find the mountpoint for this file */
 	fs_node_t *node_ptr = get_mount_point(path, path_depth, &path_offset, &depth);
+	if (!node_ptr) {
+		free(path);
+		return NULL;
+	}
 	debug_print(INFO, "path_offset: %s", path_offset);
 	debug_print(INFO, "depth: %d", depth);
-
-	if (!node_ptr) return NULL;
 
 	do {
 		/* 
