@@ -1017,6 +1017,10 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 	char *path = canonicalize_path(relative_to, filename);
 	/* And store the length once to save recalculations */
 	size_t path_len = strlen(path);
+	if (path_len == 0) {
+		free(path);
+		return NULL;
+	}
 
 	/* If strlen(path) == 1, then path = "/"; return root */
 	if (path_len == 1) {
@@ -1024,13 +1028,8 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 		fs_node_t *root_clone = malloc(sizeof(fs_node_t));
 		memcpy(root_clone, fs_root, sizeof(fs_node_t));
 		root_clone->refcount = 0;
-
-		/* Free the path */
 		free(path);
-
 		open_fs(root_clone, flags);
-
-		/* And return the clone */
 		return root_clone;
 	}
 
