@@ -735,13 +735,7 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	char *output = malloc(sizeof(char) * (size + 1));
 	char *output_offset = output;
 	if (size == 0) {
-		/*
-		 * If the path is empty, we take this to mean the root
-		 * thus we synthesize a path of "/" to return.
-		 */
-		output = realloc(output, sizeof(char) * 2);
-		output[0] = PATH_SEPARATOR;
-		output[1] = '\0';
+		output[0] = '\0';
 	} else {
 		/* Otherwise, append each element together */
 		foreach(item, out) {
