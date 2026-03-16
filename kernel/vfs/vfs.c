@@ -1056,10 +1056,8 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 	unsigned int depth = 0;
 	/* Find the mountpoint for this file */
 	fs_node_t *node_ptr = get_mount_point(path, path_depth, &path_offset, &depth);
-	if (!node_ptr) {
-		free(path);
-		return NULL;
-	}
+	if (!node_ptr)
+		goto fail1;
 	debug_print(INFO, "path_offset: %s", path_offset);
 	debug_print(INFO, "depth: %d", depth);
 
@@ -1078,16 +1076,12 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			if ((flags & O_NOFOLLOW) && depth == path_depth - 1) {
 				/* TODO(gerow): should probably be setting errno from this */
 				debug_print(NOTICE, "Refusing to follow final entry for open with O_NOFOLLOW for %s.", node_ptr->name);
-				free(path);
-				free(node_ptr);
-				return NULL;
+				goto fail2;
 			}
 			if (symlink_depth >= MAX_SYMLINK_DEPTH) {
 				/* TODO(gerow): should probably be setting errno from this */
 				debug_print(WARNING, "Reached max symlink depth on %s.", node_ptr->name);
-				free(path);
-				free(node_ptr);
-				return NULL;
+				goto fail2;
 			}
 			/* 
 			 * This may actually be big enough that we wouldn't want to allocate it on
@@ -1098,16 +1092,12 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			if (len < 0) {
 				/* TODO(gerow): should probably be setting errno from this */
 				debug_print(WARNING, "Got error %d from symlink for %s.", len, node_ptr->name);
-				free(path);
-				free(node_ptr);
-				return NULL;
+				goto fail2;
 			}
 			if (symlink_buf[len] != '\0') {
 				/* TODO(gerow): should probably be setting errno from this */
 				debug_print(WARNING, "readlink for %s doesn't end in a null pointer. That's weird...", node_ptr->name);
-				free(path);
-				free(node_ptr);
-				return NULL;
+				goto fail2;
 			}
 			fs_node_t * old_node_ptr = node_ptr;
 			/* Rebuild our path up to this point. This is hella hacky. */
@@ -1126,8 +1116,7 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			if (!node_ptr) {
 				/* Dangling symlink? */
 				debug_print(WARNING, "Failed to open symlink path %s. Perhaps it's a dangling symlink?", symlink_buf);
-				free(path);
-				return NULL;
+				goto fail1;
 			}
 		}
 		if (path_offset >= (path + path_len) || depth == path_depth) {
@@ -1142,25 +1131,25 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			 * TODO: kopen_recur has no way to pass along a failure reason?
 			 *       This will appear as 'ENOENT' instead of 'EACCESS', should fix that...
 			 */
-			free(node_ptr);
-			free(path);
-			return NULL;
+			goto fail2;
 		}
 		debug_print(INFO, "... Searching for %s", path_offset);
 		fs_node_t * node_next = finddir_fs(node_ptr, path_offset);
 		free(node_ptr); /* Always a clone or an unopened thing */
 		node_ptr = node_next;
 		/* Search the active directory for the requested directory */
-		if (!node_ptr) {
-			/* We failed to find the requested directory */
-			free(path);
-			return NULL;
-		}
+		if (!node_ptr)
+			goto fail1;
 		path_offset += strlen(path_offset) + 1;
 		++depth;
 	} while (depth < path_depth + 1);
 	debug_print(INFO, "- Not found.");
+fail1:
 	/* We failed to find the requested file, but our loop terminated. */
+	free(path);
+	return NULL;
+fail2:
+	free(node_ptr);
 	free(path);
 	return NULL;
 }
