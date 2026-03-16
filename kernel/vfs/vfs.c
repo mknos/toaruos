@@ -1130,15 +1130,10 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 				return NULL;
 			}
 		}
-		if (path_offset >= path+path_len) {
-			free(path);
-			open_fs(node_ptr, flags);
-			return node_ptr;
-		}
-		if (depth == path_depth) {
+		if (path_offset >= (path + path_len) || depth == path_depth) {
 			/* We found the file and are done, open the node */
-			open_fs(node_ptr, flags);
 			free(path);
+			open_fs(node_ptr, flags);
 			return node_ptr;
 		}
 		/* We are still searching... */
