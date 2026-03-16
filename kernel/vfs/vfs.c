@@ -201,7 +201,7 @@ ssize_t write_fs(fs_node_t *node, off_t offset, size_t size, uint8_t *buffer) {
 }
 
 /**
- * @brief set the size of a file to 9
+ * @brief set the size of a file to zero
  *
  * @param node File to resize
  */
@@ -1087,14 +1087,14 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			if ((flags & O_NOFOLLOW) && depth == path_depth - 1) {
 				/* TODO(gerow): should probably be setting errno from this */
 				debug_print(NOTICE, "Refusing to follow final entry for open with O_NOFOLLOW for %s.", node_ptr->name);
-				free((void *)path);
+				free(path);
 				free(node_ptr);
 				return NULL;
 			}
 			if (symlink_depth >= MAX_SYMLINK_DEPTH) {
 				/* TODO(gerow): should probably be setting errno from this */
 				debug_print(WARNING, "Reached max symlink depth on %s.", node_ptr->name);
-				free((void *)path);
+				free(path);
 				free(node_ptr);
 				return NULL;
 			}
@@ -1107,14 +1107,14 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			if (len < 0) {
 				/* TODO(gerow): should probably be setting errno from this */
 				debug_print(WARNING, "Got error %d from symlink for %s.", len, node_ptr->name);
-				free((void *)path);
+				free(path);
 				free(node_ptr);
 				return NULL;
 			}
 			if (symlink_buf[len] != '\0') {
 				/* TODO(gerow): should probably be setting errno from this */
 				debug_print(WARNING, "readlink for %s doesn't end in a null pointer. That's weird...", node_ptr->name);
-				free((void *)path);
+				free(path);
 				free(node_ptr);
 				return NULL;
 			}
@@ -1135,7 +1135,7 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			if (!node_ptr) {
 				/* Dangling symlink? */
 				debug_print(WARNING, "Failed to open symlink path %s. Perhaps it's a dangling symlink?", symlink_buf);
-				free((void *)path);
+				free(path);
 				return NULL;
 			}
 		}
@@ -1147,7 +1147,7 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 		if (depth == path_depth) {
 			/* We found the file and are done, open the node */
 			open_fs(node_ptr, flags);
-			free((void *)path);
+			free(path);
 			return node_ptr;
 		}
 		/* We are still searching... */
@@ -1157,7 +1157,7 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			 *       This will appear as 'ENOENT' instead of 'EACCESS', should fix that...
 			 */
 			free(node_ptr);
-			free((void*)path);
+			free(path);
 			return NULL;
 		}
 		debug_print(INFO, "... Searching for %s", path_offset);
@@ -1167,7 +1167,7 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 		/* Search the active directory for the requested directory */
 		if (!node_ptr) {
 			/* We failed to find the requested directory */
-			free((void *)path);
+			free(path);
 			return NULL;
 		}
 		path_offset += strlen(path_offset) + 1;
@@ -1175,7 +1175,7 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 	} while (depth < path_depth + 1);
 	debug_print(INFO, "- Not found.");
 	/* We failed to find the requested file, but our loop terminated. */
-	free((void *)path);
+	free(path);
 	return NULL;
 }
 
