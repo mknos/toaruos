@@ -128,14 +128,11 @@ static struct dirent * readdir_mapper(fs_node_t *node, unsigned long index) {
 }
 
 static fs_node_t * vfs_mapper(void) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(sizeof(fs_node_t), 1);
+	fnode->ctime = fnode->mtime = fnode->atime = now();
 	fnode->mask    = 0555;
 	fnode->flags   = FS_DIRECTORY;
 	fnode->readdir = readdir_mapper;
-	fnode->ctime   = now();
-	fnode->mtime   = now();
-	fnode->atime   = now();
 	return fnode;
 }
 
