@@ -1009,19 +1009,15 @@ fs_node_t *get_mount_point(char * path, unsigned int path_depth, char **outpath,
 
 fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_depth, char *relative_to) {
 	/* Simple sanity checks that we actually have a file system */
-	if (!filename) {
+	if (!filename)
 		return NULL;
-	}
+	if (!strlen(filename))
+		return NULL;
 
 	/* Canonicalize the (potentially relative) path... */
 	char *path = canonicalize_path(relative_to, filename);
 	/* And store the length once to save recalculations */
 	size_t path_len = strlen(path);
-	if (path_len == 0) {
-		free(path);
-		return NULL;
-	}
-
 	/* If strlen(path) == 1, then path = "/"; return root */
 	if (path_len == 1) {
 		/* Clone the root file system node */
