@@ -381,16 +381,14 @@ static struct dirent * readdir_packetfs(fs_node_t *node, uint64_t index) {
 	debug_print(INFO, "[pex] readdir(%lu)", index);
 
 	if (index == 0) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, ".");
 		return out;
 	}
 
 	if (index == 1) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, "..");
 		return out;
@@ -408,8 +406,7 @@ static struct dirent * readdir_packetfs(fs_node_t *node, uint64_t index) {
 		if (i == index) {
 			spin_unlock(p->lock);
 			pex_ex_t * t = (pex_ex_t *)f->value;
-			struct dirent * out = malloc(sizeof(struct dirent));
-			memset(out, 0x00, sizeof(struct dirent));
+			struct dirent * out = calloc(1, sizeof(struct dirent));
 			out->d_ino = (uint64_t)t;
 			strcpy(out->d_name, t->name);
 			return out;
@@ -424,8 +421,7 @@ static struct dirent * readdir_packetfs(fs_node_t *node, uint64_t index) {
 }
 
 static fs_node_t * file_from_pex(pex_ex_t * pex) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, pex->name);
 	fnode->device  = pex;
@@ -536,8 +532,7 @@ static fs_node_t * packetfs_manager(void) {
 
 	spin_init(pex->lock);
 
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, "pex");
 	fnode->device  = pex;

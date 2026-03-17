@@ -343,9 +343,8 @@ static void open_tmpfs(fs_node_t * node, unsigned int flags) {
 }
 
 static fs_node_t * tmpfs_from_file(struct tmpfs_file * t) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	spin_lock(t->lock);
-	memset(fnode, 0x00, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, t->name);
 	fnode->device = t;
@@ -390,16 +389,14 @@ static struct dirent * readdir_tmpfs(fs_node_t *node, uint64_t index) {
 	uint64_t i = 0;
 
 	if (index == 0) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, ".");
 		return out;
 	}
 
 	if (index == 1) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, "..");
 		return out;
@@ -412,8 +409,7 @@ static struct dirent * readdir_tmpfs(fs_node_t *node, uint64_t index) {
 	foreach(f, d->files) {
 		if (i == index) {
 			struct tmpfs_file * t = (struct tmpfs_file *)f->value;
-			struct dirent * out = malloc(sizeof(struct dirent));
-			memset(out, 0x00, sizeof(struct dirent));
+			struct dirent * out = calloc(1, sizeof(struct dirent));
 			out->d_ino = (uint64_t)t;
 			strcpy(out->d_name, t->name);
 			return out;
@@ -700,9 +696,8 @@ _cleanup_src:
 }
 
 static fs_node_t * tmpfs_from_dir(struct tmpfs_dir * d) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	spin_lock(d->lock);
-	memset(fnode, 0x00, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, "tmp");
 	fnode->mount = d->mount;

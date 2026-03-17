@@ -920,8 +920,7 @@ void map_vfs_directory(const char * c) {
 void debug_print_vfs_tree_node(tree_node_t * node, size_t height) {
 	/* End recursion on a blank entry */
 	if (!node) return;
-	char * tmp = malloc(512);
-	memset(tmp, 0, 512);
+	char * tmp = calloc(1, 512);
 	char * c = tmp;
 	/* Indent output */
 	for (uint32_t i = 0; i < height; ++i) {

@@ -528,9 +528,7 @@ static int wait_pty_slave(fs_node_t * node, void * process) {
 }
 
 fs_node_t * pty_master_create(pty_t * pty) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
-
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->name[0] = '\0';
 	snprintf(fnode->name, 100, "pty master");
 	fnode->uid   = this_core->current_process->user;
@@ -557,9 +555,7 @@ fs_node_t * pty_master_create(pty_t * pty) {
 }
 
 fs_node_t * pty_slave_create(pty_t * pty) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
-
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->name[0] = '\0';
 	snprintf(fnode->name, 100, "pty slave");
 	fnode->uid   = this_core->current_process->user;
@@ -624,8 +620,7 @@ static ssize_t readlink_dev_tty(fs_node_t * node, char * buf, size_t size) {
 }
 
 static fs_node_t * create_dev_tty(void) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, "tty");
 	fnode->mask = 0777;
@@ -643,16 +638,14 @@ static fs_node_t * create_dev_tty(void) {
 
 static struct dirent * readdir_pty(fs_node_t *node, unsigned long index) {
 	if (index == 0) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, ".");
 		return out;
 	}
 
 	if (index == 1) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, "..");
 		return out;
@@ -672,8 +665,7 @@ static struct dirent * readdir_pty(fs_node_t *node, unsigned long index) {
 	list_free(values);
 
 	if (out_pty) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = out_pty->name;
 		out->d_name[0] = '\0';
 		snprintf(out->d_name, 100, "%zd", out_pty->name);
@@ -705,8 +697,7 @@ static fs_node_t * finddir_pty(fs_node_t * node, char * name) {
 }
 
 static fs_node_t * create_pty_dir(void) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, "pty");
 	fnode->mask = 0555;

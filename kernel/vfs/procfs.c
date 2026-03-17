@@ -96,8 +96,7 @@ static void procfs_entry_close(fs_node_t * node) {
 }
 
 static fs_node_t * procfs_generic_create(const char * name, procfs_populate_t read_func) {
-	procfs_entry_t * entry = malloc(sizeof(procfs_entry_t));
-	memset(entry, 0x00, sizeof(procfs_entry_t));
+	procfs_entry_t * entry = calloc(1, sizeof(procfs_entry_t));
 	entry->fnode.inode = 0;
 	strcpy(entry->fnode.name, name);
 
@@ -241,16 +240,14 @@ static struct procfs_entry procdir_entries[] = {
 
 static struct dirent * readdir_procfs_procdir(fs_node_t *node, uint64_t index) {
 	if (index == 0) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, ".");
 		return out;
 	}
 
 	if (index == 1) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, "..");
 		return out;
@@ -259,8 +256,7 @@ static struct dirent * readdir_procfs_procdir(fs_node_t *node, uint64_t index) {
 	index -= 2;
 
 	if (index < PROCFS_PROCDIR_ENTRIES) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = procdir_entries[index].id;
 		strcpy(out->d_name, procdir_entries[index].name);
 		return out;
@@ -285,8 +281,7 @@ static fs_node_t * finddir_procfs_procdir(fs_node_t * node, char * name) {
 
 static fs_node_t * procfs_procdir_create(process_t * process) {
 	pid_t pid = process->id;
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = pid;
 	snprintf(fnode->name, 100, "%d", pid);
 	fnode->uid = 0;
@@ -617,24 +612,21 @@ int procfs_install(struct procfs_entry * entry) {
 
 static struct dirent * readdir_procfs_root(fs_node_t *node, uint64_t index) {
 	if (index == 0) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, ".");
 		return out;
 	}
 
 	if (index == 1) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, "..");
 		return out;
 	}
 
 	if (index == 2) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, "self");
 		return out;
@@ -643,8 +635,7 @@ static struct dirent * readdir_procfs_root(fs_node_t *node, uint64_t index) {
 	index -= 3;
 
 	if (index < PROCFS_STANDARD_ENTRIES) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = std_entries[index].id;
 		strcpy(out->d_name, std_entries[index].name);
 		return out;
@@ -662,8 +653,7 @@ static struct dirent * readdir_procfs_root(fs_node_t *node, uint64_t index) {
 			}
 
 			struct procfs_entry * e = n->value;
-			struct dirent * out = malloc(sizeof(struct dirent));
-			memset(out, 0x00, sizeof(struct dirent));
+			struct dirent * out = calloc(1, sizeof(struct dirent));
 			out->d_ino = e->id;
 			strcpy(out->d_name, e->name);
 			return out;
@@ -688,8 +678,7 @@ static struct dirent * readdir_procfs_root(fs_node_t *node, uint64_t index) {
 		return NULL;
 	}
 
-	struct dirent * out = malloc(sizeof(struct dirent));
-	memset(out, 0x00, sizeof(struct dirent));
+	struct dirent * out = calloc(1, sizeof(struct dirent));
 	out->d_ino  = pid;
 	snprintf(out->d_name, 100, "%d", pid);
 
@@ -715,8 +704,7 @@ static ssize_t readlink_self(fs_node_t * node, char * buf, size_t size) {
 }
 
 static fs_node_t * procfs_create_self(void) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, "self");
 	fnode->mask = 0777;
@@ -773,8 +761,7 @@ static fs_node_t * finddir_procfs_root(fs_node_t * node, char * name) {
 
 
 static fs_node_t * procfs_create(void) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, "proc");
 	fnode->mask = 0555;

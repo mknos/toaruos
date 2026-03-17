@@ -36,8 +36,7 @@ static ssize_t read_random(fs_node_t *node, off_t offset, size_t size, uint8_t *
 }
 
 static fs_node_t * random_device_create(void) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, "random");
 	fnode->uid = 0;

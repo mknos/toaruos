@@ -110,8 +110,7 @@ static ssize_t write_fs_console(fs_node_t * node, off_t offset, size_t size, uin
 }
 
 static fs_node_t * console_device_create(void) {
-	fs_node_t * fnode = malloc(sizeof(fs_node_t));
-	memset(fnode, 0x00, sizeof(fs_node_t));
+	fs_node_t * fnode = calloc(1, sizeof(fs_node_t));
 	fnode->inode = 0;
 	strcpy(fnode->name, "console");
 	fnode->uid = 0;

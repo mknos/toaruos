@@ -98,11 +98,8 @@ static int wait_pipe(fs_node_t * node, void * process) {
 int make_unix_pipe(fs_node_t ** pipes) {
 	size_t size = UNIX_PIPE_BUFFER;
 
-	pipes[0] = malloc(sizeof(fs_node_t));
-	pipes[1] = malloc(sizeof(fs_node_t));
-
-	memset(pipes[0], 0, sizeof(fs_node_t));
-	memset(pipes[1], 0, sizeof(fs_node_t));
+	pipes[0] = calloc(1, sizeof(fs_node_t));
+	pipes[1] = calloc(1, sizeof(fs_node_t));
 
 	snprintf(pipes[0]->name, 100, "[pipe:read]");
 	snprintf(pipes[1]->name, 100, "[pipe:write]");
