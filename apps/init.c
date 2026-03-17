@@ -47,7 +47,7 @@
 void set_console(void) {
 	syscall_open("/dev/null", 0, 0);
 	syscall_open("/dev/null", 1, 0);
-	syscall_open("/dev/null", 1, 0);
+	syscall_open("/dev/null", 2, 0);
 }
 
 /* Run a startup script and wait for it to finish */
