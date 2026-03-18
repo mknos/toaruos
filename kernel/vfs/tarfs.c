@@ -389,9 +389,7 @@ static fs_node_t * file_from_ustar(struct tarfs * self, struct ustar * file, uns
 	free(file);
 #if 0
 	/* TODO times are also available from the file */
-	fs->atime = now();
-	fs->mtime = now();
-	fs->ctime = now();
+	fs->ctime = fs->mtime = fs->atime = now();
 #endif
 	return fs;
 }

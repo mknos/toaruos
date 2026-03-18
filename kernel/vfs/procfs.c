@@ -115,9 +115,7 @@ static fs_node_t * procfs_generic_create(const char * name, procfs_populate_t re
 	entry->fnode.close   = procfs_entry_close;
 	entry->fnode.readdir = NULL;
 	entry->fnode.finddir = NULL;
-	entry->fnode.ctime   = now();
-	entry->fnode.mtime   = now();
-	entry->fnode.atime   = now();
+	entry->fnode.ctime = entry->fnode.mtime = entry->fnode.atime = now();
 	return &entry->fnode;
 }
 
@@ -714,9 +712,7 @@ static fs_node_t * procfs_create_self(void) {
 	fnode->readlink = readlink_self;
 	fnode->length  = 1;
 	fnode->nlink   = 1;
-	fnode->ctime   = now();
-	fnode->mtime   = now();
-	fnode->atime   = now();
+	fnode->ctime = fnode->mtime = fnode->atime = now();
 	return fnode;
 }
 
@@ -775,9 +771,7 @@ static fs_node_t * procfs_create(void) {
 	fnode->readdir = readdir_procfs_root;
 	fnode->finddir = finddir_procfs_root;
 	fnode->nlink   = 1;
-	fnode->ctime   = now();
-	fnode->mtime   = now();
-	fnode->atime   = now();
+	fnode->ctime = fnode->mtime = fnode->atime = now();
 	return fnode;
 }
 

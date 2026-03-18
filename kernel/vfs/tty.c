@@ -545,10 +545,7 @@ fs_node_t * pty_master_create(pty_t * pty) {
 	fnode->finddir = NULL;
 	fnode->ioctl = ioctl_pty_master;
 	fnode->get_size = pty_available_output;
-	fnode->ctime   = now();
-	fnode->mtime   = now();
-	fnode->atime   = now();
-
+	fnode->ctime = fnode->mtime = fnode->atime = now();
 	fnode->device = pty;
 
 	return fnode;
@@ -572,10 +569,7 @@ fs_node_t * pty_slave_create(pty_t * pty) {
 	fnode->finddir = NULL;
 	fnode->ioctl = ioctl_pty_slave;
 	fnode->get_size = pty_available_input;
-	fnode->ctime   = now();
-	fnode->mtime   = now();
-	fnode->atime   = now();
-
+	fnode->ctime = fnode->mtime = fnode->atime = now();
 	fnode->device = pty;
 
 	return fnode;
@@ -630,9 +624,7 @@ static fs_node_t * create_dev_tty(void) {
 	fnode->readlink = readlink_dev_tty;
 	fnode->length  = 1;
 	fnode->nlink   = 1;
-	fnode->ctime   = now();
-	fnode->mtime   = now();
-	fnode->atime   = now();
+	fnode->ctime = fnode->mtime = fnode->atime = now();
 	return fnode;
 }
 
@@ -711,9 +703,7 @@ static fs_node_t * create_pty_dir(void) {
 	fnode->readdir = readdir_pty;
 	fnode->finddir = finddir_pty;
 	fnode->nlink   = 1;
-	fnode->ctime   = now();
-	fnode->mtime   = now();
-	fnode->atime   = now();
+	fnode->ctime = fnode->mtime = fnode->atime = now();
 	return fnode;
 }
 

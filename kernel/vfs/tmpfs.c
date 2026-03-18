@@ -46,13 +46,8 @@ static struct tmpfs_file * tmpfs_file_new(char * name) {
 	t->mask = 0;
 	t->uid = 0;
 	t->gid = 0;
-	t->atime = now();
-	t->mtime = t->atime;
-	t->ctime = t->atime;
-	t->blocks = malloc(t->pointers * sizeof(char *));
-	for (size_t i = 0; i < t->pointers; ++i) {
-		t->blocks[i] = 0;
-	}
+	t->atime = t->mtime = t->ctime = now();
+	t->blocks = calloc(t->pointers, sizeof(char *));
 
 	return t;
 }
@@ -120,9 +115,7 @@ static struct tmpfs_dir * tmpfs_dir_new(char * name, struct tmpfs_dir * parent) 
 	d->mask = 0;
 	d->uid = 0;
 	d->gid = 0;
-	d->atime = now();
-	d->mtime = d->atime;
-	d->ctime = d->atime;
+	d->atime = d->mtime = d->ctime = now();
 	d->files = list_create("tmpfs directory entries",d);
 	return d;
 }
@@ -221,8 +214,7 @@ static ssize_t write_tmpfs(fs_node_t *node, off_t offset, size_t size, uint8_t *
 	struct tmpfs_file * t = (struct tmpfs_file *)(node->device);
 
 	spin_lock(t->lock);
-	t->atime = now();
-	t->mtime = t->atime;
+	t->atime = t->mtime = now();
 
 	uint64_t end;
 	if ((size_t)offset + size > t->length) {

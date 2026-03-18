@@ -274,9 +274,7 @@ fs_node_t * make_pipe(size_t size) {
 	fnode->selectcheck = pipe_check;
 	fnode->selectwait  = pipe_wait;
 
-	fnode->atime = now();
-	fnode->mtime = fnode->atime;
-	fnode->ctime = fnode->atime;
+	fnode->atime = fnode->mtime = fnode->ctime = now();
 
 	fnode->device = pipe;
 
