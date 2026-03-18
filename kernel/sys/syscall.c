@@ -856,18 +856,22 @@ long sys_chdir(char * newdir) {
 	fs_node_t * chd = kopen(newdir, 0);
 	if (chd) {
 		if ((chd->flags & FS_DIRECTORY) == 0) {
+			free(path);
 			close_fs(chd);
 			return -ENOTDIR;
 		}
 		if (!has_permission(chd, 01)) {
+			free(path);
 			close_fs(chd);
 			return -EACCES;
 		}
+		free(path);
 		close_fs(chd);
 		free(this_core->current_process->wd_name);
 		this_core->current_process->wd_name = strdup(path);
 		return 0;
 	} else {
+		free(path);
 		return -ENOENT;
 	}
 }
