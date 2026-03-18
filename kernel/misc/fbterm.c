@@ -123,18 +123,6 @@ static void draw_square(int x, int y) {
 	}
 }
 
-void fbterm_draw_logo(void) {
-	uint64_t logo_squares = 0x981818181818FFFFUL;
-	for (size_t y = 0; y < 8; ++y) {
-		for (size_t x = 0; x < 8; ++x) {
-			if (logo_squares & (1 << x)) {
-				draw_square(x,y);
-			}
-		}
-		logo_squares >>= 8;
-	}
-}
-
 void fbterm_reset(void) {
 	x = 0;
 	y = 0;
@@ -148,7 +136,6 @@ static void fbterm_init_framebuffer(void) {
 	get_width = fb_get_width;
 	get_height = fb_get_height;
 	scroll_terminal = fb_scroll_terminal;
-	fbterm_draw_logo();
 }
 
 static void ega_write_char(int x, int y, int ch, uint32_t color) {
