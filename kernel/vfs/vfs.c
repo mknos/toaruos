@@ -652,6 +652,13 @@ ssize_t readlink_fs(fs_node_t *node, char * buf, size_t size) {
  * @returns An absolute path string
  */
 char *canonicalize_path(const char *cwd, const char *input) {
+	// match /^\/+$/
+	const char *c = input;
+	while (*c == '/')
+		c++;
+	if (c == '\0')
+		return strdup("/");
+
 	/* This is a stack-based canonicalizer; we use a list as a stack */
 	list_t *out = list_create("vfs canonicalize_path working memory",input);
 
@@ -659,10 +666,8 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	 * If we have a relative path, we need to canonicalize
 	 * the working directory and insert it into the stack.
 	 */
-	if (strlen(input) && input[0] != PATH_SEPARATOR) {
-		/* Make a copy of the working directory */
-		char *path = malloc((strlen(cwd) + 1) * sizeof(char));
-		memcpy(path, cwd, strlen(cwd) + 1);
+	if (input[0] != PATH_SEPARATOR) {
+		char *path = strdup(cwd);
 
 		/* Setup tokenizer */
 		char *pch;
@@ -682,8 +687,7 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	}
 
 	/* Similarly, we need to push the elements from the new path */
-	char *path = malloc((strlen(input) + 1) * sizeof(char));
-	memcpy(path, input, strlen(input) + 1);
+	char *path = strdup(input);
 
 	/* Initialize the tokenizer... */
 	char *pch;
@@ -727,7 +731,6 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	/* Calculate the size of the path string */
 	size_t size = 0;
 	foreach(item, out) {
-		/* Helpful use of our foreach macro. */
 		size += strlen(item->value) + 1;
 	}
 
