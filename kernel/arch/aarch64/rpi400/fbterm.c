@@ -102,17 +102,6 @@ static void fb_scroll_terminal(void) {
 	memset(lfb_vid_memory + sizeof(uint32_t) * (lfb_resolution_y - char_height) * lfb_resolution_x, 0x00, char_height * lfb_resolution_x * 4);
 }
 
-static void draw_square(int x, int y) {
-	int center_x = lfb_resolution_x / 2;
-	int center_y = lfb_resolution_y / 2;
-	for (size_t _y = 0; _y < 7; ++_y) {
-		uint32_t color = 0xFF00B2FF - (y * 8 + _y) * 0x200;
-		for (size_t _x = 0; _x < 7; ++_x) {
-			set_point(center_x - 32 + x * 8 + _x, center_y - 32 + y * 8 + _y, color);
-		}
-	}
-}
-
 static void fbterm_init_framebuffer(void) {
 	write_char = fb_write_char;
 	get_width = fb_get_width;
