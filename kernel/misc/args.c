@@ -64,14 +64,14 @@ char * args_value(const char * karg) {
  * @param arg A string containing all arguments, separated by spaces.
  */
 void args_parse(const char * cmdline) {
-	/* Sanity check... */
-	if (!cmdline) { return; }
-	if (!kernel_args_map) { kernel_args_map = hashmap_create(10); }
+	if (!cmdline) return;
+	if (!kernel_args_map)
+		kernel_args_map = hashmap_create(10);
 	char * argbuf = strdup(cmdline);
 	char * x = argbuf;
 
 	for (;;) {
-		while (*x && *x == ' ') x++; /* skip spaces */
+		while (*x == ' ') x++; /* skip spaces */
 		if (!*x) break;
 
 		char * value = NULL;
@@ -125,7 +125,6 @@ void args_parse(const char * cmdline) {
 
 _parse_error:
 	free(argbuf);
-	return;
 }
 
 #ifndef _KERNEL_
