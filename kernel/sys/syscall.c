@@ -865,10 +865,10 @@ long sys_chdir(char * newdir) {
 			close_fs(chd);
 			return -EACCES;
 		}
-		free(path);
 		close_fs(chd);
 		free(this_core->current_process->wd_name);
 		this_core->current_process->wd_name = strdup(path);
+		free(path);
 		return 0;
 	} else {
 		free(path);
