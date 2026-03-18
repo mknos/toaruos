@@ -400,6 +400,10 @@ int main (int argc, char * argv[]) {
 
 
 	stdout_is_tty = isatty(STDOUT_FILENO);
+	if (!stdout_is_tty) {
+		is_ls1 = 1;
+		long_mode = 0;
+	}
 
 	if (long_mode) {
 		struct tm * timeinfo;
