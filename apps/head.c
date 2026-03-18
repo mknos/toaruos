@@ -40,6 +40,10 @@ int main(int argc, char * argv[]) {
 		argc++;
 	}
 
+	if (n < 0) {
+		fprintf(stderr, "%s: negative count not allowed for -n\n", argv[0]);
+		return 1;
+	}
 	for (int i = optind; i < argc; ++i) {
 		int is_stdin = !strcmp(argv[i], "-");
 		FILE *f = is_stdin ? stdin : fopen(argv[i], "r");
@@ -52,6 +56,12 @@ int main(int argc, char * argv[]) {
 		char *fname = is_stdin ? "standard input" : argv[i];
 		if (print_names)
 			fprintf(stdout, "==> %s <==\n", fname);
+
+		if (n == 0) {
+			if (!is_stdin)
+				fclose(f);
+			continue;
+		}
 
 		int line = 1;
 
@@ -70,9 +80,8 @@ int main(int argc, char * argv[]) {
 			}
 		}
 
-		if (f != stdin) {
+		if (!is_stdin)
 			fclose(f);
-		}
 	}
 
 	return retval;
