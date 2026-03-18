@@ -10,6 +10,7 @@
  * Copyright (C) 2018 K. Lange
  */
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
@@ -36,18 +37,52 @@ int compare(const char * a, const char * b) {
 	}
 }
 
+int numcompare(const char * a, const char * b) {
+	int64_t x, y;
+
+	while (1) {
+		// skip space
+		while (isspace((unsigned char) *a)) a++;
+		if (isdigit((unsigned char) *a) || *a == '-')
+			x = atoi(a);
+		else
+			x = 0;
+
+		while (isspace((unsigned char) *b)) b++;
+		if (isdigit((unsigned char) *b) || *b == '-')
+			y = atoi(b);
+		else
+			y = 0;
+
+		if (x == y) return 0;
+		if (x > y) return 1;
+		return -1;
+	}
+}
+
+void usage(void) {
+	fprintf(stderr, "usage: sort [-nr] [file ...]\n");
+	exit(1);
+}
+
 int main(int argc, char * argv[]) {
 	int reverse = 0;
+	int numeric = 0;
 	int opt;
 
 	list_t * lines = list_create();
 	list_t * files = list_create();
 
-	while ((opt = getopt(argc, argv, "r")) != -1) {
+	while ((opt = getopt(argc, argv, "nr")) != -1) {
 		switch (opt) {
+			case 'n':
+				numeric = 1;
+				break;
 			case 'r':
 				reverse = 1;
 				break;
+			default:
+				usage();
 		}
 	}
 
@@ -80,7 +115,19 @@ int main(int argc, char * argv[]) {
 			node_t * next = NULL;
 			foreach (lnode, lines) {
 				char * cmp = lnode->value;
-				if (reverse ? (compare(cmp, line) < 0) : (compare(line, cmp) < 0)) {
+				int match;
+				if (numeric) {
+					if (reverse)
+						match = numcompare(cmp, line);
+					else
+						match = numcompare(line, cmp);
+				} else {
+					if (reverse)
+						match = compare(cmp, line);
+					else
+						match = compare(line, cmp);
+				}
+				if (match < 0) {
 					next = lnode;
 					break;
 				}
