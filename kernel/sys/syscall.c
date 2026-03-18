@@ -995,19 +995,15 @@ long sys_execve(const char * filename, char *const argv[], char *const envp[]) {
 	}
 
 	char **argv_ = malloc(sizeof(char*) * (argc + 1));
-	for (int j = 0; j < argc; ++j) {
-		argv_[j] = malloc(strlen(argv[j]) + 1);
-		memcpy(argv_[j], argv[j], strlen(argv[j]) + 1);
-	}
-	argv_[argc] = 0;
+	for (int j = 0; j < argc; ++j)
+		argv_[j] = strdup(argv[j]);
+	argv_[argc] = NULL;
 	char ** envp_;
 	if (envp && envc) {
 		envp_ = malloc(sizeof(char*) * (envc + 1));
-		for (int j = 0; j < envc; ++j) {
-			envp_[j] = malloc(strlen(envp[j]) + 1);
-			memcpy(envp_[j], envp[j], strlen(envp[j]) + 1);
-		}
-		envp_[envc] = 0;
+		for (int j = 0; j < envc; ++j)
+			envp_[j] = strdup(envp[j]);
+		envp_[envc] = NULL;
 	} else {
 		envp_ = malloc(sizeof(char*));
 		envp_[0] = NULL;
