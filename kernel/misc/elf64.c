@@ -39,6 +39,8 @@ hashmap_t * modules_get_list(void) {
 	return _modules_table;
 }
 
+#if defined(__aarch64__)
+
 /**
  * Encode immediate for ADR(p) instruction
  */
@@ -54,6 +56,8 @@ static uint32_t aarch64_imm_adr(uint32_t val) {
 static uint32_t aarch64_imm_12(uint32_t val) {
 	return (val & 0xFFF) << 10;
 }
+
+#endif // defined(__aarch64__)
 
 int elf_module(char ** args) {
 	int error = 0;
@@ -333,10 +337,10 @@ int elf_exec(const char * path, fs_node_t * file, int argc, const char *const ar
 				*(char*)(phdr.p_vaddr + i) = 0;
 			}
 
-			#ifdef __aarch64__
+#if defined(__aarch64__)
 			extern void arch_clear_icache(uintptr_t,uintptr_t);
 			arch_clear_icache(phdr.p_vaddr, phdr.p_vaddr + phdr.p_memsz);
-			#endif
+#endif
 
 			if (phdr.p_vaddr + phdr.p_memsz > heapBase) {
 				heapBase = phdr.p_vaddr + phdr.p_memsz;
