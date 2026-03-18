@@ -656,7 +656,7 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	const char *c = input;
 	while (*c == '/')
 		c++;
-	if (c == '\0')
+	if (c != input && *c == '\0')
 		return strdup("/");
 
 	/* This is a stack-based canonicalizer; we use a list as a stack */
