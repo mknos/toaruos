@@ -72,9 +72,10 @@ p_t * build_entry(struct dirent * dent) {
 	}
 
 	if (proc->tgid != proc->pid) {
-		char tmp[100] = {0};
-		sprintf(tmp, "{%s}", proc->name);
-		memcpy(proc->name, tmp, strlen(tmp)+1);
+		char *name;
+		asprintf(&name, "{%s}", proc->name);
+		strncpy(proc->name, name, sizeof(proc->name));
+		free(name);
 	}
 
 	fclose(f);
