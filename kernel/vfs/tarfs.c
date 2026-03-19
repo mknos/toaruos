@@ -126,11 +126,11 @@ static char * strncat(char *dest, const char *src, size_t n) {
 
 static int count_slashes(char * string) {
 	int i = 0;
-	char * s = strstr(string, "/");
+	char * s = strchr(string, '/');
 	while (s) {
 		if (*(s+1) == '\0') return i;
 		i++;
-		s = strstr(s+1,"/");
+		s = strchr(s + 1, '/');
 	}
 	return i;
 }
@@ -172,7 +172,7 @@ static struct dirent * readdir_tar_root(fs_node_t *node, unsigned long index) {
 		strncat(filename_workspace, file->filename, 100);
 
 		if (!count_slashes(filename_workspace)) {
-			char * slash = strstr(filename_workspace,"/");
+			char * slash = strchr(filename_workspace, '/');
 			if (slash) *slash = '\0'; /* remove trailing slash */
 			if (strlen(filename_workspace)) {
 				if (index == 0) {
@@ -262,7 +262,7 @@ static struct dirent * readdir_tarfs(fs_node_t *node, unsigned long index) {
 			if (!count_slashes(filename_workspace + strlen(my_filename))) {
 				if (strlen(filename_workspace + strlen(my_filename))) {
 					if (index == 0) {
-						char * slash = strstr(filename_workspace+strlen(my_filename),"/");
+						char * slash = strchr(filename_workspace+strlen(my_filename), '/');
 						if (slash) *slash = '\0'; /* remove trailing slash */
 						struct dirent * out = calloc(1, sizeof(struct dirent));
 						out->d_ino = offset;
@@ -415,7 +415,7 @@ static fs_node_t * finddir_tar_root(fs_node_t *node, char *name) {
 		if (count_slashes(filename_workspace)) {
 			/* skip */
 		} else {
-			char * slash = strstr(filename_workspace,"/");
+			char * slash = strchr(filename_workspace, '/');
 			if (slash) *slash = '\0';
 			if (!strcmp(filename_workspace, name)) {
 				return file_from_ustar(self, file, offset);
