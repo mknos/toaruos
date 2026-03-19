@@ -172,6 +172,7 @@ static snd_device_t * snd_device_by_id(uint32_t device_id) {
 		cur = node->value;
 		if (cur->id == device_id) {
 			out = cur;
+			break;
 		}
 	}
 	spin_unlock(_devices_lock);
