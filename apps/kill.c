@@ -61,16 +61,13 @@ struct sig_def signals[] = {
 	{0,NULL},
 };
 
-void usage(char * argv[]) {
+void usage(void) {
 	printf(
-			"%s - send a signal to another process\n"
+			"usage: kill [-\033[3mx\033[0m] \033[3mprocess\033[0m\n"
 			"\n"
-			"usage: %s [-\033[3mx\033[0m] \033[3mprocess\033[0m\n"
-			"\n"
-			" -h --help       \033[3mShow this help message.\033[0m\n"
 			" -\033[3mx\033[0m              \033[3mSignal number to send\033[0m\n"
-			"\n",
-			argv[0], argv[0]);
+			"\n");
+	exit(1);
 }
 
 int main(int argc, char * argv[]) {
@@ -78,10 +75,8 @@ int main(int argc, char * argv[]) {
 	int pid = 0;
 	int i = 1;
 
-	if (argc < 2) {
-		usage(argv);
-		return 1;
-	}
+	if (argc < 2)
+		usage();
 
 	if (argv[1][0] == '-') {
 		signum = -1;
@@ -110,16 +105,13 @@ int main(int argc, char * argv[]) {
 		}
 		if (signum == -1) {
 			fprintf(stderr,"%s: %s: invalid signal specification\n",argv[0],argv[1]+1);
-			return 1;
+			usage();
 		}
 		i++;
 	}
 
-	if (i == argc) {
-		usage(argv);
-		return 1;
-	}
-
+	if (i == argc)
+		usage();
 	int retval = 0;
 
 	for (; i < argc; ++i) {
