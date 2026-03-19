@@ -399,8 +399,10 @@ int rename_file_fs(const char * src, const char * dest) {
 	const char * src_name = fs_basename(src);
 	const char * dest_name = fs_basename(dest);
 
-	if (!*src_name || !*dest_name) return -EINVAL;
-	if (*src_name == '/' || *dest_name == '/') return -EINVAL;
+	if (!*src_name || *src_name == '/' || !*dest_name || *dest_name == '/') {
+		out = -EINVAL;
+		goto _nope;
+	}
 
 	out = src_parent->mount->rename(src_parent->mount, src_parent, src_name, dest_parent, dest_name);
 
