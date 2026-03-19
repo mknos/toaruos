@@ -16,15 +16,6 @@
 #define BITOP(A, B, OP) \
  ((A)[(size_t)(B)/(8*sizeof *(A))] OP (size_t)1<<((size_t)(B)%(8*sizeof *(A))))
 
-unsigned short * memsetw(unsigned short * dest, unsigned short val, int count) {
-	int i = 0;
-	for ( ; i < count; ++i ) {
-		dest[i] = val;
-	}
-	return dest;
-}
-
-#if 1
 void * memcpy(void * restrict dest, const void * restrict src, size_t n) {
 	uint64_t * d_64 = dest;
 	const uint64_t * s_64 = src;
@@ -49,16 +40,6 @@ void * memcpy(void * restrict dest, const void * restrict src, size_t n) {
 
 	return dest;
 }
-#else
-/* FIXME why is there an x86-specific memcpy outside of the arch dir... */
-void * memcpy(void * restrict dest, const void * restrict src, size_t n) {
-	asm volatile("rep movsb"
-	            : : "D"(dest), "S"(src), "c"(n)
-	            : "flags", "memory");
-	return dest;
-}
-#endif
-
 
 size_t strlen(const char * s) {
 	const char * a = s;
@@ -245,16 +226,7 @@ char * stpcpy(char * restrict d, const char * restrict s) {
 }
 
 char * strcpy(char * restrict dest, const char * restrict src) {
-	stpcpy(dest, src);
-	return dest;
-}
-
-size_t lfind(const char * str, const char accept) {
-	return (size_t)strchr(str, accept);
-}
-
-size_t rfind(const char * str, const char accept) {
-	return (size_t)strrchr(str, accept);
+	return stpcpy(dest, src);
 }
 
 size_t strcspn(const char * s, const char * c) {
@@ -286,7 +258,7 @@ char * strtok_r(char * str, const char * delim, char ** saveptr) {
 	token = str;
 	str = strpbrk(token, delim);
 	if (str == NULL) {
-		*saveptr = (char *)lfind(token, '\0');
+		*saveptr = strchr(token, '\0');
 	} else {
 		*str = '\0';
 		*saveptr = str + 1;
@@ -473,10 +445,6 @@ char *strstr(const char * h, const char * n) {
 
 	/* Two-way on large needles */
 	return strstr_twoway((void *)h, (void *)n);
-}
-
-uint8_t startswith(const char * str, const char * accept) {
-	return strstr(str, accept) == str;
 }
 
 char * strdup(const char * c) {

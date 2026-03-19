@@ -258,7 +258,7 @@ static struct dirent * readdir_tarfs(fs_node_t *node, unsigned long index) {
 		strncat(filename_workspace, file->prefix, 155);
 		strncat(filename_workspace, file->filename, 100);
 
-		if (startswith(filename_workspace, my_filename)) {
+		if (strstr(filename_workspace, my_filename) == filename_workspace) {
 			if (!count_slashes(filename_workspace + strlen(my_filename))) {
 				if (strlen(filename_workspace + strlen(my_filename))) {
 					if (index == 0) {
