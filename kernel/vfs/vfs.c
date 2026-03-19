@@ -18,6 +18,7 @@
  */
 #include <stddef.h>
 #include <stdint.h>
+#include <errno.h>
 #include <kernel/printf.h>
 #include <kernel/string.h>
 #include <kernel/vfs.h>
