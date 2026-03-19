@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <errno.h>
 #include <kernel/vfs.h>
 #include <kernel/string.h>
 

@@ -19,7 +19,6 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2014-2021 K. Lange
  */
-#include <errno.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <kernel/assert.h>

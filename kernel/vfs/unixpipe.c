@@ -9,7 +9,6 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2014-2021 K. Lange
  */
-#include <errno.h>
 #include <kernel/types.h>
 #include <kernel/printf.h>
 #include <kernel/pipe.h>

@@ -11,7 +11,6 @@
  * Copyright (C) 2014-2021 K. Lange
  */
 #include <stdint.h>
-#include <errno.h>
 #include <kernel/types.h>
 #include <kernel/string.h>
 #include <kernel/printf.h>
