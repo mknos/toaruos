@@ -77,8 +77,7 @@ static shm_node_t * _get_node(char * shm_path, int create, tree_node_t * from) {
 }
 
 static shm_node_t * get_node (char * shm_path, int create) {
-	char * _path = malloc(strlen(shm_path)+1);
-	memcpy(_path, shm_path, strlen(shm_path)+1);
+	char * _path = strdup(shm_path);
 
 	shm_node_t * node = _get_node(_path, create, shm_tree->root);
 
@@ -103,7 +102,7 @@ static shm_chunk_t * create_chunk (shm_node_t * parent, size_t size) {
 	chunk->ref_count = 1;
 
 	chunk->num_frames = (size / 0x1000) + ((size % 0x1000) ? 1 : 0);
-	chunk->frames = malloc(sizeof(uintptr_t) * chunk->num_frames);
+	chunk->frames = calloc(chunk->num_frames, sizeof(uintptr_t));
 	if (chunk->frames == NULL) {
 		free(chunk);
 		return NULL;
@@ -169,7 +168,7 @@ static void * map_in (shm_chunk_t * chunk, volatile process_t * volatile proc) {
 	shm_mapping_t * mapping = malloc(sizeof(shm_mapping_t));
 	mapping->chunk = chunk;
 	mapping->num_vaddrs = chunk->num_frames;
-	mapping->vaddrs = malloc(sizeof(uintptr_t) * mapping->num_vaddrs);
+	mapping->vaddrs = calloc(mapping->num_vaddrs, sizeof(uintptr_t));
 
 	uintptr_t last_address = USER_SHM_LOW;
 	foreach(node, proc->shm_mappings) {

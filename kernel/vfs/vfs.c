@@ -676,10 +676,7 @@ char *canonicalize_path(const char *cwd, const char *input) {
 
 		/* Start tokenizing */
 		while (pch != NULL) {
-			/* Make copies of the path elements */
-			char *s = malloc(sizeof(char) * (strlen(pch) + 1));
-			memcpy(s, pch, strlen(pch) + 1);
-			/* And push them */
+			char *s = strdup(pch);
 			list_insert(out, s);
 			pch = strtok_r(NULL,PATH_SEPARATOR_STRING,&save);
 		}
@@ -720,8 +717,7 @@ char *canonicalize_path(const char *cwd, const char *input) {
 			 * Regular path, push it
 			 * XXX: Path elements should be checked for existence!
 			 */
-			char * s = malloc(sizeof(char) * (strlen(pch) + 1));
-			memcpy(s, pch, strlen(pch) + 1);
+			char * s = strdup(pch);
 			list_insert(out, s);
 		}
 		pch = strtok_r(NULL, PATH_SEPARATOR_STRING, &save);
@@ -735,7 +731,7 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	}
 
 	/* join() the list */
-	char *output = malloc(sizeof(char) * (size + 1));
+	char *output = calloc(size + 1, sizeof(char));
 	char *output_offset = output;
 	if (size == 0) {
 		output[0] = '\0';

@@ -59,8 +59,7 @@ hashmap_t * hashmap_create(int size) {
 	map->hash_val_free = &free;
 
 	map->size = size;
-	map->entries = malloc(sizeof(hashmap_entry_t *) * size);
-	memset(map->entries, 0x00, sizeof(hashmap_entry_t *) * size);
+	map->entries = calloc(size, sizeof(hashmap_entry_t *));
 
 	return map;
 }
@@ -75,8 +74,7 @@ hashmap_t * hashmap_create_int(int size) {
 	map->hash_val_free = &free;
 
 	map->size = size;
-	map->entries = malloc(sizeof(hashmap_entry_t *) * size);
-	memset(map->entries, 0x00, sizeof(hashmap_entry_t *) * size);
+	map->entries = calloc(size, sizeof(hashmap_entry_t *));
 
 	return map;
 }

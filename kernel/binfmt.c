@@ -128,11 +128,10 @@ int exec(const char * path, int argc, char *const argv[], char *const env[], int
  * from the kernel boot context, and then calls @ref exec.
  */
 int system(const char * path, int argc, char *const argv[], char *const envin[]) {
-	char ** argv_ = malloc(sizeof(char*) * (argc + 1));
-	for (int j = 0; j < argc; ++j) {
-		argv_[j] = malloc((strlen(argv[j]) + 1));
-		memcpy((void*)argv_[j], argv[j], strlen(argv[j]) + 1);
-	}
+	char ** argv_ = calloc(argc + 1, sizeof(char*));
+	for (int j = 0; j < argc; ++j)
+		argv_[j] = strdup(argv[j]);
+
 	argv_[argc] = NULL;
 	char * env[] = {NULL};
 	this_core->current_process->thread.page_directory = malloc(sizeof(page_directory_t));

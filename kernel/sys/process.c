@@ -459,9 +459,9 @@ process_t * spawn_init(void) {
 	init->fds->refs     = 1;
 	init->fds->length   = 0;
 	init->fds->capacity = 4;
-	init->fds->entries  = malloc(init->fds->capacity * sizeof(fs_node_t *));
-	init->fds->modes    = malloc(init->fds->capacity * sizeof(int));
-	init->fds->offsets  = malloc(init->fds->capacity * sizeof(uint64_t));
+	init->fds->entries  = calloc(init->fds->capacity, sizeof(fs_node_t *));
+	init->fds->modes    = calloc(init->fds->capacity, sizeof(int));
+	init->fds->offsets  = calloc(init->fds->capacity, sizeof(uint64_t));
 	spin_init(init->fds->lock);
 
 	init->wd_node = clone_fs(fs_root);
@@ -518,7 +518,7 @@ process_t * spawn_process(volatile process_t * parent, int flags) {
 
 	if (parent->supplementary_group_count) {
 		proc->supplementary_group_count = parent->supplementary_group_count;
-		proc->supplementary_group_list = malloc(sizeof(gid_t) * proc->supplementary_group_count);
+		proc->supplementary_group_list = calloc(proc->supplementary_group_count, sizeof(gid_t));
 		for (int i = 0; i < proc->supplementary_group_count; ++i) {
 			proc->supplementary_group_list[i] = parent->supplementary_group_list[i];
 		}
@@ -550,9 +550,9 @@ process_t * spawn_process(volatile process_t * parent, int flags) {
 		spin_lock(parent->fds->lock);
 		proc->fds->length = parent->fds->length;
 		proc->fds->capacity = parent->fds->capacity;
-		proc->fds->entries = malloc(proc->fds->capacity * sizeof(fs_node_t *));
-		proc->fds->modes   = malloc(proc->fds->capacity * sizeof(int));
-		proc->fds->offsets = malloc(proc->fds->capacity * sizeof(uint64_t));
+		proc->fds->entries = calloc(proc->fds->capacity, sizeof(fs_node_t *));
+		proc->fds->modes   = calloc(proc->fds->capacity, sizeof(int));
+		proc->fds->offsets = calloc(proc->fds->capacity, sizeof(uint64_t));
 		for (uint32_t i = 0; i < parent->fds->length; ++i) {
 			proc->fds->entries[i] = clone_fs(parent->fds->entries[i]);
 			proc->fds->modes[i]   = parent->fds->modes[i];

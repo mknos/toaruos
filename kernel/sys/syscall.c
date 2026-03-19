@@ -182,7 +182,7 @@ long sys_sysfunc(long fn, char ** args) {
 				count++;
 				arg++;
 			}
-			this_core->current_process->cmdline = malloc(sizeof(char*)*(count+1));
+			this_core->current_process->cmdline = calloc(count + 1, sizeof(char*));
 			int i = 0;
 			while (i < count) {
 				this_core->current_process->cmdline[i] = strdup(args[i]);
@@ -747,7 +747,7 @@ long sys_setgroups(int size, const gid_t list[]) {
 	this_core->current_process->supplementary_group_count = size;
 	if (size == 0) return 0;
 
-	this_core->current_process->supplementary_group_list = malloc(sizeof(gid_t) * size);
+	this_core->current_process->supplementary_group_list = calloc(size, sizeof(gid_t));
 
 	PTR_VALIDATE(list);
 	if (!list) return -EFAULT;
@@ -994,13 +994,13 @@ long sys_execve(const char * filename, char *const argv[], char *const envp[]) {
 		}
 	}
 
-	char **argv_ = malloc(sizeof(char*) * (argc + 1));
+	char **argv_ = calloc(argc + 1, sizeof(char*));
 	for (int j = 0; j < argc; ++j)
 		argv_[j] = strdup(argv[j]);
 	argv_[argc] = NULL;
 	char ** envp_;
 	if (envp && envc) {
-		envp_ = malloc(sizeof(char*) * (envc + 1));
+		envp_ = calloc(envc + 1, sizeof(char*));
 		for (int j = 0; j < envc; ++j)
 			envp_[j] = strdup(envp[j]);
 		envp_[envc] = NULL;
@@ -1185,7 +1185,7 @@ long sys_fswait(int c, int fds[]) {
 	for (int i = 0; i < c; ++i) {
 		if (!FD_CHECK(fds[i])) return -EBADF;
 	}
-	fs_node_t ** nodes = malloc(sizeof(fs_node_t *)*(c+1));
+	fs_node_t ** nodes = calloc(c + 1, sizeof(fs_node_t *));
 	for (int i = 0; i < c; ++i) {
 		nodes[i] = FD_ENTRY(fds[i]);
 	}
@@ -1202,7 +1202,7 @@ long sys_fswait_timeout(int c, int fds[], int timeout) {
 	for (int i = 0; i < c; ++i) {
 		if (!FD_CHECK(fds[i])) return -EBADF;
 	}
-	fs_node_t ** nodes = malloc(sizeof(fs_node_t *)*(c+1));
+	fs_node_t ** nodes = calloc(c + 1, sizeof(fs_node_t *));
 	for (int i = 0; i < c; ++i) {
 		nodes[i] = FD_ENTRY(fds[i]);
 	}
