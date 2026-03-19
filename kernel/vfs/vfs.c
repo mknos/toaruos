@@ -521,13 +521,11 @@ int unlink_fs(char * name) {
 
 int mkdir_fs(char *name, mode_t permission) {
 	fs_node_t * parent;
+	if (!name || !strlen(name))
+		return -EINVAL;
+
 	char *cwd = (char *)(this_core->current_process->wd_name);
 	char *path = canonicalize_path(cwd, name);
-
-	if (!name || !strlen(name)) {
-		return -EINVAL;
-	}
-
 	char * parent_path = malloc(strlen(path) + 5);
 	snprintf(parent_path, strlen(path) + 4, "%s/..", path);
 
@@ -556,6 +554,8 @@ int mkdir_fs(char *name, mode_t permission) {
 
 	if (!f_path || !strlen(f_path)) {
 		/* Odd edge case with / */
+		free(path);
+		close_fs(parent);
 		return -EEXIST;
 	}
 
