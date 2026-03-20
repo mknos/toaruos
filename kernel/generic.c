@@ -49,7 +49,8 @@ void generic_startup(void) {
 	procfs_initialize();
 	random_initialize();
 	snd_install();
-	net_install();
+	if (!args_present("dark"))
+		net_install();
 	tasking_start();
 	modules_install();
 }
@@ -64,15 +65,12 @@ int generic_main(void) {
 	}
 
 	const char * boot_arg = NULL;
-
-	if (args_present("args")) {
+	if (args_present("args"))
 		boot_arg = strdup(args_value("args"));
-	}
 
 	const char * boot_app = "/bin/init";
-	if (args_present("init")) {
-		boot_app = args_value("init");
-	}
+	if (args_present("init"))
+		boot_app = strdup(args_value("init"));
 
 	dprintf("generic: Running %s as init process.\n", boot_app);
 
