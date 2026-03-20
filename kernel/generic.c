@@ -21,6 +21,7 @@
 #include <kernel/printf.h>
 #include <kernel/misc.h>
 #include <kernel/syscall.h>
+#include <syscall_nums.h>
 
 extern int system(const char * path, int argc, const char ** argv, const char ** envin);
 extern void tarfs_register_init(void);
