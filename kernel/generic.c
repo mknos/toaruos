@@ -76,8 +76,8 @@ int generic_main(void) {
 
 	dprintf("generic: Running %s as init process.\n", boot_app);
 
-	int argc = boot_arg ? 3 : 2;
-	const char ** argv = calloc(argc, sizeof(char *));
+	int argc = boot_arg ? 2 : 1;
+	const char ** argv = calloc(argc + 1, sizeof(char *));
 	argv[0] = boot_app;
 	argv[1] = boot_arg;
 	system(argv[0], argc, argv, NULL);
