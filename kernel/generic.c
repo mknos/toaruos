@@ -52,18 +52,18 @@ void generic_startup(void) {
 	random_initialize();
 	snd_install();
 	if (args_present("dark")) {
-		syscalls[SYS_SOCKET] = &sys_notimp;
-		syscalls[SYS_SETSOCKOPT] = &sys_notimp;
-		syscalls[SYS_BIND] = &sys_notimp;
-		syscalls[SYS_ACCEPT] = &sys_notimp;
-		syscalls[SYS_LISTEN] = &sys_notimp;
-		syscalls[SYS_CONNECT] = &sys_notimp;
-		syscalls[SYS_GETSOCKOPT] = &sys_notimp;
-		syscalls[SYS_RECV] = &sys_notimp;
-		syscalls[SYS_SEND] = &sys_notimp;
-		syscalls[SYS_SHUTDOWN] = &sys_notimp;
-		syscalls[SYS_GETSOCKNAME] = &sys_notimp;
-		syscalls[SYS_GETPEERNAME] = &sys_notimp;
+		syscall_forbid(SYS_SOCKET);
+		syscall_forbid(SYS_SETSOCKOPT);
+		syscall_forbid(SYS_BIND);
+		syscall_forbid(SYS_ACCEPT);
+		syscall_forbid(SYS_LISTEN);
+		syscall_forbid(SYS_CONNECT);
+		syscall_forbid(SYS_GETSOCKOPT);
+		syscall_forbid(SYS_RECV);
+		syscall_forbid(SYS_SEND);
+		syscall_forbid(SYS_SHUTDOWN);
+		syscall_forbid(SYS_GETSOCKNAME);
+		syscall_forbid(SYS_GETPEERNAME);
 	} else
 		net_install();
 	tasking_start();

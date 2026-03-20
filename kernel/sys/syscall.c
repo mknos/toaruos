@@ -1411,6 +1411,12 @@ static scall_func syscalls[] = {
 
 static long num_syscalls = sizeof(syscalls) / sizeof(*syscalls);
 
+void syscall_forbid(int num) {
+	if (num < 0 || num >= num_syscalls)
+		return;
+	syscalls[num] = &sys_notimp;
+}
+
 void syscall_handler(struct regs * r) {
 
 	this_core->current_process->syscall_registers = r;

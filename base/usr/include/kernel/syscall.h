@@ -32,4 +32,4 @@ extern long arch_user_ip(struct regs * r);
 extern void arch_syscall_return(struct regs * r, long retval);
 
 extern void syscall_handler(struct regs * r);
-extern long sys_notimp(void);
+extern void syscall_forbid(int);
