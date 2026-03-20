@@ -25,6 +25,7 @@
 #include <kernel/net/netif.h>
 #include <kernel/net/eth.h>
 #include <kernel/module.h>
+#include <kernel/args.h>
 #include <errno.h>
 
 #if defined(__x86_64__)
@@ -625,6 +626,8 @@ static void find_e1000(uint32_t device, uint16_t vendorid, uint16_t deviceid, vo
 }
 
 static int e1000_install(int argc, char * argv[]) {
+	if (args_present("dark")) // net_install() bypassed
+		return 0;
 	uint32_t found = 0;
 	pci_scan(&find_e1000, -1, &found);
 
