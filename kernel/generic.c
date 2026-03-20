@@ -20,6 +20,7 @@
 #include <kernel/string.h>
 #include <kernel/printf.h>
 #include <kernel/misc.h>
+#include <kernel/syscall.h>
 
 extern int system(const char * path, int argc, const char ** argv, const char ** envin);
 extern void tarfs_register_init(void);
@@ -49,7 +50,20 @@ void generic_startup(void) {
 	procfs_initialize();
 	random_initialize();
 	snd_install();
-	if (!args_present("dark"))
+	if (args_present("dark")) {
+		syscalls[SYS_SOCKET] = &sys_notimp;
+		syscalls[SYS_SETSOCKOPT] = &sys_notimp;
+		syscalls[SYS_BIND] = &sys_notimp;
+		syscalls[SYS_ACCEPT] = &sys_notimp;
+		syscalls[SYS_LISTEN] = &sys_notimp;
+		syscalls[SYS_CONNECT] = &sys_notimp;
+		syscalls[SYS_GETSOCKOPT] = &sys_notimp;
+		syscalls[SYS_RECV] = &sys_notimp;
+		syscalls[SYS_SEND] = &sys_notimp;
+		syscalls[SYS_SHUTDOWN] = &sys_notimp;
+		syscalls[SYS_GETSOCKNAME] = &sys_notimp;
+		syscalls[SYS_GETPEERNAME] = &sys_notimp;
+	} else
 		net_install();
 	tasking_start();
 	modules_install();

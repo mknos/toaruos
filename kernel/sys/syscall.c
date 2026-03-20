@@ -1309,6 +1309,10 @@ long sys_times(struct tms *buf) {
 	return arch_perf_timer() / arch_cpu_mhz();
 }
 
+long sys_notimp(void) {
+	return -ENOSYS;
+}
+
 extern long ptrace_handle(long,pid_t,void*,void*);
 
 typedef long (*scall_func)(long,long,long,long,long);
