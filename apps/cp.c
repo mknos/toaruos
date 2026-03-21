@@ -155,8 +155,8 @@ static int copy_top_level(char **argv, int argc, int optind) {
 	int ret = 0;
 
 	struct stat statbuf;
-	stat((destination), &statbuf);
-	if (S_ISDIR(statbuf.st_mode)) {
+	int r = stat(destination, &statbuf);
+	if (r == 0 && S_ISDIR(statbuf.st_mode)) {
 		while (optind < argc - 1) {
 			char * source = strrchr(argv[optind], '/');
 			if (!source) source = argv[optind];
