@@ -72,6 +72,8 @@ int main(int argc, char * argv[]) {
 				retval = 1;
 				break;
 			}
+			if (c == EOF)
+				break;
 			fputc(c, stdout);
 
 			if (c == '\n') {
