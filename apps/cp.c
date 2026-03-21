@@ -32,8 +32,6 @@ static int copy_link(char * source, char * dest, int mode, int uid, int gid) {
 	readlink(source, tmp, 1024);
 	symlink(tmp, dest);
 	chmod(dest, mode);
-	chown(dest, uid, gid);
-
 	return 0;
 }
 
@@ -83,11 +81,6 @@ static int copy_file(char * source, char * dest, int mode,int uid, int gid) {
 
 	close(s_fd);
 	close(d_fd);
-
-	if (chown(dest, uid, gid) < 0) {
-		fprintf(stderr, APP_NAME ": %s: %s\n", dest, strerror(errno));
-		return 1;
-	}
 	return 0;
 }
 
@@ -124,9 +117,6 @@ static int copy_directory(char * source, char * dest, int mode, int uid, int gid
 		ent = readdir(dirp);
 	}
 	closedir(dirp);
-
-	chown(dest, uid, gid);
-
 	return ret;
 }
 
