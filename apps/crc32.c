@@ -8,6 +8,7 @@
  */
 #include <stdio.h>
 #include <errno.h>
+#include <stdlib.h>
 #include <string.h>
 
 static unsigned int crctab[256] = {
@@ -59,22 +60,35 @@ static unsigned int crctab[256] = {
 #define RBUF_SIZE 10240
 
 int main(int argc, char * argv[]) {
-	if (argc < 2) {
-		fprintf(stderr, "usage: %s FILE\n", argv[0]);
+	FILE *f;
+	char *fname;
+	switch (argc) {
+	case 1:
+		f = stdin;
+		fname = "<STDIN>";
+		break;
+	case 2:
+		f = fopen(argv[1], "r");
+		fname = argv[1];
+		break;
+	default:
+		fprintf(stderr, "usage: %s [file]\n", argv[0]);
 		return 1;
 	}
-	FILE * f = fopen(argv[1], "r");
 	if (!f) {
-		fprintf(stderr, "%s: %s: %s\n", argv[0], argv[1], strerror(errno));
+		fprintf(stderr, "%s: %s: %s\n", argv[0], fname, strerror(errno));
 		return 1;
 	}
-
-	char buf[RBUF_SIZE];
+	char *buf = malloc(RBUF_SIZE);
+	if (buf == NULL) {
+		perror("malloc");
+		return 1;
+	}
 	unsigned int crc32 = 0xffffffff;
 	while (!feof(f)) {
 		size_t r = fread(buf, 1, RBUF_SIZE, f);
 		if (r == 0 && ferror(f)) {
-			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[1], strerror(errno));
+			fprintf(stderr, "%s: %s: %s\n", argv[0], fname, strerror(errno));
 			return 1;
 		}
 		for (size_t i = 0; i < r; ++i) {
@@ -83,7 +97,7 @@ int main(int argc, char * argv[]) {
 		}
 	}
 	crc32 ^= 0xffffffff;
-
-	fprintf(stdout, "%8x\n", (unsigned int)crc32);
+	free(buf);
+	fprintf(stdout, "%8x\n", crc32);
 	return 0;
 }
