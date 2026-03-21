@@ -75,6 +75,10 @@ static int copy_file(char * source, char * dest, int mode,int uid, int gid) {
 			fprintf(stderr, APP_NAME ": %s: %s\n", dest, strerror(errno));
 			return 1;
 		}
+		if (w < r) {
+			fprintf(stderr, APP_NAME ": %s: short write\n", dest);
+			return 1;
+		}
 		length -= r; /* Actually should be -w, but let's not get into that now... this should probably use stdio anyway */
 		//fprintf(stderr, "%d bytes remaining\n", length);
 	}
