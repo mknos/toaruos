@@ -50,14 +50,15 @@ static int copy_file(char * source, char * dest, int mode,int uid, int gid) {
 		return 1;
 	}
 
-	ssize_t length;
-	length = lseek(s_fd, 0, SEEK_END);
+	ssize_t length = lseek(s_fd, 0, SEEK_END);
 	if (length < 0) {
 		fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
 		return 1;
 	}
-
-	lseek(s_fd, 0, SEEK_SET);
+	if (lseek(s_fd, 0, SEEK_SET) == -1) {
+		fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
+		return 1;
+	}
 
 	//fprintf(stderr, "%d bytes to copy\n", length);
 
