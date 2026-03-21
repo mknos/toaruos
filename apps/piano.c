@@ -9,7 +9,6 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/ioctl.h>
 #include <termios.h>
 
 int spkr = 0;
@@ -42,7 +41,7 @@ int main(int argc, char * argv[]) {
 
 	spkr = open("/dev/spkr", O_WRONLY);
 	if (spkr == -1) {
-		fprintf(stderr, "%s: could not open speaker\n", argv[0]);
+		perror("/dev/spkr");
 		return 1;
 	}
 
