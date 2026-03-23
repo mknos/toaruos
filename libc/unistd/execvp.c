@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <syscall.h>
 #include <syscall_nums.h>
@@ -18,13 +19,15 @@ int execve(const char *name, char * const argv[], char * const envp[]) {
 }
 
 int execvpe(const char *file, char *const argv[], char *const envp[]) {
-	if (file && (!strstr(file, "/"))) {
+	assert(file != NULL);
+	if (strstr(file, "/") == NULL) {
 		/* We don't quite understand "$PATH", so... */
 		char * path = getenv("PATH");
-		if (!path) {
+		if (path == NULL)
 			path = DEFAULT_PATH;
-		}
 		char * xpath = strdup(path);
+		if (xpath == NULL)
+			return -1;
 		char * p, * last;
 		for ((p = strtok_r(xpath, ":", &last)); p; p = strtok_r(NULL, ":", &last)) {
 			int r;
@@ -49,11 +52,8 @@ int execvpe(const char *file, char *const argv[], char *const envp[]) {
 		free(xpath);
 		errno = ENOENT;
 		return -1;
-	} else if (file) {
-		return execve(file, argv, envp);
 	}
-	errno = ENOENT;
-	return -1;
+	return execve(file, argv, envp);
 }
 
 int execvp(const char *file, char *const argv[]) {
