@@ -27,6 +27,11 @@ static int recursive = 1;
 #include "cp.c"
 #include "rm.c"
 
+void usage(void) {
+	fprintf(stderr, "usage: mv [-if] source_file... destination\n");
+	exit(1);
+}
+
 int main(int argc, char * argv[]) {
 	int opt;
 	int interactive = 0;
@@ -43,15 +48,12 @@ int main(int argc, char * argv[]) {
 				interactive = 0;
 				break;
 			default:
-				fprintf(stderr, "mv: unrecognized option '%c'\n", opt);
-				return 1;
+				usage();
 		}
 	}
 
-	if (optind + 1 >= argc) {
-		fprintf(stderr, "usage: %s [-if] source_file... destination\n", argv[0]);
-		return 1;
-	}
+	if (optind + 1 >= argc)
+		usage();
 
 	char * destination = argv[argc-1];
 
