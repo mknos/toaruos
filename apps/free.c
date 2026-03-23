@@ -11,19 +11,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-void show_usage(int argc, char * argv[]) {
+void usage(void) {
 	printf(
-			"free - show available memory\n"
-			"\n"
-			"usage: %s [-utk?]\n"
+			"usage: free [-utk]\n"
 			"\n"
 			" -u     \033[3mshow used instead of free\033[0m\n"
 			" -t     \033[3minclude a total\033[0m\n"
 			" -k     \033[3muse kilobytes instead of megabytes\033[0m\n"
-			" -?     \033[3mshow this help text\033[0m\n"
-			"\n", argv[0]);
+			"\n");
+	exit(1);
 }
-
 
 int main(int argc, char * argv[]) {
 	int show_used = 0;
@@ -31,7 +28,7 @@ int main(int argc, char * argv[]) {
 	int show_total = 0;
 
 	int c;
-	while ((c = getopt(argc, argv, "utk?")) != -1) {
+	while ((c = getopt(argc, argv, "utk")) != -1) {
 		switch (c) {
 			case 'u':
 				show_used = 1;
@@ -42,9 +39,8 @@ int main(int argc, char * argv[]) {
 			case 'k':
 				use_kilobytes = 1;
 				break;
-			case '?':
-				show_usage(argc, argv);
-				return 0;
+			default:
+				usage();
 		}
 	}
 
