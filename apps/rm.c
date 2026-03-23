@@ -99,8 +99,7 @@ int main(int argc, char * argv[]) {
 				/* ignore */
 				break;
 			default:
-				fprintf(stderr, "rm: unrecognized option '%c'\n", opt);
-				break;
+				return 1;
 		}
 	}
 
