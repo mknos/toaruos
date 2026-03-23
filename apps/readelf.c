@@ -401,7 +401,6 @@ static int usage(char * argv[]) {
 		"  -s --syms            Display symbol table\n"
 		"  -d --dynamic         Display dynamic section\n"
 		"  -r --relocs          Display relocations\n"
-		"  -H --help            Show this help text\n"
 		" Aliases:\n"
 		"  --segments   Same as --file-header\n"
 		"  --sections   Same as --section-headers\n"
@@ -451,15 +450,13 @@ int main(int argc, char * argv[]) {
 	int show_bits = 0;
 	int index, c;
 
-	while ((c = getopt_long(argc, argv, "ahlSesdrH", long_opts, &index)) != -1) {
+	while ((c = getopt_long(argc, argv, "ahlSesdr", long_opts, &index)) != -1) {
 		if (!c) {
 			if (long_opts[index].flag == 0) {
 				c = long_opts[index].val;
 			}
 		}
 		switch (c) {
-			case 'H':
-				return usage(argv);
 			case 'a':
 				show_bits |= SHOW_FILE_HEADER | SHOW_SECTION_HEADERS | SHOW_PROGRAM_HEADERS | SHOW_SYMBOLS | SHOW_DYNAMIC | SHOW_RELOCATIONS;
 				break;
@@ -485,7 +482,6 @@ int main(int argc, char * argv[]) {
 				show_bits |= SHOW_RELOCATIONS;
 				break;
 			default:
-				fprintf(stderr, "Unrecognized option: %c\n", c);
 				break;
 		}
 	}
