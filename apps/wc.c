@@ -8,6 +8,7 @@
  */
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -15,6 +16,11 @@
 #ifdef __toaru__
 #include <toaru/decodeutf8.h>
 #endif
+
+void usage(void) {
+	printf("usage: wc [-clmw] [file ...]\n");
+	exit(1);
+}
 
 int main(int argc, char * argv[]) {
 	int show_lines = 0;
@@ -38,6 +44,8 @@ int main(int argc, char * argv[]) {
 			case 'w':
 				show_words = 1;
 				break;
+			default:
+				usage();
 		}
 	}
 
