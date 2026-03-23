@@ -28,9 +28,13 @@ int main(int argc, char * argv[]) {
 		i++;
 	}
 
-	if (i == argc) {
+	if (i == argc)
 		return 1;
-	}
+
+	char * path = getenv("PATH");
+	if (!path)
+		path = DEFAULT_PATH;
+	char * xpath = strdup(path);
 
 	for (; i < argc; ++i) {
 
@@ -38,42 +42,35 @@ int main(int argc, char * argv[]) {
 			struct stat t;
 			if (!stat(argv[i], &t)) {
 				if ((t.st_mode & 0111)) {
-					printf("%s\n", argv[1]);
+					printf("%s\n", argv[i]);
 				}
 			}
 		} else {
-			char * file = argv[i];
-			char * path = getenv("PATH");
-			if (!path) {
-				path = DEFAULT_PATH;
-			}
-
-			char * xpath = strdup(path);
 			char * p, * last;
 			int found = 0;
 			for ((p = strtok_r(xpath, ":", &last)); p; p = strtok_r(NULL, ":", &last)) {
 				int r;
 				struct stat stat_buf;
-				char * exe = malloc(strlen(p) + strlen(file) + 2);
-				strcpy(exe, p);
-				strcat(exe, "/");
-				strcat(exe, file);
-
+				char * exe;
+				if (asprintf(&exe, "%s/%s", p, argv[i]) == -1) {
+					perror("asprintf");
+					exit(1);
+				}
 				r = stat(exe, &stat_buf);
-				if (r != 0) {
-					continue;
+				/* XXX not technically correct; need to test perms */
+				if (r == 0 && stat_buf.st_mode & 0111) {
+					found = 1;
+					printf("%s\n", exe);
+					if (!print_all) {
+						free(exe);
+						break;
+					}
 				}
-				if (!(stat_buf.st_mode & 0111)) {
-					continue; /* XXX not technically correct; need to test perms */
-				}
-				found = 1;
-				printf("%s\n", exe);
-				if (print_all) continue;
-				break;
+				free(exe);
 			}
-			free(xpath);
 			if (!found) ret_val = 1;
 		}
 	}
+	free(xpath);
 	return ret_val;
 }
