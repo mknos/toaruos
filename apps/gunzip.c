@@ -82,7 +82,7 @@ static int decompress_one(char * argv[], char * file) {
 			tmp[strlen(tmp)-1] = 'r';
 		} else {
 			free(tmp);
-			fprintf(stderr, "%s: %s: unreocognized suffix, ignoring\n", argv[0], file);
+			fprintf(stderr, "%s: %s: unknown suffix, ignoring\n", argv[0], file);
 			fclose(f);
 			return 1;
 		}
@@ -118,7 +118,7 @@ static int decompress_one(char * argv[], char * file) {
 int main(int argc, char * argv[]) {
 
 	int opt;
-	while ((opt = getopt(argc, argv, "?ckf")) != -1) {
+	while ((opt = getopt(argc, argv, "ckf")) != -1) {
 		switch (opt) {
 			case 'c':
 				to_stdout = 1;
@@ -131,7 +131,6 @@ int main(int argc, char * argv[]) {
 				force = 1;
 				break;
 			default:
-			case '?':
 				return usage(argc, argv);
 		}
 	}
