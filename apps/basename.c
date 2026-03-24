@@ -14,6 +14,9 @@ int main(int argc, char * argv[]) {
 	if (argc < 2) {
 		fprintf(stderr, "%s: expected argument\n", argv[0]);
 		return 1;
+	} else if (argc > 3) {
+		fprintf(stderr, "%s: extra argument '%s'\n", argv[0], argv[3]);
+		return 1;
 	}
 
 	char * c = basename(argv[1]);
