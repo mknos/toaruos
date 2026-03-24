@@ -24,14 +24,14 @@
 
 static struct termios old;
 
-static void set_unbuffered() {
+static void set_unbuffered(void) {
 	tcgetattr(fileno(stdin), &old);
 	struct termios new = old;
 	new.c_lflag &= (~ICANON & ~ECHO);
 	tcsetattr(fileno(stdin), TCSAFLUSH, &new);
 }
 
-static void set_buffered() {
+static void set_buffered(void) {
 	tcsetattr(fileno(stdin), TCSAFLUSH, &old);
 }
 
@@ -67,7 +67,7 @@ static void divine_size(int * width, int * height) {
 		buf[i++] = c;
 	}
 
-	char * s = strstr(buf, ";");
+	char * s = strchr(buf, ';');
 	if (s) {
 		*(s++) = '\0';
 
