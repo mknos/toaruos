@@ -31,7 +31,7 @@ int main(int argc, char * argv[]) {
 	}
 
 	int file_count = argc - optind;
-	FILE ** files = malloc(sizeof(FILE *) * file_count);
+	FILE ** files = calloc(file_count, sizeof(FILE *));
 
 	for (int i = 0, j = optind; j < argc && i < file_count; j++) {
 		files[i] = fopen(argv[j], append ? "a" : "w");
@@ -59,6 +59,6 @@ int main(int argc, char * argv[]) {
 	for (int i = 0; i < file_count; ++i) {
 		fclose(files[i]);
 	}
-
+	free(files);
 	return ret_val;
 }
