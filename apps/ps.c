@@ -175,8 +175,7 @@ struct process * process_entry(struct dirent *dent) {
 		char foo[1024];
 		int s = fread(foo, 1, 1024, f);
 		if (s > 0) {
-			out->command_line = malloc(s + 1);
-			memset(out->command_line, 0, s + 1);
+			out->command_line = calloc(s + 1, 1);
 			memcpy(out->command_line, foo, s);
 
 			for (int i = 0; i < s; ++i) {
@@ -336,8 +335,6 @@ int main (int argc, char * argv[]) {
 	foreach(entry, ents_list) {
 		print_entry(entry->value);
 	}
-
-
 	return 0;
 }
 
