@@ -28,6 +28,8 @@
 #include <sys/time.h>
 #include <toaru/auth.h>
 
+#define PASSWD_SZ 1024
+
 #define MINUTES * 60
 
 #define SUDO_TIME 5 MINUTES
@@ -53,10 +55,8 @@ static int sudo_loop(int (*prompt_callback)(char * username, char * password, in
 		int need_sudoers  = 1;
 
 		uid_t me = getuid();
-		if (me == 0) {
-			need_password = 0;
-			need_sudoers  = 0;
-		}
+		if (me == 0)
+			need_password = need_sudoers = 0;
 
 		struct passwd * p = getpwuid(me);
 		if (!p) {
@@ -76,19 +76,17 @@ static int sudo_loop(int (*prompt_callback)(char * username, char * password, in
 					need_password = 0;
 				}
 			}
-		}
-
-		if (need_password) {
-			char * password = calloc(sizeof(char) * 1024, 1);
+			char * password = calloc(PASSWD_SZ, sizeof(char));
 
 			if (prompt_callback(username, password, fails, argv)) {
 				free(username);
+				memset(password, 0, PASSWD_SZ);
 				free(password);
 				return 1;
 			}
 
 			int uid = toaru_auth_check_pass(username, password);
-
+			memset(password, 0, PASSWD_SZ);
 			free(password);
 
 			if (uid < 0) {
