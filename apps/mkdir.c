@@ -8,6 +8,7 @@
  */
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
@@ -33,8 +34,9 @@ int makedir(const char * dir, int mask, int parents) {
 		*c = '/';
 		continue;
 	}
-
-	return mkdir(tmp, mask);
+	int ret = mkdir(tmp, mask);
+	free(tmp);
+	return ret;
 }
 
 int main(int argc, char ** argv) {
