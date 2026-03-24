@@ -37,8 +37,7 @@ int main(int argc, char * argv[]) {
 	char * xpath = strdup(path);
 
 	for (; i < argc; ++i) {
-
-		if (strstr(argv[i], "/")) {
+		if (strchr(argv[i], '/')) {
 			struct stat t;
 			if (!stat(argv[i], &t)) {
 				if ((t.st_mode & 0111)) {
