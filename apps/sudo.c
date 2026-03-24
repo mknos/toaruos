@@ -155,11 +155,10 @@ static int sudo_loop(int (*prompt_callback)(char * username, char * password, in
 		}
 
 		char ** args = &argv[1];
-		execvp(args[0], args);
-
-		/* XXX: There are other things that can cause an exec to fail. */
-		fprintf(stderr, "%s: %s: command not found\n", argv[0], args[0]);
-		return 1;
+		int ret = execvp(args[0], args);
+		if (ret == -1)
+			perror("exec");
+		return ret;
 	}
 
 	return 0;
