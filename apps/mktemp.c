@@ -44,11 +44,11 @@ int main(int argc, char * argv[]) {
 	}
 
 	char * result = mktemp(template);
-
 	if (!result) {
 		fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
 		return 1;
 	}
+	free(template);
 
 	if (!quiet) {
 		fprintf(stdout, "%s\n", result);
