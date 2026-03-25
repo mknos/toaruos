@@ -38,8 +38,10 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 	struct timeval now;
-	gettimeofday(&now, NULL);
-
+	if (gettimeofday(&now, NULL) == -1) {
+		perror("gettimeofday");
+		return 1;
+	}
 	struct tm actual;
 	struct tm * timeinfo;
 	timeinfo = localtime((time_t *)&now.tv_sec);
