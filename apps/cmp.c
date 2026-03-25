@@ -46,7 +46,6 @@ int main(int argc, char * argv[]) {
 	FILE * a;
 	FILE * b;
 
-
 	if (!strcmp(file_a, "-")) {
 		a = stdin;
 		file_a = "stdin";
@@ -110,7 +109,7 @@ int main(int argc, char * argv[]) {
 	}
 
 finish:
-	if (a != stdin) fclose(a);
-	if (b != stdin) fclose(b);
+	fclose(a);
+	fclose(b);
 	return retval;
 }
