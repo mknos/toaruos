@@ -157,21 +157,24 @@ static int print_all_interfaces(void) {
 
 	/* Read /dev/net for interfaces */
 	DIR * d = opendir("/dev/net");
-	if (!d) {
-		fprintf(stderr, "%s: no network?\n", _argv_0);
-		return 1;
-	}
-
+	if (!d)
+		goto neterr;
+	int ifcount = 0;
 	struct dirent * ent;
 	while ((ent = readdir(d))) {
 		if (ent->d_name[0] == '.') continue;
 
-		/* Retrieve data for the interface and print the results. */
 		if (print_interface(-1, ent->d_name))
 			retval = 1;
+		else
+			ifcount++;
 	}
-
 	closedir(d);
+	if (!ifcount) {
+neterr:
+		fprintf(stderr, "%s: network disabled\n", _argv_0);
+		retval = 1;
+	}
 	return retval;
 }
 
