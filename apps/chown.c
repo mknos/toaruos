@@ -39,7 +39,7 @@ static int parse_user_group(char * argv[], char * arg, uid_t * user, gid_t * gro
 		*user = -1;
 		arg++;
 	} else {
-		char * colon = strstr(arg, ":");
+		char * colon = strchr(arg, ':');
 		if (colon) {
 			*colon = '\0';
 		}
