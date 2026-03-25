@@ -15,22 +15,19 @@
  * Copyright (C) 2018 K. Lange
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
 #include <sys/time.h>
 
-static void show_usage(int argc, char * argv[]) {
+static void usage(void) {
 	printf(
-			"%s - print the time and day\n"
-			"\n"
-			"usage: %s [-?] +FORMAT\n"
-			"\n"
-			"    Note: This implementation is not currently capable of\n"
-			"          setting the system time.\n"
+			"usage: date [-?] +FORMAT\n"
 			"\n"
 			" -?     \033[3mshow this help text\033[0m\n"
-			"\n", argv[0], argv[0]);
+			"\n");
+	exit(1);
 }
 
 int digits(const char * s, int len) {
@@ -81,9 +78,8 @@ int main(int argc, char * argv[]) {
 
 	while ((opt = getopt(argc,argv,"?")) != -1) {
 		switch (opt) {
-			case '?':
-				show_usage(argc,argv);
-				return 1;
+			default:
+				usage();
 		}
 	}
 
