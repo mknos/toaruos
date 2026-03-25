@@ -8,6 +8,7 @@
  */
 #include <errno.h>
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -374,26 +375,17 @@ static void attempt_backtrace(pid_t pid, struct URegs * regs) {
 	}
 }
 
-static int imatch(const char * a, const char * b) {
-	do {
-		if (!*a && !*b) return 1;
-		if (tolower(*a) != tolower(*b)) return 0;
-		a++;
-		b++;
-	} while (1);
-}
-
 static int signal_from_string(const char * str) {
 	if (isdigit(*str)) {
 		return strtoul(str,NULL,0);
 	} else if (str[0] == 'S' && str[1] == 'I' && str[2] == 'G') {
 		for (int i = 0; i < 256; ++i) {
-			if (signal_names[i] && imatch(signal_names[i], str)) return i;
+			if (signal_names[i] && !strcasecmp(signal_names[i], str)) return i;
 		}
 		return -1;
 	} else {
 		for (int i = 0; i < 256; ++i) {
-			if (signal_names[i] && imatch(signal_names[i]+3, str)) return i;
+			if (signal_names[i] && !strcasecmp(signal_names[i]+3, str)) return i;
 		}
 		return -1;
 	}
