@@ -997,16 +997,13 @@ long sys_execve(const char * filename, char *const argv[], char *const envp[]) {
 	char **argv_ = calloc(argc + 1, sizeof(char*));
 	for (int j = 0; j < argc; ++j)
 		argv_[j] = strdup(argv[j]);
-	argv_[argc] = NULL;
 	char ** envp_;
 	if (envp && envc) {
 		envp_ = calloc(envc + 1, sizeof(char*));
 		for (int j = 0; j < envc; ++j)
 			envp_[j] = strdup(envp[j]);
-		envp_[envc] = NULL;
 	} else {
-		envp_ = malloc(sizeof(char*));
-		envp_[0] = NULL;
+		envp_ = calloc(1, sizeof(char*));
 	}
 
 	/**
