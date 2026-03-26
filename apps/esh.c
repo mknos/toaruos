@@ -154,7 +154,7 @@ void install_commands();
 char cwd[1024] = {'/',0};
 
 /* Username */
-char username[1024];
+char username[1024] = { 0 };
 
 /* Hostname for prompt */
 char _hostname[256];
@@ -162,11 +162,10 @@ char _hostname[256];
 /* function to update the cached username */
 void getuser() {
 	char * tmp = getenv("USER");
-	if (tmp) {
-		strcpy(username, tmp);
-	} else {
-		sprintf(username, "%d", getuid());
-	}
+	if (tmp)
+		snprintf(username, sizeof(username), "%s", tmp);
+	else
+		snprintf(username, sizeof(username), "%d", getuid());
 }
 
 /* function to update the cached hostname */
@@ -1810,28 +1809,22 @@ int main(int argc, char ** argv) {
  * cd [path]
  */
 uint32_t shell_cmd_cd(int argc, char * argv[]) {
-	if (argc > 1) {
-		if (chdir(argv[1])) {
-			goto cd_error;
-		} /* else success */
-	} else /* argc < 2 */ {
-		char * home = getenv("HOME");
-		if (home) {
-			if (chdir(home)) {
-				goto cd_error;
-			}
-		} else {
-			char home_path[1200];
-			sprintf(home_path, "/home/%s", username);
-			if (chdir(home_path)) {
-				goto cd_error;
-			}
+	char home_path[1200];
+	char *dir = NULL;
+	if (argc > 1)
+		dir = argv[1];
+	else {
+		dir = getenv("HOME");
+		if (!dir) {
+			snprintf(home_path, sizeof(home_path), "/home/%s", username);
+			dir = home_path;
 		}
 	}
+	if (chdir(dir)) {
+		fprintf(stderr, "%s: could not cd '%s': %s\n", argv[0], dir, strerror(errno));
+		return 1;
+	}
 	return 0;
-cd_error:
-	fprintf(stderr, "%s: could not cd '%s': %s\n", argv[0], argv[1], strerror(errno));
-	return 1;
 }
 
 /*
