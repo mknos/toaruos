@@ -20,6 +20,10 @@ int makedir(const char * dir, int mask, int parents) {
 	if (!parents) return mkdir(dir,mask);
 
 	char * tmp = strdup(dir);
+	if (tmp == NULL) {
+		perror("mkdir: strdup");
+		exit(1);
+	}
 	char * c = tmp;
 	while ((c = strchr(c+1,'/'))) {
 		*c = '\0';
@@ -44,14 +48,13 @@ int main(int argc, char ** argv) {
 	int parents = 0;
 	int opt;
 
-	while ((opt = getopt(argc, argv, "m:p")) != -1) {
+	while ((opt = getopt(argc, argv, "p")) != -1) {
 		switch (opt) {
-			case 'm':
-				fprintf(stderr, "%s: -m unsupported\n", argv[0]);
-				return 1;
 			case 'p':
 				parents = 1;
 				break;
+			default:
+				return 1;
 		}
 	}
 
