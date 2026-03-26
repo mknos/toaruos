@@ -157,7 +157,7 @@ int
 main(int argc, char *argv[])
 {
 	void (*conv)(int);
-	char *ip;
+	char *ip = NULL;
 	int a, c;
 
 	conv = null;
@@ -294,9 +294,7 @@ main(int argc, char *argv[])
 		fprintf(stderr, "not enough memory\n");
 		exit(1);
 	}
-	ibc = 0;
-	obc = 0;
-	cbc = 0;
+	ibc = obc = cbc = 0;
 	op = obuf;
 
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
@@ -361,8 +359,10 @@ loop:
 		goto loop;
 	}
 	c = 0;
-	c |= *ip++;
-	c &= 0377;
+	if (ip) {
+		c |= *ip++;
+		c &= 0377;
+	}
 	(*conv)(c);
 	goto loop;
 }
