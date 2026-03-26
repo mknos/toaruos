@@ -28,15 +28,10 @@ int makedir(const char * dir, int mask, int parents) {
 	while ((c = strchr(c+1,'/'))) {
 		*c = '\0';
 		if (mkdir(tmp,mask) < 0) {
-			if (errno == EEXIST) {
-				*c = '/';
-				continue;
-			} else {
+			if (errno != EEXIST)
 				return -1;
-			}
 		}
 		*c = '/';
-		continue;
 	}
 	int ret = mkdir(tmp, mask);
 	free(tmp);
