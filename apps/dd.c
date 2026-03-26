@@ -369,27 +369,23 @@ loop:
 
 void flsh(void)
 {
-	int c;
-
-	if(obc) {
-		if(obc == obs)
-			nofr++; else
-			nopr++;
-		c = write(obf, obuf, obc);
-		if(c != obc) {
-			perror("write");
-			term(1);
-		}
-		obc = 0;
+	if (!obc)
+		return;
+	if (obc == obs)
+		nofr++;
+	else
+		nopr++;
+	if (write(obf, obuf, obc) != obc) {
+		perror("write");
+		term(1);
 	}
+	obc = 0;
 }
 
 int
 match(char *s)
 {
-	char *cs;
-
-	cs = string;
+	char *cs = string;
 	while(*cs++ == *s)
 		if(*s++ == '\0')
 			goto true;
@@ -459,7 +455,6 @@ cnull(int cc)
 void
 null(int c)
 {
-
 	*op = c;
 	op++;
 	if(++obc >= obs) {
@@ -485,7 +480,6 @@ ascii(int cc)
 		nspace--;
 	}
 	cnull(c);
-
 out:
 	if(++cbc >= cbs) {
 		null('\n');
@@ -511,7 +505,6 @@ unblock(int cc)
 		nspace--;
 	}
 	cnull(c);
-
 out:
 	if(++cbc >= cbs) {
 		null('\n');
@@ -614,7 +607,6 @@ term(int status)
 void
 stats(void)
 {
-
 	fprintf(stderr,"%u+%u records in\n", nifr, nipr);
 	fprintf(stderr,"%u+%u records out\n", nofr, nopr);
 	if(ntrunc)
