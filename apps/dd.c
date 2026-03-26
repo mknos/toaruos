@@ -302,7 +302,10 @@ main(int argc, char *argv[])
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 		signal(SIGINT, term);
 	while(skip) {
-		read(ibf, ibuf, ibs);
+		if (read(ibf, ibuf, ibs) == -1) {
+			perror("dd: read error during skip");
+			exit(1);
+		}
 		skip--;
 	}
 	while(seekn) {
