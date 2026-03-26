@@ -405,11 +405,9 @@ true:
 long
 number(long big)
 {
-	char *cs;
-	long n;
+	char *cs = string;
+	long n = 0;
 
-	cs = string;
-	n = 0;
 	while(*cs >= '0' && *cs <= '9')
 		n = n*10 + *cs++ - '0';
 	for(;;)
@@ -431,6 +429,11 @@ number(long big)
 	case 'x':
 		string = cs;
 		n *= number(BIG);
+		if (n>=big || n<0) {
+			fprintf(stderr, "dd: argument %ld out of range\n", n);
+			exit(1);
+		}
+		return(n);
 
 	case '\0':
 		if (n>=big || n<0) {
@@ -439,7 +442,7 @@ number(long big)
 		}
 		return(n);
 	}
-	/* never gets here */
+	abort();
 }
 
 void
