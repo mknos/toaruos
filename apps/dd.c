@@ -156,7 +156,7 @@ char	atoibm[] =
 int
 main(int argc, char *argv[])
 {
-	void (*conv)();
+	void (*conv)(int);
 	char *ip;
 	int a, c;
 
