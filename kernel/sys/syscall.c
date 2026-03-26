@@ -1414,6 +1414,21 @@ void syscall_forbid(int num) {
 	syscalls[num] = &sys_notimp;
 }
 
+void syscall_forbid_net(void) {
+	syscall_forbid(SYS_SOCKET);
+	syscall_forbid(SYS_SETSOCKOPT);
+	syscall_forbid(SYS_BIND);
+	syscall_forbid(SYS_ACCEPT);
+	syscall_forbid(SYS_LISTEN);
+	syscall_forbid(SYS_CONNECT);
+	syscall_forbid(SYS_GETSOCKOPT);
+	syscall_forbid(SYS_RECV);
+	syscall_forbid(SYS_SEND);
+	syscall_forbid(SYS_SHUTDOWN);
+	syscall_forbid(SYS_GETSOCKNAME);
+	syscall_forbid(SYS_GETPEERNAME);
+}
+
 void syscall_handler(struct regs * r) {
 
 	this_core->current_process->syscall_registers = r;
