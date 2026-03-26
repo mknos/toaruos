@@ -709,9 +709,11 @@ finish_tab:
 }
 
 void add_argument(list_t * argv, char * buf) {
-	char * c = malloc(strlen(buf) + 1);
-	memcpy(c, buf, strlen(buf) + 1);
-
+	char * c = strdup(buf);
+	if (c == NULL) {
+		perror("strdup");
+		exit(1);
+	}
 	list_insert(argv, c);
 }
 
