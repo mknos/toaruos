@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2020 K. Lange
  */
+#include <libgen.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -29,8 +30,6 @@ static void _write(struct inflate_context * ctx, unsigned int sym) {
 
 static int usage(int argc, char * argv[]) {
 	fprintf(stderr,
-			"gunzip - decompress gzip-compressed payloads\n"
-			"\n"
 			"usage: %s [-ckf] name...\n"
 			"\n"
 			" -c     \033[3mwrite to stdout; implies -k\033[0m\n"
@@ -121,8 +120,7 @@ int main(int argc, char * argv[]) {
 	while ((opt = getopt(argc, argv, "ckf")) != -1) {
 		switch (opt) {
 			case 'c':
-				to_stdout = 1;
-				keep = 1;
+				to_stdout = keep = 1;
 				break;
 			case 'k':
 				keep = 1;
@@ -134,16 +132,19 @@ int main(int argc, char * argv[]) {
 				return usage(argc, argv);
 		}
 	}
-
-	/* No argument, read from stdin */
-	if (optind >= argc) {
-		return decompress_one(argv, "-");
-	} else {
-		int ret = 0;
-		for (int i = optind; i < argc; ++i) {
-			ret |= decompress_one(argv, argv[i]);
-		}
-		return ret;
+	if (!to_stdout) {
+		char *bname = basename(argv[0]);
+		if (strstr(bname, "zcat"))
+			to_stdout = keep = 1;
 	}
+	/* No argument, read from stdin */
+	int ret = 0;
+	if (optind >= argc) {
+		ret = decompress_one(argv, "-");
+	} else {
+		for (int i = optind; i < argc; ++i)
+			ret |= decompress_one(argv, argv[i]);
+	}
+	return ret;
 }
 

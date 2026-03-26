@@ -72,5 +72,5 @@ with tarfile.open('ramdisk.igz','w:gz') as ramdisk:
     ramdisk.addfile(symlink('bin/sh','esh'))
     ramdisk.addfile(symlink('bin/mandelbrot','julia'))
     ramdisk.addfile(symlink('bin/fgrep','grep'))
-
+    ramdisk.addfile(symlink('bin/zcat','gunzip'))
 
