@@ -1,9 +1,6 @@
 /**
  * @brief Sort input lines.
  *
- * XXX for reasons unknown this is using its own insertion-sort
- *     instead of our much nicer quicksort?
- *
  * @copyright
  * This file is part of ToaruOS and is released under the terms
  * of the NCSA / University of Illinois License - see LICENSE.md
@@ -19,6 +16,22 @@
 #include <ctype.h>
 #include <toaru/list.h>
 
+int compare0(const void * arg1, const void * arg2) {
+	const char *a = *(const char **) arg1;
+	const char *b = *(const char **) arg2;
+	while (1) {
+		while (*a == *b || tolower(*a) == tolower(*b)) {
+			if (!*a) return 0;
+			a++;
+			b++;
+		}
+		while (*a && !isalnum(*a)) a++;
+		while (*b && !isalnum(*b)) b++;
+		if (tolower(*a) == tolower(*b)) continue;
+		return (tolower(*a) < tolower(*b)) ? -1 : 1;
+	}
+}
+
 int compare(const char * a, const char * b) {
 	while (1) {
 		while (*a == *b || tolower(*a) == tolower(*b)) {
@@ -26,14 +39,10 @@ int compare(const char * a, const char * b) {
 			a++;
 			b++;
 		}
-
 		while (*a && !isalnum(*a)) a++;
 		while (*b && !isalnum(*b)) b++;
-
 		if (tolower(*a) == tolower(*b)) continue;
-
-		if (tolower(*a) < tolower(*b)) return -1;
-		return 1;
+		return (tolower(*a) < tolower(*b)) ? -1 : 1;
 	}
 }
 
@@ -61,11 +70,12 @@ int numcompare(const char * a, const char * b) {
 }
 
 void usage(void) {
-	fprintf(stderr, "usage: sort [-nr] [file ...]\n");
+	fprintf(stderr, "usage: sort [-nqr] [file ...]\n");
 	exit(1);
 }
 
 int main(int argc, char * argv[]) {
+	int quicksort = 0;
 	int reverse = 0;
 	int numeric = 0;
 	int opt;
@@ -73,10 +83,13 @@ int main(int argc, char * argv[]) {
 	list_t * lines = list_create();
 	list_t * files = list_create();
 
-	while ((opt = getopt(argc, argv, "nr")) != -1) {
+	while ((opt = getopt(argc, argv, "nqr")) != -1) {
 		switch (opt) {
 			case 'n':
 				numeric = 1;
+				break;
+			case 'q':
+				quicksort = 1;
 				break;
 			case 'r':
 				reverse = 1;
@@ -105,13 +118,21 @@ int main(int argc, char * argv[]) {
 	foreach (node, files) {
 		FILE * f = node->value;
 		while (!feof(f)) {
-			if (!fgets(line_buf, 4096, f)) {
+			if (!fgets(line_buf, sizeof(line_buf), f))
 				break;
-			}
 			if (!strchr(line_buf,'\n')) {
 				fprintf(stderr, "%s: oversized line\n", argv[0]);
 			}
 			char * line = strdup(line_buf);
+			if (line == NULL) {
+				perror("sort: strdup");
+				exit(1);
+			}
+			if (quicksort) {
+				list_insert(lines, line);
+				continue;
+			}
+
 			node_t * next = NULL;
 			foreach (lnode, lines) {
 				char * cmp = lnode->value;
@@ -140,10 +161,27 @@ int main(int argc, char * argv[]) {
 		}
 	}
 
+	if (quicksort) {
+		char **ln = calloc(lines->length, sizeof(char *));
+		if (ln == NULL) {
+			perror("sort: calloc");
+			exit(1);
+		}
+		size_t i = 0;
+		foreach (lnode, lines) {
+			ln[i] = lnode->value;
+			i++;
+		}
+		qsort(ln, lines->length, sizeof(char *), &compare0);
+		for (i = 0; i < lines->length; i++)
+			fputs(ln[i], stdout);
+		free(ln);
+		return 0;
+	}
+
 	foreach (lnode, lines) {
 		char * line = lnode->value;
 		fprintf(stdout, "%s", line);
 	}
-
 	return 0;
 }
