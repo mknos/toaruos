@@ -46,8 +46,12 @@ int execvpe(const char *file, char *const argv[], char *const envp[]) {
 				free(exe);
 				continue; /* XXX not technically correct; need to test perms */
 			}
-
-			return execve(exe, argv, envp);
+			int ret = execve(exe, argv, envp);
+			if (ret == -1) {
+				free(xpath);
+				free(exe);
+			}
+			return ret;
 		}
 		free(xpath);
 		errno = ENOENT;
