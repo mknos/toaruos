@@ -83,16 +83,12 @@ static char * selection_text = NULL;
 term_state_t * ansi_state = NULL;
 
 void reinit(void); /* Defined way further down */
-void term_redraw_cursor();
-
-void term_clear();
-
-void dump_buffer();
+void term_redraw_cursor(void);
+void term_clear(int);
 
 static uint64_t get_ticks(void) {
 	struct timeval now;
 	gettimeofday(&now, NULL);
-
 	return (uint64_t)now.tv_sec * 1000000LL + (uint64_t)now.tv_usec;
 }
 
@@ -132,16 +128,6 @@ static uint32_t vga_base_colors[] = {
 	0xFFFFFF,
 };
 
-#if 0
-static int is_gray(uint32_t a) {
-	int a_r = (a & 0xFF0000) >> 16;
-	int a_g = (a & 0xFF00) >> 8;
-	int a_b = (a & 0xFF);
-
-	return (a_r == a_g && a_g == a_b);
-}
-#endif
-
 static int best_match(uint32_t a) {
 	int best_distance = INT32_MAX;
 	int best_index = 0;
@@ -154,7 +140,6 @@ static int best_match(uint32_t a) {
 	}
 	return best_index;
 }
-
 
 volatile int exit_application = 0;
 
@@ -256,9 +241,8 @@ static term_cell_t * cell_at(uint16_t x, uint16_t y) {
 
 static void mark_cell(uint16_t x, uint16_t y) {
 	term_cell_t * c = cell_at(x,y);
-	if (c) {
+	if (c)
 		c->flags |= 0x200;
-	}
 }
 
 static void mark_selection(void) {
@@ -536,20 +520,20 @@ static void cell_redraw_box(uint16_t x, uint16_t y) {
 }
 #endif
 
-void render_cursor() {
-	if (!cursor_on) return;
-	cell_redraw_inverted(csr_x, csr_y);
+void render_cursor(void) {
+	if (cursor_on)
+		cell_redraw_inverted(csr_x, csr_y);
 }
 
 static uint8_t cursor_flipped = 0;
-void draw_cursor() {
+void draw_cursor(void) {
 	if (!cursor_on) return;
 	mouse_ticks = get_ticks();
 	cursor_flipped = 0;
 	render_cursor();
 }
 
-void term_redraw_all() {
+void term_redraw_all(void) {
 	/* Redraw to a temp buffer */
 	for (uint16_t y = 0; y < term_height; ++y) {
 		for (uint16_t x = 0; x < term_width; ++x) {
@@ -635,7 +619,6 @@ static void normalize_y(void) {
 		csr_y = term_height - 1;
 	}
 }
-
 
 void term_write(char c) {
 	static uint32_t codepoint = 0;
@@ -732,19 +715,18 @@ void term_set_csr(int x, int y) {
 	draw_cursor();
 }
 
-int term_get_csr_x() {
+int term_get_csr_x(void) {
 	return csr_x;
 }
 
-int term_get_csr_y() {
+int term_get_csr_y(void) {
 	return csr_y;
 }
 
 void term_set_csr_show(int on) {
 	cursor_on = on;
-	if (on) {
+	if (on)
 		draw_cursor();
-	}
 }
 
 void term_set_colors(uint32_t fg, uint32_t bg) {
@@ -752,13 +734,12 @@ void term_set_colors(uint32_t fg, uint32_t bg) {
 	current_bg = bg;
 }
 
-void term_redraw_cursor() {
-	if (term_buffer) {
+void term_redraw_cursor(void) {
+	if (term_buffer)
 		draw_cursor();
-	}
 }
 
-void flip_cursor() {
+void flip_cursor(void) {
 	if (cursor_flipped) {
 		cell_redraw(csr_x, csr_y);
 	} else {
