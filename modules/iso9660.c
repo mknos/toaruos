@@ -193,16 +193,14 @@ static void close_iso(fs_node_t *node) {
 
 static struct dirent * readdir_iso(fs_node_t *node, unsigned long index) {
 	if (index == 0) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, ".");
 		return out;
 	}
 
 	if (index == 1) {
-		struct dirent * out = malloc(sizeof(struct dirent));
-		memset(out, 0x00, sizeof(struct dirent));
+		struct dirent * out = calloc(1, sizeof(struct dirent));
 		out->d_ino = 0;
 		strcpy(out->d_name, "..");
 		return out;
@@ -232,9 +230,8 @@ static struct dirent * readdir_iso(fs_node_t *node, unsigned long index) {
 	offset = root_data;
 
 	unsigned int i = 0;
-	struct dirent *dirent = malloc(sizeof(struct dirent));
+	struct dirent *dirent = calloc(1, sizeof(struct dirent));
 	fs_node_t * out = malloc(sizeof(fs_node_t));
-	memset(dirent, 0, sizeof(struct dirent));
 	while (1) {
 		iso_9660_directory_entry_t * dir = (iso_9660_directory_entry_t *)offset;
 		if (dir->length == 0) {
@@ -465,8 +462,7 @@ static fs_node_t * iso_fs_mount(const char * device, const char * mount_path) {
 	iso_9660_volume_descriptor_t * root = (iso_9660_volume_descriptor_t *)tmp;
 	iso_9660_directory_entry_t * root_entry = (iso_9660_directory_entry_t *)&root->root;
 
-	fs_node_t * fs = malloc(sizeof(fs_node_t));
-	memset(fs, 0, sizeof(fs_node_t));
+	fs_node_t * fs = calloc(1, sizeof(fs_node_t));
 	file_from_dir_entry(this, i, root_entry, 156, fs);
 
 	free(arg);
