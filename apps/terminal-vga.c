@@ -143,16 +143,6 @@ static int best_match(uint32_t a) {
 
 volatile int exit_application = 0;
 
-/* Returns the lower of two shorts */
-uint16_t min(uint16_t a, uint16_t b) {
-	return (a < b) ? a : b;
-}
-
-/* Returns the higher of two shorts */
-uint16_t max(uint16_t a, uint16_t b) {
-	return (a > b) ? a : b;
-}
-
 void set_title(char * c) {
 	/* Do nothing */
 }
@@ -508,18 +498,6 @@ static void cell_redraw_inverted(uint16_t x, uint16_t y) {
 	}
 }
 
-#if 0
-static void cell_redraw_box(uint16_t x, uint16_t y) {
-	if (x >= term_width || y >= term_height) return;
-	term_cell_t * cell = (term_cell_t *)((uintptr_t)term_buffer + (y * term_width + x) * sizeof(term_cell_t));
-	if (((uint32_t *)cell)[0] == 0x00000000) {
-		term_write_char(' ', x * char_width, y * char_height, TERM_DEFAULT_FG, TERM_DEFAULT_BG, TERM_DEFAULT_FLAGS | ANSI_BORDER);
-	} else {
-		term_write_char(cell->c, x * char_width, y * char_height, cell->fg, cell->bg, cell->flags | ANSI_BORDER);
-	}
-}
-#endif
-
 void render_cursor(void) {
 	if (cursor_on)
 		cell_redraw_inverted(csr_x, csr_y);
@@ -751,11 +729,6 @@ void flip_cursor(void) {
 void term_set_cell(int x, int y, uint32_t c) {
 	cell_set(x, y, c, current_fg, current_bg, ansi_state->flags);
 	cell_redraw(x, y);
-}
-
-void term_redraw_cell(int x, int y) {
-	if (x < 0 || y < 0 || x >= term_width || y >= term_height) return;
-	cell_redraw(x,y);
 }
 
 void term_clear(int i) {
