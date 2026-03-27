@@ -44,7 +44,7 @@ EFI_GRAPHICS_OUTPUT_PROTOCOL * GOP;
 static EFI_GUID efi_graphics_output_protocol_guid =
   {0x9042a9de,0x23dc,0x4a38,  {0x96,0xfb,0x7a,0xde,0xd0,0x80,0x51,0x6a}};
 
-int init_graphics() {
+int init_graphics(void) {
 	UINTN count;
 	EFI_HANDLE * handles;
 	EFI_GRAPHICS_OUTPUT_PROTOCOL * gfx;
@@ -52,13 +52,14 @@ int init_graphics() {
 
 	status = uefi_call_wrapper(ST->BootServices->LocateHandleBuffer,
 			5, ByProtocol, &efi_graphics_output_protocol_guid, NULL, &count, &handles);
-	if (EFI_ERROR(status)) goto no_graphics;
+	if (EFI_ERROR(status))
+		return 1;
 	status = uefi_call_wrapper(ST->BootServices->HandleProtocol,
 			3, handles[0], &efi_graphics_output_protocol_guid, (void **)&gfx);
-	if (EFI_ERROR(status)) goto no_graphics;
+	if (EFI_ERROR(status))
+		return 1;
 
 	GOP = gfx;
-
 	int total_width = GOP->Mode->Info->HorizontalResolution;
 	int total_height = GOP->Mode->Info->VerticalResolution;
 
@@ -67,20 +68,15 @@ int init_graphics() {
 
 	center_x = total_width / 2;
 	center_y = total_height / 2;
-
 	return 0;
-
-no_graphics:
-	return 1;
 }
 
 static void set_point(int x, int y, uint32_t color) {
 	((uint32_t *)GOP->Mode->FrameBufferBase)[(x + offset_x) + (y + offset_y) * GOP->Mode->Info->PixelsPerScanLine] = color;
 }
-void clear_() {
-	x = 0;
-	y = 0;
-	memset((void*)GOP->Mode->FrameBufferBase,0,GOP->Mode->FrameBufferSize);
+void clear_(void) {
+	x = y = 0;
+	memset(GOP->Mode->FrameBufferBase, 0, GOP->Mode->FrameBufferSize);
 }
 
 static void placech(unsigned char c, int x, int y, int attr) {
@@ -129,9 +125,8 @@ static void placech(unsigned char c, int x, int y, int attr) {
 	in_graphics_mode ? write_char(x * char_width, y * char_height, c, attr) : placech_vga(c,x,y,attr);
 }
 
-void clear_() {
-	x = 0;
-	y = 0;
+void clear_(void) {
+	x = y = 0;
 	if (in_graphics_mode) {
 		memset(vbe_info_fbaddr, 0, vbe_info_pitch * vbe_info_height);
 	} else {
