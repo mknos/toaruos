@@ -25,7 +25,7 @@ char * getlogin(void) {
 
 	/* Get the owner */
 	struct stat statbuf;
-	stat(name, &statbuf);
+	if (stat(name, &statbuf) == -1) return NULL;
 
 	struct passwd * passwd = getpwuid(statbuf.st_uid);
 
