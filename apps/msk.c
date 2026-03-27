@@ -518,7 +518,7 @@ static int count_packages(int argc, char * argv[]) {
 }
 
 static int version(void) {
-	fprintf(stderr, "msk " MSK_VERSION "\n");
+	puts("msk " MSK_VERSION);
 	return 0;
 }
 
@@ -540,6 +540,5 @@ int main(int argc, char * argv[]) {
 		fprintf(stderr, "%s: unknown command '%s'\n", argv[0], argv[1]);
 		return usage(argc,argv);
 	}
-
+	abort();
 }
-
