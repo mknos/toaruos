@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2015-2018 K. Lange
  */
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -67,8 +68,9 @@ int main(int argc, char * argv[]) {
 	*b = '\0';
 	free = atoi(a);
 
-	//fscanf(f, "MemTotal: %d kB\nMemFree: %d kB\n", &total, &free);
+	fclose(f);
 	used = total - free;
+	assert(used > 0);
 
 	if (!use_kilobytes) {
 		unit = "MB";
