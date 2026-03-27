@@ -20,7 +20,7 @@ int execve(const char *name, char * const argv[], char * const envp[]) {
 
 int execvpe(const char *file, char *const argv[], char *const envp[]) {
 	assert(file != NULL);
-	if (strstr(file, "/") == NULL) {
+	if (strchr(file, '/') == NULL) {
 		/* We don't quite understand "$PATH", so... */
 		char * path = getenv("PATH");
 		if (path == NULL)
@@ -33,17 +33,17 @@ int execvpe(const char *file, char *const argv[], char *const envp[]) {
 			int r;
 			struct stat stat_buf;
 			char * exe = malloc(strlen(p) + strlen(file) + 2);
-			if (exe == NULL)
+			if (exe == NULL) {
+				free(xpath);
 				return -1;
+			}
 			strcpy(exe, p);
 			strcat(exe, "/");
 			strcat(exe, file);
 
 			r = stat(exe, &stat_buf);
-			if (r != 0) {
-				continue;
-			}
-			if (!(stat_buf.st_mode & 0111)) {
+			if (r == -1 || !(stat_buf.st_mode & 0111)) {
+				free(exe);
 				continue; /* XXX not technically correct; need to test perms */
 			}
 
