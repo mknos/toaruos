@@ -173,8 +173,14 @@ int main(int argc, char * argv[]) {
 			i++;
 		}
 		qsort(ln, lines->length, sizeof(char *), &compare0);
-		for (i = 0; i < lines->length; i++)
-			fputs(ln[i], stdout);
+		if (reverse) {
+			int j;
+			for (j = lines->length - 1; j >= 0; j--)
+				fputs(ln[j], stdout);
+		} else {
+			for (i = 0; i < lines->length; i++)
+				fputs(ln[i], stdout);
+		}
 		free(ln);
 		return 0;
 	}
