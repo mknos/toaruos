@@ -825,7 +825,7 @@ static void handle_syscall(pid_t pid, struct URegs * r) {
 			break;
 		case SYS_GETCWD:
 			/* output is first arg */
-			pointer_arg(uregs_syscall_arg1(r)); COMMA; /* TODO syscall outputs */
+			pointer_arg(uregs_syscall_arg1(r)); COMMA;
 			uint_arg(uregs_syscall_arg2(r));
 			break;
 		case SYS_CLONE:
@@ -1107,6 +1107,7 @@ static void finish_syscall(pid_t pid, int syscall, struct URegs * r) {
 			break;
 		/* sbrk() returns an address */
 		case SYS_SBRK:
+		case SYS_GETCWD:
 			fprintf(logfile, ") = %#zx\n", uregs_syscall_result(r));
 			break;
 		case SYS_EXECVE:
