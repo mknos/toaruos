@@ -46,6 +46,31 @@ int compare(const char * a, const char * b) {
 	}
 }
 
+int numcompare0(const void * arg1, const void * arg2) {
+	const char *a = *(const char **) arg1;
+	const char *b = *(const char **) arg2;
+	int64_t x, y;
+
+	while (1) {
+		// skip space
+		while (isspace((unsigned char) *a)) a++;
+		if (isdigit((unsigned char) *a) || *a == '-')
+			x = atoi(a);
+		else
+			x = 0;
+
+		while (isspace((unsigned char) *b)) b++;
+		if (isdigit((unsigned char) *b) || *b == '-')
+			y = atoi(b);
+		else
+			y = 0;
+
+		if (x == y) return 0;
+		if (x > y) return 1;
+		return -1;
+	}
+}
+
 int numcompare(const char * a, const char * b) {
 	int64_t x, y;
 
@@ -172,7 +197,11 @@ int main(int argc, char * argv[]) {
 			ln[i] = lnode->value;
 			i++;
 		}
-		qsort(ln, lines->length, sizeof(char *), &compare0);
+		if (numeric)
+			qsort(ln, lines->length, sizeof(char *), &numcompare0);
+		else
+			qsort(ln, lines->length, sizeof(char *), &compare0);
+
 		if (reverse) {
 			int j;
 			for (j = lines->length - 1; j >= 0; j--)
