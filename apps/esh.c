@@ -160,7 +160,7 @@ char username[1024] = { 0 };
 char _hostname[256];
 
 /* function to update the cached username */
-void getuser() {
+void getuser(void) {
 	char * tmp = getenv("USER");
 	if (tmp)
 		snprintf(username, sizeof(username), "%s", tmp);
@@ -169,13 +169,13 @@ void getuser() {
 }
 
 /* function to update the cached hostname */
-void gethost() {
+void gethost(void) {
 	struct utsname buf;
-
-	uname(&buf);
-
-	int len = strlen(buf.nodename);
-	memcpy(_hostname, buf.nodename, len+1);
+	if (uname(&buf) == -1) {
+		perror("esh: uname");
+		exit(1);
+	}
+	snprintf(_hostname, sizeof(_hostname), "%s", buf.nodename);
 }
 
 int display_width_of_string(const char * str) {
