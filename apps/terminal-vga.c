@@ -1239,7 +1239,10 @@ int main(int argc, char ** argv) {
 	}
 
 	int vga_text_fd = open("/dev/vga0", 0, 0);
-	if (vga_text_fd < 0) return 1;
+	if (vga_text_fd == -1) {
+		perror("failed to open vga0 device");
+		return 1;
+	}
 	ioctl(vga_text_fd, IO_VID_WIDTH,  &term_width);
 	ioctl(vga_text_fd, IO_VID_HEIGHT, &term_height);
 	ioctl(vga_text_fd, IO_VID_ADDR,   &textmemptr);
@@ -1281,26 +1284,25 @@ int main(int argc, char ** argv) {
 		ioctl(STDIN_FILENO, TIOCSCTTY, &(int){1});
 		tcsetpgrp(STDIN_FILENO, getpid());
 
-		if (argv[optind] != NULL) {
-			char * tokens[] = {argv[optind], NULL};
-			execvp(tokens[0], tokens);
-			fprintf(stderr, "Failed to launch requested startup application.\n");
-		} else {
-			if (_login_shell) {
-				char * tokens[] = {"/bin/login-loop",NULL};
-				execvp(tokens[0], tokens);
-				exit(1);
-			} else {
+		char **tokens = calloc(2, sizeof(char *));
+		if (tokens == NULL) {
+			perror("terminal-vga: calloc");
+			return 1;
+		}
+		if (argv[optind] != NULL)
+			tokens[0] = argv[optind];
+		else {
+			if (_login_shell)
+				tokens[0] = "/bin/login-loop";
+			else {
 				char * shell = getenv("SHELL");
 				if (!shell) shell = "/bin/sh"; /* fallback */
-				char * tokens[] = {shell,NULL};
-				execvp(tokens[0], tokens);
-				exit(1);
+				tokens[0] = shell;
 			}
 		}
-
-		exit_application = 1;
-
+		int ret = execvp(tokens[0], tokens);
+		if (ret == -1)
+			perror(tokens[0]);
 		return 1;
 	} else {
 
