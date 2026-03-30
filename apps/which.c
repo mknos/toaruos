@@ -35,7 +35,10 @@ int main(int argc, char * argv[]) {
 	if (!path)
 		path = DEFAULT_PATH;
 	char * xpath = strdup(path);
-
+	if (!xpath) {
+		perror("which: strdup");
+		return 1;
+	}
 	for (; i < argc; ++i) {
 		if (strchr(argv[i], '/')) {
 			struct stat t;
