@@ -13,13 +13,17 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/stat.h>
+#include <unistd.h>
 
 #define DEFAULT_PATH "/bin:/usr/bin"
 
+#define EXIT_MATCH 0
+#define EXIT_NOMATCH 1
+#define EXIT_ERROR 2
+
 int main(int argc, char * argv[]) {
 
-	int ret_val = 0;
+	int ret_val = EXIT_MATCH;
 	int i = 1;
 	int print_all = 0;
 
@@ -29,7 +33,7 @@ int main(int argc, char * argv[]) {
 	}
 
 	if (i == argc)
-		return 1;
+		return EXIT_ERROR;
 
 	char * path = getenv("PATH");
 	if (!path)
@@ -41,26 +45,18 @@ int main(int argc, char * argv[]) {
 	}
 	for (; i < argc; ++i) {
 		if (strchr(argv[i], '/')) {
-			struct stat t;
-			if (!stat(argv[i], &t)) {
-				if ((t.st_mode & 0111)) {
-					printf("%s\n", argv[i]);
-				}
-			}
+			if (access(argv[i], X_OK) == 0)
+				printf("%s\n", argv[i]);
 		} else {
 			char * p, * last;
 			int found = 0;
 			for ((p = strtok_r(xpath, ":", &last)); p; p = strtok_r(NULL, ":", &last)) {
-				int r;
-				struct stat stat_buf;
 				char * exe;
 				if (asprintf(&exe, "%s/%s", p, argv[i]) == -1) {
-					perror("asprintf");
-					exit(1);
+					perror("which: asprintf");
+					return 1;
 				}
-				r = stat(exe, &stat_buf);
-				/* XXX not technically correct; need to test perms */
-				if (r == 0 && stat_buf.st_mode & 0111) {
+				if (access(exe, X_OK) == 0) {
 					found = 1;
 					printf("%s\n", exe);
 					if (!print_all) {
@@ -70,7 +66,8 @@ int main(int argc, char * argv[]) {
 				}
 				free(exe);
 			}
-			if (!found) ret_val = 1;
+			if (!found)
+				ret_val = EXIT_NOMATCH;
 		}
 	}
 	free(xpath);
