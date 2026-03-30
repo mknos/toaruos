@@ -64,6 +64,10 @@ static int sudo_loop(int (*prompt_callback)(char * username, char * password, in
 			return 1;
 		}
 		char * username = strdup(p->pw_name);
+		if (username == NULL) {
+			perror("sudo: strdup");
+			return 1;
+		}
 
 		char token_file[64];
 		sprintf(token_file, "/var/sudoers/%d", me); /* TODO: Restrict to this session? */
@@ -77,7 +81,11 @@ static int sudo_loop(int (*prompt_callback)(char * username, char * password, in
 				}
 			}
 			char * password = calloc(PASSWD_SZ, sizeof(char));
-
+			if (password == NULL) {
+				perror("sudo: calloc");
+				free(username);
+				return 1;
+			}
 			if (prompt_callback(username, password, fails, argv)) {
 				free(username);
 				memset(password, 0, PASSWD_SZ);
