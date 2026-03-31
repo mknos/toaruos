@@ -925,19 +925,17 @@ long sys_fcntl(int fd, int cmd, long arg) {
 }
 
 long sys_sethostname(char * new_hostname) {
-	if (this_core->current_process->user == USER_ROOT_UID) {
-		PTR_VALIDATE(new_hostname);
-		if (!new_hostname) return -EFAULT;
-		size_t len = strlen(new_hostname) + 1;
-		if (len > 256) {
-			return -ENAMETOOLONG;
-		}
-		hostname_len = len;
-		memcpy(hostname, new_hostname, hostname_len);
-		return 0;
-	} else {
+	if (this_core->current_process->user != USER_ROOT_UID)
 		return -EPERM;
-	}
+	PTR_VALIDATE(new_hostname);
+	if (!new_hostname)
+		return -EFAULT;
+	size_t len = strlen(new_hostname) + 1;
+	if (len > sizeof(hostname))
+		return -ENAMETOOLONG;
+	hostname_len = len;
+	strcpy(hostname, new_hostname);
+	return 0;
 }
 
 long sys_gethostname(char * buffer) {
