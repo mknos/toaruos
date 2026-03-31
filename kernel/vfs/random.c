@@ -29,7 +29,7 @@ uint32_t rand(void) {
 static ssize_t read_random(fs_node_t *node, off_t offset, size_t size, uint8_t *buffer) {
 	size_t s = 0;
 	while (s < size) {
-		buffer[s] = rand() % 0xFF;
+		buffer[s] = rand() & 0xFF;
 		s++;
 	}
 	return size;
