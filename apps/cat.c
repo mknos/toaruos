@@ -24,17 +24,16 @@ static char * _argv_0;
 static char * _file;
 
 void doit(int fd) {
-	while (1) {
-		char buf[CHUNK_SIZE];
-		memset(buf, 0, CHUNK_SIZE);
-		ssize_t r = read(fd, buf, CHUNK_SIZE);
-		if (!r) return;
-		if (r < 0) {
+	char buf[CHUNK_SIZE];
+	ssize_t r;
+
+	do {
+		r = read(fd, buf, CHUNK_SIZE);
+		if (r == -1)
 			fprintf(stderr, "%s: %s: %s\n", _argv_0, _file, strerror(errno));
-			return;
-		}
-		write(STDOUT_FILENO, buf, r);
-	}
+		else if (r > 0)
+			write(STDOUT_FILENO, buf, r);
+	} while (r > 0);
 }
 
 int main(int argc, char ** argv) {
