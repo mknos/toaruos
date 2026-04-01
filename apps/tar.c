@@ -115,7 +115,7 @@ static const char * type_to_string(char type) {
 		case 'x':
 			return "Extended preheader";
 		default:
-			sprintf(unknown, "Uknown: %c", type);
+			sprintf(unknown, "Unknown: %c", type);
 			return unknown;
 	}
 }
