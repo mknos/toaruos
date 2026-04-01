@@ -16,7 +16,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
-#include <sys/stat.h>
 
 #define CHUNK_SIZE 4096
 
@@ -60,21 +59,8 @@ int main(int argc, char ** argv) {
 			continue;
 		}
 
-		struct stat _stat;
-		fstat(fd, &_stat);
-
-		if (S_ISDIR(_stat.st_mode)) {
-			fprintf(stderr, "%s: %s: Is a directory\n", argv[0], argv[i]);
-			close(fd);
-			ret = 1;
-			continue;
-		}
-
 		doit(fd);
-
 		close(fd);
 	}
-
 	return ret;
 }
-
