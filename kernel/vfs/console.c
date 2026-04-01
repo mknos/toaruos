@@ -88,7 +88,6 @@ int dprintf(const char * fmt, ...) {
 		unsigned long timer_ticks, timer_subticks;
 		relative_time(0,0,&timer_ticks,&timer_subticks);
 		size_t ts_len = snprintf(timestamp, 31, "[%5lu.%06lu] ", timer_ticks, timer_subticks);
-		_data.left_width = ts_len;
 		write_console(ts_len, (uint8_t*)timestamp);
 	}
 
