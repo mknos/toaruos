@@ -370,7 +370,7 @@ static int tcp_ack(fs_node_t * nic, sock_t * sock, struct ipv4_packet * packet, 
 	response->ttl = 64;
 	response->protocol = IPV4_PROT_TCP;
 	response->ident = htons(sock->priv[2]);
-	response->flags_fragment = htons(0x0);
+	response->flags_fragment = 0;
 	response->version_ihl = 0x45;
 	response->dscp_ecn = 0;
 	response->checksum = 0;
@@ -674,7 +674,7 @@ static void sock_tcp_close(sock_t * sock) {
 		response->protocol = IPV4_PROT_TCP;
 		sock->priv[2]++;
 		response->ident = htons(sock->priv[2]);
-		response->flags_fragment = htons(0x0);
+		response->flags_fragment = 0;
 		response->version_ihl = 0x45;
 		response->dscp_ecn = 0;
 		response->checksum = 0;
@@ -836,7 +836,7 @@ static long sock_tcp_connect(sock_t * sock, const struct sockaddr *addr, socklen
 	response->protocol = IPV4_PROT_TCP;
 	sock->priv[2] = rand();
 	response->ident = htons(sock->priv[2]);
-	response->flags_fragment = htons(0x0);
+	response->flags_fragment = 0;
 	response->version_ihl = 0x45;
 	response->dscp_ecn = 0;
 	response->checksum = 0;
@@ -962,7 +962,7 @@ static long sock_tcp_send(sock_t * sock, const struct msghdr *msg, int flags) {
 		response->protocol = IPV4_PROT_TCP;
 		sock->priv[2]++;
 		response->ident = htons(sock->priv[2]);
-		response->flags_fragment = htons(0x0);
+		response->flags_fragment = 0;
 		response->version_ihl = 0x45;
 		response->dscp_ecn = 0;
 		response->checksum = 0;
