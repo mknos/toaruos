@@ -27,12 +27,21 @@ uint32_t rand(void) {
 }
 
 static ssize_t read_random(fs_node_t *node, off_t offset, size_t size, uint8_t *buffer) {
+	uint32_t x = 0;
 	size_t s = 0;
-	while (s < size) {
-		buffer[s] = rand() & 0xFF;
-		s++;
+
+	while (size > sizeof(x)) {
+		x = rand();
+		memcpy(&buffer[s], &x, sizeof(x));
+		s += sizeof(x);
+		size -= sizeof(x);
 	}
-	return size;
+	if (size > 0) {
+		x = rand();
+		memcpy(&buffer[s], &x, size);
+		s += size;
+	}
+	return s;
 }
 
 static fs_node_t * random_device_create(void) {
