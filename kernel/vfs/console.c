@@ -49,10 +49,8 @@ struct dprintf_data {
 
 static int cb_printf(void * user, char c) {
 	struct dprintf_data * data = user;
-	if (data->prev_was_lf) {
-		for (int i = 0; i < data->left_width; ++i) write_console(1, (uint8_t*)" ");
+	if (data->prev_was_lf)
 		data->prev_was_lf = 0;
-	}
 	if (c == '\n') data->prev_was_lf = 1;
 	write_console(1, (uint8_t*)&c);
 	return 0;
