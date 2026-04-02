@@ -714,10 +714,14 @@ static int do_once(void) {
 	int ret = poll(fds,1,2000);
 	if (ret > 0 && fds[0].revents & POLLIN) {
 		int c = fgetc(stdin);
-		if (c == 'q') return 0;
-		if (c == 'w') next_sort_order();
-		if (c == 'W') prev_sort_order();
-		if (c == 'h') show_help = !show_help;
+		switch (c) {
+			case EOF:
+			case 'q': return 0;
+
+			case 'w': next_sort_order(); break;
+			case 'W': prev_sort_order(); break;
+			case 'h': show_help = !show_help; break;
+		}
 	}
 
 	return 1;
