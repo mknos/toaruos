@@ -88,9 +88,7 @@ int main(int argc, char * argv[]) {
 				usage();
 			case 'w':
 				width = strtoul(optarg, NULL, 0);
-				if (width == 0)
-					width = 16;
-				else if (width > 256) {
+				if (width < 1 || width > 256) {
 					fprintf(stderr, "%s: invalid width\n", argv[0]);
 					return 1;
 				}
