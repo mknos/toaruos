@@ -147,7 +147,6 @@ static void next_line(void) {
 					fflush(stdout);
 					set_buffered();
 					exit(0);
-					return;
 			}
 		} while (1);
 	}
