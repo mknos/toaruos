@@ -7,10 +7,6 @@
  * Copyright (C) 2016-2018 K. Lange
  */
 #include <stdio.h>
-#include <stdint.h>
-#include <string.h>
-#include <stdlib.h>
-#include <getopt.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
