@@ -34,8 +34,9 @@ int main(int argc, char ** argv) {
 
 	if (start < argc) {
 		/* Execute command */
-		if (execvp(argv[start], &argv[start])) {
+		if (execvp(argv[start], &argv[start]) == -1) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[start], strerror(errno));
+			return 1;
 		}
 	} else {
 		char ** env = environ;
