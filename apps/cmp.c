@@ -40,6 +40,10 @@ int main(int argc, char * argv[]) {
 	}
 
 	if (optind + 1 >= argc) return usage(argv);
+	if (argc > optind + 2) {
+		fprintf(stderr, "%s: unexpected argument: '%s'\n", argv[0], argv[optind + 2]);
+		return usage(argv);
+	}
 
 	const char * file_a = argv[optind];
 	const char * file_b = argv[optind+1];
