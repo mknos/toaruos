@@ -45,15 +45,23 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 	for (int i = optind; i < argc; ++i) {
+		FILE *f;
+		char *fname;
 		int is_stdin = !strcmp(argv[i], "-");
-		FILE *f = is_stdin ? stdin : fopen(argv[i], "r");
-		if (!f) {
-			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
-			retval = 1;
-			continue;
+
+		if (is_stdin) {
+			fname = "standard input";
+			f = stdin;
+		} else {
+			fname = argv[i];
+			f = fopen(fname, "r");
+			if (f == NULL) {
+				fprintf(stderr, "%s: %s: %s\n", argv[0], fname, strerror(errno));
+				retval = 1;
+				continue;
+			}
 		}
 
-		char *fname = is_stdin ? "standard input" : argv[i];
 		if (print_names)
 			fprintf(stdout, "==> %s <==\n", fname);
 
