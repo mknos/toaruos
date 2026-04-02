@@ -78,7 +78,6 @@ int main(int argc, char ** argv) {
 		char username[1024] = {0};
 		char password[1024] = {0};
 
-		/* TODO: gethostname() */
 		char _hostname[256];
 		gethostname(_hostname, 255);
 
