@@ -62,6 +62,10 @@ int main(int argc, char * argv[]) {
 	}
 
 	if (!strcmp(file_b, "-")) {
+		if (a == stdin) {
+			fprintf(stderr, "stdin may only be specified for one argument\n");
+			return 2;
+		}
 		b = stdin;
 		file_b = "stdin";
 	} else {
@@ -73,46 +77,41 @@ int main(int argc, char * argv[]) {
 		}
 	}
 
-	if (a == stdin && b == stdin) {
-		fprintf(stderr, "stdin may only be specified for one argument\n");
-		return 2;
-	}
-
 	size_t count = 1;
 	size_t line = 1;
 
 	while (!feof(a) && !feof(b)) {
 		int _a = fgetc(a);
-		if (_a < 0 && ferror(a)) { fprintf(stderr, "%s: %s: %s\n", argv[0], file_a, strerror(errno)); retval = 2; goto finish; }
-		int _b = fgetc(b);
-		if (_b < 0 && ferror(b)) { fprintf(stderr, "%s: %s: %s\n", argv[0], file_b, strerror(errno)); retval = 2; goto finish; }
-
-		if (_a != _b) {
-			if (_a == EOF || _b == EOF) {
-				retval = 1;
-				if (format != 's') fprintf(stderr, "%s: EOF on %s\n", argv[0], _a == EOF ? file_a : file_b);
-				goto finish;
-			}
-			switch (format) {
-				case 0:
-					fprintf(stdout, "%s %s differ: char %zu, line %zu\n", file_a, file_b, count, line);
-					/* fallthrough */
-				case 's':
-					retval = 1;
-					goto finish;
-				case 'l':
-					fprintf(stdout, "%zu %o %o\n", count, _a, _b);
-					retval = 1;
-					break;
-			}
-
+		if (_a < 0 && ferror(a)) {
+			fprintf(stderr, "%s: %s: %s\n", argv[0], file_a, strerror(errno));
+			retval = 2;
+			break;
 		}
-
+		int _b = fgetc(b);
+		if (_b < 0 && ferror(b)) {
+			fprintf(stderr, "%s: %s: %s\n", argv[0], file_b, strerror(errno));
+			retval = 2;
+			break;
+		}
+		if (_a != _b) {
+			retval = 1;
+			if (_a == EOF || _b == EOF) {
+				if (format != 's') fprintf(stderr, "%s: EOF on %s\n", argv[0], _a == EOF ? file_a : file_b);
+				break;
+			}
+			if (format == 's')
+				break;
+			if (format == 0) {
+				fprintf(stdout, "%s %s differ: char %zu, line %zu\n", file_a, file_b, count, line);
+				break;
+			}
+			// format == 'l' ...
+			fprintf(stdout, "%zu %o %o\n", count, _a, _b);
+		}
 		count += 1;
 		if (_a == '\n') line += 1;
 	}
 
-finish:
 	fclose(a);
 	fclose(b);
 	return retval;
