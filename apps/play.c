@@ -36,7 +36,7 @@ int main(int argc, char * argv[]) {
 	int opt;
 	char * dsp_path = DSP_PATH;
 
-	while ((opt = getopt(argc, argv, "d:s:")) != -1) {
+	while ((opt = getopt(argc, argv, "d:")) != -1) {
 		switch (opt) {
 			case 'd': /* DSP path */
 				dsp_path = optarg;
