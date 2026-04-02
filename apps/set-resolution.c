@@ -48,7 +48,7 @@ int main(int argc, char * argv[]) {
 	/* Send ioctl */
 	if (init) {
 		char tmp[100];
-		sprintf(tmp, "%s,%u,%u", driver, s.width, s.height);
+		snprintf(tmp, sizeof(tmp), "%s,%u,%u", driver, s.width, s.height);
 		if (ioctl(fd, IO_VID_REINIT, tmp) < 0) {
 			perror("ioctl");
 			return 1;
