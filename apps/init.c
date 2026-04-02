@@ -90,6 +90,10 @@ int start_options(char * args[]) {
 }
 
 int main(int argc, char * argv[]) {
+	if (getuid() != 0) {
+		fprintf(stderr, "%s: only root should run this\n", argv[0]);
+		return 1;
+	}
 	/* Initialize stdin/out/err */
 	set_console();
 
