@@ -248,6 +248,9 @@ static void time_diff(struct timeval *start, struct timeval *end, time_t *sec_di
 extern char * _argv_0;
 
 static int configure_interface(const char * if_name) {
+	if (strcmp(if_name, "lo") == 0)
+		return 0;
+
 	/* Open a raw socket. */
 	int sock = socket(AF_RAW, SOCK_RAW, 0);
 	if (sock < 0) {
@@ -262,10 +265,11 @@ static int configure_interface(const char * if_name) {
 	}
 
 	/* Request the mac address */
-	char if_path[100];
-	snprintf(if_path, 100, "/dev/net/%s", if_name);
-	int netdev = open(if_path, O_RDWR);
-
+	if (chdir("/dev/net") == -1) {
+		perror("chdir");
+		return 1;
+	}
+	int netdev = open(if_name, O_RDWR);
 	if (netdev < 0) {
 		perror(_argv_0);
 		return 1;
