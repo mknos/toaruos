@@ -24,6 +24,7 @@
 
 #define SIZE 512
 #define BOUNDARY "------ToaruOSFetchUploadBoundary"
+#define USER_AGENT "curl/7.11"
 
 struct http_req {
 	char domain[SIZE];
@@ -404,7 +405,7 @@ int main(int argc, char * argv[]) {
 
 		fprintf(f,
 			"POST /%s HTTP/1.0\r\n"
-			"User-Agent: curl/7.35.0\r\n"
+			"User-Agent: " USER_AGENT "\r\n"
 			"Host: %s\r\n"
 			"Accept: */*\r\n"
 			"Content-Length: %d\r\n"
@@ -435,7 +436,7 @@ int main(int argc, char * argv[]) {
 	} else if (fetch_options.cookie) {
 		fprintf(f,
 			"GET /%s HTTP/1.0\r\n"
-			"User-Agent: curl/7.35.0\r\n"
+			"User-Agent: " USER_AGENT "\r\n"
 			"Host: %s\r\n"
 			"Accept: */*\r\n"
 			"Cookie: %s\r\n"
@@ -444,7 +445,7 @@ int main(int argc, char * argv[]) {
 	} else {
 		fprintf(f,
 			"GET /%s HTTP/1.0\r\n"
-			"User-Agent: curl/7.35.0\r\n"
+			"User-Agent: " USER_AGENT "\r\n"
 			"Host: %s\r\n"
 			"Accept: */*\r\n"
 			"\r\n", my_req.path, my_req.domain);
