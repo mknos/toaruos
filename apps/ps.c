@@ -51,18 +51,6 @@ struct process {
 
 static hashmap_t * process_ents = NULL;
 
-void print_username(int uid) {
-	struct passwd * p = getpwuid(uid);
-
-	if (p) {
-		printf("%-8s", p->pw_name);
-	} else {
-		printf("%-8d", uid);
-	}
-
-	endpwent();
-}
-
 struct process * process_from_pid(pid_t pid) {
 	return hashmap_get(process_ents, (void*)(uintptr_t)pid);
 }
