@@ -85,6 +85,7 @@ int main(int argc, char * argv[]) {
 		tokens[2] = user;
 	}
 
-	execvp(tokens[0], tokens);
-	exit(1);
+	if (execvp(tokens[0], tokens) == -1)
+		perror("/bin/login");
+	return 1;
 }
