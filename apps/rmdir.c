@@ -13,17 +13,11 @@
 #include <errno.h>
 
 static int usage(char * argv[]) {
-#define _I "\033[3m"
-#define _E "\033[0m\n"
-	fprintf(stderr, "usage: %s [-p] path...\n"
+	fprintf(stderr, "usage: %s [-pv] path...\n"
 		"\n"
-		"Deletes empty directories.\n"
-		"\n"
-		"  -p   " _I "Remove parents if also empty" _E
-		"  -v   " _I "Print directory names when they are successfully removed" _E
+		"  -p  Remove parents if also empty\n"
+		"  -v  Print directory names when they are successfully removed\n"
 		"\n", argv[0]);
-#undef _I
-#undef _E
 	return 1;
 }
 
@@ -73,7 +67,5 @@ int main(int argc, char * argv[]) {
 		}
 		optind++;
 	}
-
 	return ret;
-
 }
