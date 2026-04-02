@@ -30,15 +30,21 @@ p_t * build_entry(struct dirent * dent) {
 	FILE * f;
 	char line[LINE_LEN];
 
-	sprintf(tmp, "/proc/%s/status", dent->d_name);
+	snprintf(tmp, sizeof(tmp), "/proc/%s/status", dent->d_name);
 	f = fopen(tmp, "r");
-
+	if (f == NULL) {
+		perror(tmp);
+		exit(1);
+	}
 	p_t * proc = malloc(sizeof(p_t));
-
+	if (proc == NULL) {
+		perror("pidof");
+		exit(1);
+	}
 	while (fgets(line, LINE_LEN, f) != NULL) {
-		char * n = strstr(line,"\n");
+		char * n = strchr(line, '\n');
 		if (n) { *n = '\0'; }
-		char * tab = strstr(line,"\t");
+		char * tab = strchr(line, '\t');
 		if (tab) {
 			*tab = '\0';
 			tab++;
@@ -72,14 +78,16 @@ p_t * build_entry(struct dirent * dent) {
 	}
 
 	if (proc->tgid != proc->pid) {
-		char *name;
-		asprintf(&name, "{%s}", proc->name);
-		strncpy(proc->name, name, sizeof(proc->name));
+		char *name = strdup(proc->name);
+		if (name == NULL) {
+			perror("pidof");
+			exit(1);
+		}
+		snprintf(proc->name, sizeof(proc->name), "{%s}", name);
 		free(name);
 	}
 
 	fclose(f);
-
 	return proc;
 }
 
