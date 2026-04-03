@@ -358,7 +358,7 @@ static int install_package(char * pkg) {
 		}
 
 		char cmd[1024];
-		sprintf(cmd, "cd %s; tar -xf %s",
+		sprintf(cmd, "tar -C %s -xf %s",
 				confreader_get(msk_manifest, pkg, "destination"),
 				confreader_get(msk_manifest, pkg, "source"));
 
@@ -378,7 +378,7 @@ static int install_package(char * pkg) {
 		}
 
 		char cmd[1024];
-		sprintf(cmd, "cd %s; tar -xzf %s",
+		sprintf(cmd, "tar -C %s -xzf %s",
 				confreader_get(msk_manifest, pkg, "destination"),
 				confreader_get(msk_manifest, pkg, "source"));
 
