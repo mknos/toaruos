@@ -1309,9 +1309,11 @@ _done:
 					struct dirent * ent = readdir(dirp);
 					while (ent != NULL) {
 						if (ent->d_name[0] != '.' || (dir ? (dir[1] == '.') : (before && before[0] == '.'))) {
-							char * s = malloc(sizeof(char) * (strlen(ent->d_name) + 1));
-							memcpy(s, ent->d_name, strlen(ent->d_name) + 1);
-
+							char * s = strdup(ent->d_name);
+							if (s == NULL) {
+								perror("esh: strdup");
+								exit(1);
+							}
 							char * t = s;
 
 							if (has_before) {
@@ -1573,8 +1575,11 @@ void add_path_contents(char * path) {
 	struct dirent * ent = readdir(dirp);
 	while (ent != NULL) {
 		if (ent->d_name[0] != '.') {
-			char * s = malloc(sizeof(char) * (strlen(ent->d_name) + 1));
-			memcpy(s, ent->d_name, strlen(ent->d_name) + 1);
+			char * s = strdup(ent->d_name);
+			if (s == NULL) {
+				perror("esh: strdup");
+				exit(1);
+			}
 			shell_install_command(s, NULL, NULL);
 		}
 
@@ -1784,8 +1789,11 @@ int main(int argc, char ** argv) {
 
 		read_entry(buffer);
 
-		char * history = malloc(strlen(buffer) + 1);
-		memcpy(history, buffer, strlen(buffer) + 1);
+		char * history  = strdup(buffer);
+		if (history == NULL) {
+			perror("esh: strdup");
+			exit(1);
+		}
 
 		if (buffer[0] != ' ' && buffer[0] != '\n' && buffer[0] != '!') {
 			rline_history_insert(history);
