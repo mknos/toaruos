@@ -158,11 +158,12 @@ static void usage(char * argv[]) {
 	fprintf(stderr,
 			"tar - extract ustar archives\n"
 			"\n"
-			"usage: %s [-ctxvaf] [name]\n"
+			"usage: %s [-C dir] [-ctxvaf] [name]\n"
 			"\n"
 			" -f     \033[3mfile archive to open\033[0m\n"
 			" -x     \033[3mextract\033[0m\n"
 			"\n", argv[0]);
+	exit(1);
 }
 
 static int matches_files(int argc, char * argv[], int optind, char * filename) {
@@ -175,8 +176,8 @@ static int matches_files(int argc, char * argv[], int optind, char * filename) {
 }
 
 int main(int argc, char * argv[]) {
-
 	int opt;
+	char *cd_to = NULL;
 	char * fname = NULL;
 	int verbose = 0;
 	int action = 0;
@@ -200,7 +201,6 @@ int main(int argc, char * argv[]) {
 				break;
 			default:
 				usage(argv);
-				return 1;
 		}
 
 		/* Go through the rest of the argument */
@@ -239,8 +239,15 @@ int main(int argc, char * argv[]) {
 		goto _skip_getopt;
 	}
 
-	while ((opt = getopt(argc, argv, "?ctxzvaf:O")) != -1) {
+	while ((opt = getopt(argc, argv, "C:ctxzvaf:O")) != -1) {
 		switch (opt) {
+			case 'C':
+				cd_to = strdup(optarg);
+				if (cd_to == NULL) {
+					perror(argv[0]);
+					return 1;
+				}
+				break;
 			case 'c':
 				if (action) {
 					fprintf(stderr, "%s: %c: already specified action\n", argv[0], opt);
@@ -274,12 +281,8 @@ int main(int argc, char * argv[]) {
 			case 'O':
 				to_stdout = 1;
 				break;
-			case '?':
-				usage(argv);
-				return 1;
 			default:
-				fprintf(stderr, "%s: unsupported option '%c'\n", argv[0], opt);
-				return 1;
+				usage(argv);
 		}
 	}
 
@@ -304,6 +307,10 @@ _skip_getopt:
 		}
 		if (!f) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], fname, strerror(errno));
+			return 1;
+		}
+		if (cd_to && chdir(cd_to) == -1) {
+			perror(cd_to);
 			return 1;
 		}
 
