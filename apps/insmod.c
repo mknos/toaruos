@@ -13,7 +13,7 @@
 
 int main(int argc, char * argv[]) {
 	if (argc < 2) {
-		fprintf(stderr, "Usage: %s <modulepath> [ARGS...]\n", argv[0]);
+		fprintf(stderr, "Usage: %s <modulepath>\n", argv[0]);
 		return 1;
 	}
 	int status = sysfunc(TOARU_SYS_FUNC_INSMOD, &argv[1]);
