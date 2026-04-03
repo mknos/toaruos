@@ -8,18 +8,17 @@
  */
 #include <unistd.h>
 #include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <pwd.h>
 
 int main(int argc, char ** argv) {
+	if (argc > 1) {
+		fprintf(stderr, "unexpected argument: '%s'\n", argv[1]);
+		return 1;
+	}
 	struct passwd * p = getpwuid(geteuid());
 	if (!p) return 0;
 
 	fprintf(stdout, "%s\n", p->pw_name);
-
 	endpwent();
-
 	return 0;
 }
-
