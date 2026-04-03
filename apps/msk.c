@@ -138,13 +138,6 @@ static void read_installed(void) {
 	}
 }
 
-static void make_var(void) {
-	struct stat buf;
-	if (stat(VAR_PATH, &buf)) {
-		mkdir(VAR_PATH, 0755);
-	}
-}
-
 static void needs_root(void) {
 	if (geteuid() != 0) {
 		fprintf(stderr, "only root can install packages; try `sudo`\n");
@@ -180,9 +173,8 @@ static int update_stores(int argc, char * argv[]) {
 #endif
 
 	needs_lock();
-
 	read_config();
-	make_var();
+	(void)mkdir(VAR_PATH, 0755);
 
 	confreader_t * manifest_out = confreader_create_empty();
 	hashmap_t * remotes = hashmap_get(msk_config->sections, "remotes");
