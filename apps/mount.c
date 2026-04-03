@@ -8,8 +8,7 @@
  */
 
 #include <stdio.h>
-#include <errno.h>
-#include <string.h>
+#include <unistd.h>
 #include <sys/mount.h>
 
 int main(int argc, char ** argv) {
@@ -17,11 +16,13 @@ int main(int argc, char ** argv) {
 		fprintf(stderr, "Usage: %s type device mountpoint\n", argv[0]);
 		return 1;
 	}
-
+	if (getuid() != 0) {
+		fprintf(stderr, "%s: only root should run this\n", argv[0]);
+		return 1;
+	}
 	int ret = mount(argv[2], argv[3], argv[1], 0, NULL);
-
 	if (ret < 0) {
-		fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
+		perror(argv[2]);
 		return ret;
 	}
 
