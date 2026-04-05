@@ -116,6 +116,5 @@ fs_node_t * loopbook_install(void) {
 	snprintf(nic->eth.if_name, 31, "lo");
 	loop_init(nic);
 	return nic->eth.device_node;
-	return 0;
 }
 
