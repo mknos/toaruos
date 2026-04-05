@@ -265,10 +265,6 @@ static int configure_interface(const char * if_name) {
 	}
 
 	/* Request the mac address */
-	if (chdir("/dev/net") == -1) {
-		perror("chdir");
-		return 1;
-	}
 	int netdev = open(if_name, O_RDWR);
 	if (netdev < 0) {
 		perror(_argv_0);
@@ -437,16 +433,19 @@ static int configure_interface_with_backoff(const char * if_name) {
 int main(int argc, char * argv[]) {
 	int retval = 0;
 
+	/* Read /dev/net for interfaces */
+	if (chdir("/dev/net") == -1) {
+		fprintf(stderr, "%s: no network?\n", _argv_0);
+		return 1;
+	}
 	if (argc > 1) {
 		return configure_interface(argv[1]);
 	} else {
-		/* Read /dev/net for interfaces */
-		DIR * d = opendir("/dev/net");
+		DIR * d = opendir(".");
 		if (!d) {
-			fprintf(stderr, "%s: no network?\n", _argv_0);
+			perror("opendir");
 			return 1;
 		}
-
 		struct dirent * ent;
 		while ((ent = readdir(d))) {
 			if (ent->d_name[0] == '.') continue;
@@ -454,7 +453,6 @@ int main(int argc, char * argv[]) {
 				retval = 1;
 			}
 		}
-
 		closedir(d);
 	}
 
