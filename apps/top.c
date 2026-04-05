@@ -583,7 +583,7 @@ static struct process ** read_processes(size_t * count) {
 /**
  * @brief Gather system information and print one sample.
  */
-static int do_once(void) {
+static int do_once(char *hostname) {
 	size_t count;
 	struct process ** processList = read_processes(&count);
 
@@ -622,9 +622,7 @@ static int do_once(void) {
 #define T_E "\033[0m"
 		if (top_rows >= 1) {
 			info_rows = 1;
-			char tmp[256] = {0};
-			gethostname(tmp, 255);
-			snprintf(info_row[0], 99, T_T "Hostname: " T_C "%.*s" T_E, info_width - 10, tmp);
+			snprintf(info_row[0], 99, T_T "Hostname: " T_C "%.*s" T_E, info_width - 10, hostname);
 		}
 		if (top_rows >= 2) {
 			info_rows = 2;
@@ -732,7 +730,7 @@ static int do_once(void) {
  *
  * Prints only process information.
  */
-static int do_log(void) {
+static int do_log(char *hostname) {
 	size_t count;
 	struct process ** processList = read_processes(&count);
 
@@ -746,12 +744,7 @@ static int do_log(void) {
 	int cpus[32];
 	get_cpu_info(cpus);
 
-	/* Hostname */
-	{
-		char tmp[256] = {0};
-		gethostname(tmp, 255);
-		printf("Hostname: %s\n", tmp);
-	}
+	printf("Hostname: %s\n", hostname);
 
 	/* Current time */
 	{
@@ -825,6 +818,8 @@ void SIGWINCH_handler(int sig) {
 }
 
 int main (int argc, char * argv[]) {
+	char hostname[256] = {0};
+	gethostname(hostname, 255);
 	/* Assume CPU count doesn't change... */
 	cpu_count = sysfunc(TOARU_SYS_FUNC_NPROC, NULL);
 
@@ -833,7 +828,7 @@ int main (int argc, char * argv[]) {
 	 * only output one sample of data before exiting.
 	 */
 	if (!isatty(STDOUT_FILENO)) {
-		return do_log();
+		return do_log(hostname);
 	}
 
 	/* Initialize terminal for alt screen */
@@ -842,7 +837,7 @@ int main (int argc, char * argv[]) {
 	signal(SIGWINCH, SIGWINCH_handler);
 
 	/* Loop */
-	while (do_once());
+	while (do_once(hostname));
 
 	/* Reset terminal */
 	set_buffered();
