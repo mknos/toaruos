@@ -405,9 +405,8 @@ void process_release_directory(page_directory_t * dir) {
 	if (dir->refcount < 1) {
 		mmu_free(dir->directory);
 		free(dir);
-	} else {
-		spin_unlock(dir->lock);
 	}
+	spin_unlock(dir->lock);
 }
 
 process_t * spawn_kidle(int bsp) {
