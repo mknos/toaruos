@@ -44,11 +44,14 @@ void sig_segv(int sig) {
 }
 
 int main(int argc, char ** argv) {
-
 	char * user = NULL;
 	int uid;
 	pid_t pid, f;
 
+	if (getuid() != 0) {
+		fprintf(stderr, "%s: only root can do that\n", argv[0]);
+		return 1;
+	}
 	int opt;
 	while ((opt = getopt(argc, argv, "f:")) != -1) {
 		switch (opt) {
@@ -135,7 +138,14 @@ int main(int argc, char ** argv) {
 		break;
 	}
 
-	system("cat /etc/motd");
+	FILE *motd = fopen("/etc/motd", "r");
+	if (motd) {
+		int c;
+		fputc('\n', stdout);
+		while ((c = fgetc(motd)) != EOF)
+			fputc(c, stdout);
+		fclose(motd);
+	}
 
 do_fork:
 	pid = getpid();
