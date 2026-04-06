@@ -16,6 +16,7 @@
 #include <unistd.h>
 #include <time.h>
 #include <signal.h>
+#include <syscall.h>
 #include <termios.h>
 #include <errno.h>
 #include <pwd.h>
@@ -97,7 +98,8 @@ int main(int argc, char ** argv) {
 
 		if (!strcmp(username, "reboot")) {
 			/* Quick hack so vga text mode login can exit */
-			system("reboot");
+			if (syscall_reboot() < 0)
+				return 2;
 		}
 
 		if (!strcmp(username, "disconnect")) {
