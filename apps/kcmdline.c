@@ -25,7 +25,7 @@
 
 #include "../kernel/misc/args.c"
 
-void show_usage(int argc, char * argv[]) {
+void usage(int argc, char * argv[]) {
 	printf(
 			"kcmdline - query the kernel command line\n"
 			"\n"
@@ -34,8 +34,8 @@ void show_usage(int argc, char * argv[]) {
 			"\n"
 			" -g     \033[3mprint the value for the requested argument\033[0m\n"
 			" -q     \033[3mquery whether the requested argument is present (0 = yes)\033[0m\n"
-			" -?     \033[3mshow this help text\033[0m\n"
 			"\n", argv[0], argv[0]);
+	exit(2);
 }
 
 int main(int argc, char * argv[]) {
@@ -43,7 +43,7 @@ int main(int argc, char * argv[]) {
 
 	/* Figure out what we're doing */
 	int opt;
-	while ((opt = getopt(argc, argv, "?g:q:s")) != -1) {
+	while ((opt = getopt(argc, argv, "g:q:s")) != -1) {
 		switch (opt) {
 			case 'g':
 				if (hashmap_has(kernel_args_map, optarg)) {
@@ -61,9 +61,8 @@ int main(int argc, char * argv[]) {
 				return !hashmap_has(kernel_args_map,optarg);
 			case 's':
 				return strlen(cmdline);
-			case '?':
-				show_usage(argc, argv);
-				return 1;
+			default:
+				usage(argc, argv);
 		}
 	}
 
