@@ -36,14 +36,13 @@ int main(int argc, char * argv[]) {
 	if (!strcmp(argv[1],"relative")) {
 		flag = 1;
 	}
-	if (!strcmp(argv[1],"absolute")) {
+	else if (!strcmp(argv[1],"absolute")) {
 		flag = 2;
 	}
-	if (!strcmp(argv[1],"get")) {
+	else if (!strcmp(argv[1],"get")) {
 		flag = 3;
 	}
-
-	if (!flag) {
+	else {
 		fprintf(stderr, "%s: invalid argument\n", argv[0]);
 		return 1;
 	}
