@@ -19,6 +19,10 @@
 #include <errno.h>
 #include <libgen.h>
 
+#define EX_MATCH 0
+#define EX_NOMATCH 1
+#define EX_ERROR 2
+
 static int invert = 0;
 static int ignorecase = 0;
 static int quiet = 0;
@@ -292,7 +296,7 @@ void usage(void) {
 		);
 #undef _I
 #undef _E
-	exit(2);
+	exit(EX_ERROR);
 }
 
 int main(int argc, char ** argv) {
@@ -355,8 +359,7 @@ int main(int argc, char ** argv) {
 	if (optind == argc) usage();
 	char * needle = argv[optind++];
 
-	int ret = 1; /* Normal exit status: 0 if something matched, 1 if not. */
-	int err = 0; /* Whether an error was encountered that should override the exit status to 2. */
+	int ret = EX_NOMATCH;
 
 	/* We show additional messages for detected binaries only if we are on a TTY,
 	 * and "auto" color mode should only activate if we are on a TTY. */
@@ -383,7 +386,7 @@ int main(int argc, char ** argv) {
 			if (!input) {
 				if (!suppress_errors) fprintf(stderr, "%s: %s: %s\n", argv[0], argv[optind], strerror(errno));
 				/* We continue to read other arguments but note this error to exit with 2 later. */
-				err = 1;
+				ret = EX_ERROR;
 				optind++;
 				continue;
 			}
@@ -432,7 +435,7 @@ int main(int argc, char ** argv) {
 						if (!matched) count++;
 
 						/* If anything matched, return code is 0 except for an error. */
-						ret = 0;
+						ret = EX_MATCH;
 						matched = 1;
 
 						/* If we are just listing matching files, we're done on the first match. */
@@ -550,7 +553,7 @@ int main(int argc, char ** argv) {
 
 		if (lineLength < 0 && ferror(input)) {
 			if (!suppress_errors) fprintf(stderr, "%s: %s: %s\n", argv[0], filename, strerror(errno));
-			err = 1;
+			ret = EX_ERROR;
 			optind++;
 			continue;
 		}
@@ -572,6 +575,5 @@ _done: (void)0;
 		optind++;
 	} while (optind < argc);
 
-	return err ? 2 : ret;
+	return ret;
 }
-
