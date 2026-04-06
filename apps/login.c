@@ -73,13 +73,12 @@ int main(int argc, char ** argv) {
 	signal(SIGWINCH, sig_pass);
 	signal(SIGSEGV, sig_segv);
 
-	while (1) {
+	char _hostname[256];
+	gethostname(_hostname, 255);
 
+	while (1) {
 		char username[1024] = {0};
 		char password[1024] = {0};
-
-		char _hostname[256];
-		gethostname(_hostname, 255);
 
 		fprintf(stdout, "%s login: ", _hostname);
 		fflush(stdout);
