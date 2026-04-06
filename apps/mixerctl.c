@@ -109,7 +109,7 @@ int main(int argc, char * argv[]) {
 		}
 		double double_val = (double)value.val / SND_KNOB_MAX_VALUE;
 		fprintf(stdout, "%f\n", double_val);
-		exit(EXIT_FAILURE);
+		exit(EXIT_SUCCESS);
 	}
 
 	if (write_flag) {
