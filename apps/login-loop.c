@@ -69,30 +69,27 @@ char * get_arg(FILE * f) {
 }
 
 char * get_ipv4_address(char * arg) {
-	if (arg) {
-		char if_path[1024];
-		snprintf(if_path, 300, "/dev/net/%s", arg);
-		int netdev = open(if_path, O_RDWR);
-		if (netdev >= 0) {
-			uint32_t ip_addr = 0;
-			if (!ioctl(netdev, SIOCGIFADDR, &ip_addr)) {
-				return inet_ntoa((struct in_addr){ntohl(ip_addr)});
-			}
-		}
-	} else {
-		/* Read /dev/net for interfaces */
-		DIR * d = opendir("/dev/net");
-		if (d) {
-			struct dirent * ent;
-			while ((ent = readdir(d))) {
-				if (ent->d_name[0] == '.') continue;
-				closedir(d);
-				return get_ipv4_address(ent->d_name);
-			}
+	if (chdir("/dev/net") == -1)
+		return "<no net>";
+	DIR * d = opendir(".");
+	if (d == NULL)
+		return "<no net>";
+	struct dirent * ent = NULL;
+	while ((ent = readdir(d))) {
+		if (ent->d_name[0] == '.') continue;
+		if (arg && strstr(arg, ent->d_name) != 0) continue;
+		int netdev = open(ent->d_name, O_RDWR);
+		if (netdev == -1)
+			break;
+		uint32_t ip_addr = 0;
+		if (!ioctl(netdev, SIOCGIFADDR, &ip_addr)) {
+			close(netdev);
 			closedir(d);
+			return inet_ntoa((struct in_addr){ntohl(ip_addr)});
 		}
+		close(netdev);
 	}
-
+	closedir(d);
 	return "127.0.0.1";
 }
 
