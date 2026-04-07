@@ -385,14 +385,6 @@ int atoi(const char * s) {
 	return neg ? n : -n;
 }
 
-size_t lfind(const char * str, const char accept) {
-	return (size_t)strchr(str, accept);
-}
-
-size_t rfind(const char * str, const char accept) {
-	return (size_t)strrchr(str, accept);
-}
-
 char * strtok_r(char * str, const char * delim, char ** saveptr) {
 	char * token;
 	if (str == NULL) {
@@ -406,7 +398,7 @@ char * strtok_r(char * str, const char * delim, char ** saveptr) {
 	token = str;
 	str = strpbrk(token, delim);
 	if (str == NULL) {
-		*saveptr = (char *)lfind(token, '\0');
+		*saveptr = strchr(token, '\0');
 	} else {
 		*str = '\0';
 		*saveptr = str + 1;
