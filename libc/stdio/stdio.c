@@ -268,8 +268,7 @@ FILE * fopen(const char *path, const char *mode) {
 		return NULL;
 	}
 
-	FILE * out = malloc(sizeof(FILE));
-	memset(out, 0, sizeof(struct _FILE));
+	FILE * out = calloc(1, sizeof(FILE));
 	out->fd = fd;
 	out->read_buf = malloc(BUFSIZ);
 	out->bufsiz = BUFSIZ;
@@ -326,8 +325,7 @@ int ungetc(int c, FILE * stream) {
 }
 
 FILE * fdopen(int fd, const char *mode){
-	FILE * out = malloc(sizeof(FILE));
-	memset(out, 0, sizeof(struct _FILE));
+	FILE * out = calloc(1, sizeof(FILE));
 	out->fd = fd;
 	out->read_buf = malloc(BUFSIZ);
 	out->bufsiz = BUFSIZ;
