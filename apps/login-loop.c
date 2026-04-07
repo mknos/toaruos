@@ -188,6 +188,10 @@ void print_issue(void) {
 }
 
 int main(int argc, char * argv[]) {
+	if (getuid() != 0) {
+		fprintf(stderr, "%s: only root can do that\n", argv[0]);
+		return 1;
+	}
 	while (1) {
 		print_issue();
 		pid_t f = fork();
