@@ -46,9 +46,8 @@ int main(int argc, char * argv[]) {
 	}
 
 	fd_serial = open(file, O_RDWR);
-
-	if (fd_serial < 0) {
-		perror("open");
+	if (fd_serial == -1) {
+		perror(file);
 		return 1;
 	}
 
