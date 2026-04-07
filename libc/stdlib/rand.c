@@ -1,6 +1,5 @@
 #include <stdint.h>
 #include <stdlib.h>
-#include <math.h>
 
 static uint32_t x = 123456789;
 static uint32_t y = 362436069;
