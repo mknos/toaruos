@@ -122,7 +122,10 @@ _invalid:
 set_time:
 		now.tv_usec = 0;
 		now.tv_sec = mktime(timeinfo);
-		return settimeofday(&now, NULL);
+		int r = settimeofday(&now, NULL);
+		if (r == -1)
+			perror("date");
+		return r;
 	}
 
 	strftime(buf,BUFSIZ,format,timeinfo);
