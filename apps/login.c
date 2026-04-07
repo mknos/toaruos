@@ -158,11 +158,15 @@ do_fork:
 		ioctl(STDIN_FILENO, TIOCSCTTY, &(int){1});
 		tcsetpgrp(STDIN_FILENO, getpid());
 		toaru_set_credentials(uid);
+		char * shell = getenv("SHELL");
+		if (shell == NULL)
+			shell = "/bin/sh";
 		char * args[] = {
-			getenv("SHELL"),
+			shell,
 			NULL
 		};
-		execvp(args[0], args);
+		if (execvp(args[0], args) == -1)
+			perror(shell);
 		return 1;
 	} else {
 		child = f;
