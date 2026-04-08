@@ -828,24 +828,21 @@ long sys_getpgid(pid_t pid) {
 
 long sys_uname(struct utsname * name) {
 	PTR_VALIDATE(name);
-	if (!name) return -EFAULT;
-	char version_number[256];
-	snprintf(version_number, 255, __kernel_version_format,
+	if (!name)
+		return -EFAULT;
+	snprintf(name->release, sizeof(name->release), __kernel_version_format,
 			__kernel_version_major,
 			__kernel_version_minor,
 			__kernel_version_lower,
 			__kernel_version_suffix);
-	char version_string[256];
-	snprintf(version_string, 255, "%s %s %s",
+	snprintf(name->version, sizeof(name->version), "%s %s %s",
 			__kernel_version_codename,
 			__kernel_build_date,
 			__kernel_build_time);
-	strcpy(name->sysname,  __kernel_name);
-	strcpy(name->nodename, hostname);
-	strcpy(name->release,  version_number);
-	strcpy(name->version,  version_string);
-	strcpy(name->machine,  __kernel_arch);
-	strcpy(name->domainname, ""); /* TODO */
+	snprintf(name->sysname, sizeof(name->sysname), "%s", __kernel_name);
+	snprintf(name->nodename, sizeof(name->nodename), "%s", hostname);
+	snprintf(name->machine, sizeof(name->machine), "%s", __kernel_arch);
+	name->domainname[0] = '\0'; // TODO
 	return 0;
 }
 
@@ -934,7 +931,7 @@ long sys_sethostname(char * new_hostname) {
 	if (len > sizeof(hostname))
 		return -ENAMETOOLONG;
 	hostname_len = len;
-	strcpy(hostname, new_hostname);
+	snprintf(hostname, len, "%s", new_hostname);
 	return 0;
 }
 
