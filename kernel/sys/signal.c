@@ -271,9 +271,8 @@ int send_signal(pid_t process, int signal, int force_root) {
  * @returns 0 if something was killed, -ESRCH otherwise.
  */
 int group_send_signal(pid_t group, int signal, int force_root) {
-
 	int kill_self = 0;
-	int killed_something = 0;
+	int ret = -ESRCH;
 
 	if (signal >= NUMSIGNALS || signal < 0) return -EINVAL;
 
@@ -284,20 +283,17 @@ int group_send_signal(pid_t group, int signal, int force_root) {
 			if (proc->group == this_core->current_process->group) {
 				kill_self = 1;
 			} else {
-				if (send_signal(proc->group, signal, force_root) == 0) {
-					killed_something = 1;
-				}
+				if (send_signal(proc->group, signal, force_root) == 0)
+					ret = 0;
 			}
 		}
 	}
 
 	if (kill_self) {
-		if (send_signal(this_core->current_process->group, signal, force_root) == 0) {
-			killed_something = 1;
-		}
+		if (send_signal(this_core->current_process->group, signal, force_root) == 0)
+			ret = 0;
 	}
-
-	return killed_something ? 0 : -ESRCH;
+	return ret;
 }
 
 /**
