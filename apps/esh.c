@@ -971,6 +971,11 @@ int shell_exec(char * buffer, size_t size, FILE * file, char ** out_buffer) {
 								}
 								p++;
 							}
+							// Bare $ is not substituted
+							if (coll == 0) {
+								p--;
+								goto _just_add;
+							}
 						}
 						/* Special cases */
 						char *c = NULL;
