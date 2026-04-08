@@ -24,11 +24,8 @@
  * Copyright (C) 2012-2022 K. Lange
  */
 #include <errno.h>
-#include <stdint.h>
 #include <sys/signal.h>
 #include <sys/signal_defs.h>
-#include <kernel/printf.h>
-#include <kernel/string.h>
 #include <kernel/process.h>
 #include <kernel/signal.h>
 #include <kernel/spinlock.h>
