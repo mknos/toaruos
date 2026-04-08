@@ -15,7 +15,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <kernel/types.h>
-#include <kernel/printf.h>
 #include <kernel/process.h>
 #include <kernel/mmu.h>
 #include <kernel/shm.h>
@@ -25,11 +24,8 @@
 #include <kernel/tree.h>
 #include <kernel/list.h>
 
-
-//static volatile uint8_t bsl; // big shm lock
 static spin_lock_t bsl; // big shm lock
 tree_t * shm_tree = NULL;
-
 
 void shm_install(void) {
 	shm_tree = tree_create();
