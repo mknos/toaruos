@@ -106,24 +106,6 @@ static unsigned int round_to_512(unsigned int i) {
 static int ustar_from_offset(struct tarfs * self, unsigned int offset, struct ustar * out);
 static fs_node_t * file_from_ustar(struct tarfs * self, struct ustar * file, unsigned int offset);
 
-#ifndef strncat
-static char * strncat(char *dest, const char *src, size_t n) {
-	char * end = dest;
-	while (*end != '\0') {
-		++end;
-	}
-	size_t i = 0;
-	while (*src && i < n) {
-		*end = *src;
-		end++;
-		src++;
-		i++;
-	}
-	*end = '\0';
-	return dest;
-}
-#endif
-
 static int count_slashes(char * string) {
 	int i = 0;
 	char * s = strchr(string, '/');
@@ -166,10 +148,8 @@ static struct dirent * readdir_tar_root(fs_node_t *node, unsigned long index) {
 		}
 
 		char filename_workspace[256];
-
-		memset(filename_workspace, 0, sizeof(filename_workspace));
-		strncat(filename_workspace, file->prefix, 155);
-		strncat(filename_workspace, file->filename, 100);
+		snprintf(filename_workspace, sizeof(filename_workspace),
+			"%s%s", file->prefix, file->filename);
 
 		if (!count_slashes(filename_workspace)) {
 			char * slash = strchr(filename_workspace, '/');
@@ -238,12 +218,11 @@ static struct dirent * readdir_tarfs(fs_node_t *node, unsigned long index) {
 	/* Read myself */
 	struct ustar * file = malloc(sizeof(struct ustar));
 	int status = ustar_from_offset(self, node->inode, file);
-	char my_filename[256];
 
 	/* Figure out my own filename, with forward slash */
-	memset(my_filename, 0, sizeof(my_filename));
-	strncat(my_filename, file->prefix, 155);
-	strncat(my_filename, file->filename, 100);
+	char my_filename[256];
+	snprintf(my_filename, sizeof(my_filename), "%s%s",
+		file->prefix, file->filename);
 
 	while (offset < self->length) {
 		ustar_from_offset(self, offset, file);
@@ -254,9 +233,8 @@ static struct dirent * readdir_tarfs(fs_node_t *node, unsigned long index) {
 		}
 
 		char filename_workspace[256];
-		memset(filename_workspace, 0, sizeof(filename_workspace));
-		strncat(filename_workspace, file->prefix, 155);
-		strncat(filename_workspace, file->filename, 100);
+		snprintf(filename_workspace, sizeof(filename_workspace),
+			"%s%s", file->prefix, file->filename);
 
 		if (strstr(filename_workspace, my_filename) == filename_workspace) {
 			if (!count_slashes(filename_workspace + strlen(my_filename))) {
@@ -292,16 +270,8 @@ static fs_node_t * finddir_tarfs(fs_node_t *node, char *name) {
 	ustar_from_offset(self, node->inode, file);
 
 	char my_filename[256];
-	/* Figure out my own filename, with forward slash */
-	memset(my_filename, 0, sizeof(my_filename));
-	strncat(my_filename, file->prefix, 155);
-	strncat(my_filename, file->filename, 100);
-
-	/* Append name */
-	strncat(my_filename, name, strlen(name));
-	if (strlen(my_filename) > 255) {
-		printf("tarfs: critical: what?");
-	}
+	snprintf(my_filename, sizeof(my_filename), "%s%s%s",
+		file->prefix, file->filename, name);
 
 	unsigned int offset = node->inode;
 	while (offset < self->length) {
@@ -313,9 +283,8 @@ static fs_node_t * finddir_tarfs(fs_node_t *node, char *name) {
 		}
 
 		char filename_workspace[256];
-		memset(filename_workspace, 0, sizeof(filename_workspace));
-		strncat(filename_workspace, file->prefix, 155);
-		strncat(filename_workspace, file->filename, 100);
+		snprintf(filename_workspace, sizeof(filename_workspace),
+			"%s%s", file->prefix, file->filename);
 
 		if (filename_workspace[strlen(filename_workspace)-1] == '/') {
 			filename_workspace[strlen(filename_workspace)-1] = '\0';
@@ -408,9 +377,8 @@ static fs_node_t * finddir_tar_root(fs_node_t *node, char *name) {
 		}
 
 		char filename_workspace[256];
-		memset(filename_workspace, 0, sizeof(filename_workspace));
-		strncat(filename_workspace, file->prefix, 155);
-		strncat(filename_workspace, file->filename, 100);
+		snprintf(filename_workspace, sizeof(filename_workspace),
+			"%s%s", file->prefix, file->filename);
 
 		if (count_slashes(filename_workspace)) {
 			/* skip */
