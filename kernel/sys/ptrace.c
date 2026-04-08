@@ -26,13 +26,11 @@
 #include <stdint.h>
 #include <errno.h>
 #include <sys/ptrace.h>
-#include <kernel/printf.h>
 #include <kernel/process.h>
 #include <kernel/string.h>
 #include <kernel/signal.h>
 #include <kernel/syscall.h>
 #include <kernel/ptrace.h>
-#include <kernel/args.h>
 #include <kernel/mmu.h>
 
 #if defined(__x86_64__)
