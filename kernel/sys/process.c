@@ -802,6 +802,8 @@ volatile process_t * next_ready_process(void) {
  * @returns the number of processes successfully awoken
  */
 int wakeup_queue(list_t * queue) {
+	if (queue->length == 0)
+		return 0;
 	int awoken_processes = 0;
 	spin_lock(wait_lock_tmp);
 	while (queue->length > 0) {
@@ -828,6 +830,8 @@ int wakeup_queue(list_t * queue) {
  * Otherwise, same semantics as @ref wakeup_queue.
  */
 int wakeup_queue_interrupted(list_t * queue) {
+	if (queue->length == 0)
+		return 0;
 	int awoken_processes = 0;
 	spin_lock(wait_lock_tmp);
 	while (queue->length > 0) {
@@ -846,6 +850,8 @@ int wakeup_queue_interrupted(list_t * queue) {
 }
 
 int wakeup_queue_one(list_t * queue) {
+	if (queue->length == 0)
+		return 0;
 	int awoken_processes = 0;
 	spin_lock(wait_lock_tmp);
 	if (queue->length > 0) {
