@@ -1824,19 +1824,18 @@ int main(int argc, char ** argv) {
  * cd [path]
  */
 uint32_t shell_cmd_cd(int argc, char * argv[]) {
-	char home_path[1200];
 	char *dir = NULL;
 	if (argc > 1)
 		dir = argv[1];
 	else {
 		dir = getenv("HOME");
-		if (!dir) {
-			snprintf(home_path, sizeof(home_path), "/home/%s", username);
-			dir = home_path;
+		if (dir == NULL) {
+			fprintf(stderr, "%s: no home directory (HOME not set)\n", argv[0]);
+			return 1;
 		}
 	}
-	if (chdir(dir)) {
-		fprintf(stderr, "%s: could not cd '%s': %s\n", argv[0], dir, strerror(errno));
+	if (chdir(dir) == -1) {
+		fprintf(stderr, "%s '%s': %s\n", argv[0], dir, strerror(errno));
 		return 1;
 	}
 	return 0;
