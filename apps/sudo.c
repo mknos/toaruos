@@ -14,16 +14,12 @@
  */
 
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
 #include <termios.h>
-#include <errno.h>
 #include <pwd.h>
-#include <dirent.h>
-#include <sys/utsname.h>
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <toaru/auth.h>
