@@ -69,14 +69,14 @@ int main(int argc, char * argv[]) {
 		break;
 	case 2:
 		f = fopen(argv[1], "r");
+		if (f == NULL) {
+			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[1], strerror(errno));
+			return 1;
+		}
 		fname = argv[1];
 		break;
 	default:
 		fprintf(stderr, "usage: %s [file]\n", argv[0]);
-		return 1;
-	}
-	if (!f) {
-		fprintf(stderr, "%s: %s: %s\n", argv[0], fname, strerror(errno));
 		return 1;
 	}
 	char *buf = malloc(RBUF_SIZE);
