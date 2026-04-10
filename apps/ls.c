@@ -97,9 +97,8 @@ static int filecmp(const void * c1, const void * c2) {
 	int b = S_ISDIR(d2->statbuf.st_mode);
 
 	if (a == b) return strcmp(d1->name, d2->name);
-	else if (a < b) return -1;
-	else if (a > b) return 1;
-	return 0; /* impossible ? */
+	if (a < b) return -1;
+	return 1;
 }
 
 static int filecmp_notypesort(const void * c1, const void * c2) {
