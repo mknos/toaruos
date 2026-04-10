@@ -16,4 +16,5 @@ void __assert_failed(const char * file, int line, const char * func, const char 
 	dprintf("%s:%d (%s) Assertion failed: %s\n", file, line, func, cond);
 	arch_dump_traceback();
 	arch_fatal();
+	__builtin_unreachable();
 }
