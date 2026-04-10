@@ -321,15 +321,25 @@ static int display_dir(char * p) {
 	while (ent != NULL) {
 		if (show_hidden || (ent->d_name[0] != '.')) {
 			struct tfile * f = malloc(sizeof(struct tfile));
-
+			if (f == NULL) {
+				perror("ls: malloc");
+				exit(1);
+			}
 			f->name = strdup(ent->d_name);
-
+			if (f->name == NULL) {
+				perror("ls: strdup");
+				exit(1);
+			}
 			char tmp[strlen(p)+strlen(ent->d_name)+2];
 			sprintf(tmp, "%s/%s", p, ent->d_name);
 			lstat(tmp, &f->statbuf);
 			if (S_ISLNK(f->statbuf.st_mode)) {
 				stat(tmp, &f->statbufl);
 				f->link = malloc(4096);
+				if (f->link == NULL) {
+					perror("ls: malloc");
+					exit(1);
+				}
 				readlink(tmp, f->link, 4096);
 			}
 
@@ -343,9 +353,13 @@ static int display_dir(char * p) {
 
 	/* Now, copy those entries into an array (for sorting) */
 
-	if (!ents_list->length) return 0;
-
-	struct tfile ** file_arr = malloc(sizeof(struct tfile *) * ents_list->length);
+	if (!ents_list->length)
+		return 0;
+	struct tfile ** file_arr = calloc(ents_list->length, sizeof(struct tfile *));
+	if (file_arr == NULL) {
+		perror("ls: calloc");
+		exit(1);
+	}
 	int index = 0;
 	foreach(node, ents_list) {
 		file_arr[index++] = (struct tfile *)node->value;
@@ -433,7 +447,10 @@ int main (int argc, char * argv[]) {
 		list_t * files = list_create();
 		while (p) {
 			struct tfile * f = malloc(sizeof(struct tfile));
-
+			if (f == NULL) {
+				perror("ls: malloc");
+				exit(1);
+			}
 			f->name = p;
 			int t = lstat(p, &f->statbuf);
 
@@ -445,6 +462,10 @@ int main (int argc, char * argv[]) {
 				if (S_ISLNK(f->statbuf.st_mode)) {
 					stat(p, &f->statbufl);
 					f->link = malloc(4096);
+					if (f->link == NULL) {
+						perror("ls: malloc");
+						exit(1);
+					}
 					readlink(p, f->link, 4096);
 				}
 				list_insert(files, f);
@@ -455,12 +476,13 @@ int main (int argc, char * argv[]) {
 			else p = argv[optind];
 		}
 
-		if (!files->length) {
-			/* No valid entries */
+		if (files->length == 0)
 			return out;
+		struct tfile ** file_arr = calloc(files->length, sizeof(struct tfile *));
+		if (file_arr == NULL) {
+			perror("ls: calloc");
+			exit(1);
 		}
-
-		struct tfile ** file_arr = malloc(sizeof(struct tfile *) * files->length);
 		int index = 0;
 		foreach(node, files) {
 			file_arr[index++] = (struct tfile *)node->value;
