@@ -167,19 +167,13 @@ void switch_next(void) {
  * @param reschedule Non-zero if this process should be added to the ready queue.
  */
 void switch_task(uint8_t reschedule) {
+	// The scheduler is not enabled.
+	assert(this_core->current_process != NULL);
 
-	/* switch_task() called but the scheduler isn't enabled? Resume... this is probably a bug. */
-	if (!this_core->current_process) return;
-
-	if (this_core->current_process == this_core->kernel_idle_task) {
-		arch_fatal_prepare();
-		printf("Context switch from kernel_idle_task triggered from somewhere other than pre-emption source. Halting.\n");
-		printf("This generally means that a driver responding to interrupts has attempted to yield in its interrupt context.\n");
-		printf("Ensure that all device drivers which respond to interrupts do so with non-blocking data structures.\n");
-		printf("   Return address of switch_task: %p\n", __builtin_return_address(0));
-		arch_dump_traceback();
-		arch_fatal();
-	}
+	// Context switch from kernel_idle_task triggered from somewhere other than pre-emption source.
+	// Possibly a driver responding to interrupts has attempted to yield in its interrupt context.
+	// Ensure that all device drivers which respond to interrupts do so with non-blocking data structures.
+	assert(this_core->current_process != this_core->kernel_idle_task);
 
 	/* If a process got to switch_task but was not marked as running, it must be exiting and we don't
 	 * want to waste time saving context for it. Also, kidle is always resumed from the top of its
@@ -744,12 +738,9 @@ volatile process_t * next_ready_process(void) {
 	spin_lock(process_queue_lock);
 
 	if (!process_queue->head) {
-		if (process_queue->length) {
-			arch_fatal_prepare();
-			printf("Queue has a length but head is NULL\n");
-			arch_dump_traceback();
-			arch_fatal();
-		}
+		// Queue has a length but head is NULL.
+		assert(process_queue->length == 0);
+
 		spin_unlock(process_queue_lock);
 		return this_core->kernel_idle_task;
 	}
