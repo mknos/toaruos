@@ -22,10 +22,6 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
-#define TRACE_APP_NAME "ls"
-//#include "lib/trace.h"
-#define TRACE(...)
-
 #include <toaru/list.h>
 
 #define MIN_COL_SPACING 2
@@ -122,21 +118,15 @@ static void print_entry(struct tfile * file, int colwidth) {
 }
 
 static int print_username(char * _out, int uid) {
-
-	TRACE("getpwuid");
 	struct passwd * p = getpwuid(uid);
 	int out = 0;
 
-	if (p) {
-		TRACE("p is set");
+	if (p)
 		out = sprintf(_out, "%s", p->pw_name);
-	} else {
-		TRACE("p is not set");
+	else
 		out = sprintf(_out, "%d", uid);
-	}
 
 	endpwent();
-
 	return out;
 }
 
@@ -157,22 +147,18 @@ static void update_column_widths(int * widths, struct tfile * file) {
 	int n;
 
 	/* Links */
-	TRACE("links");
 	n = sprintf(tmp, "%d", file->statbuf.st_nlink);
 	if (n > widths[0]) widths[0] = n;
 
 	/* User */
-	TRACE("user");
 	n = print_username(tmp, file->statbuf.st_uid);
 	if (n > widths[1]) widths[1] = n;
 
 	/* Group */
-	TRACE("group");
 	n = print_username(tmp, file->statbuf.st_gid);
 	if (n > widths[2]) widths[2] = n;
 
 	/* File size */
-	TRACE("file size");
 	if (human_readable) {
 		n = print_human_readable_size(tmp, file->statbuf.st_size);
 	} else {
@@ -259,12 +245,10 @@ static void usage(void) {
 
 static void display_tfiles(struct tfile ** ents_array, int numents) {
 	if (long_mode) {
-		TRACE("long mode display, column lengths");
 		int widths[4] = {0,0,0,0};
 		for (int i = 0; i < numents; i++) {
 			update_column_widths(widths, ents_array[i]);
 		}
-		TRACE("actual printing");
 		for (int i = 0; i < numents; i++) {
 			print_entry_long(widths, ents_array[i]);
 		}
@@ -312,7 +296,6 @@ static int display_dir(char * p) {
 	/* Read the entries in the directory */
 	list_t * ents_list = list_create();
 
-	TRACE("reading entries");
 	struct dirent * ent = readdir(dirp);
 	while (ent != NULL) {
 		if (show_hidden || (ent->d_name[0] != '.')) {
@@ -345,8 +328,6 @@ static int display_dir(char * p) {
 	}
 	closedir(dirp);
 
-	TRACE("copying");
-
 	/* Now, copy those entries into an array (for sorting) */
 
 	if (!ents_list->length)
@@ -363,14 +344,10 @@ static int display_dir(char * p) {
 
 	list_free(ents_list);
 
-	TRACE("sorting");
 	qsort(file_arr, index, sizeof(struct tfile *), filecmp_notypesort);
-
-	TRACE("displaying");
 	display_tfiles(file_arr, index);
 
 	free(file_arr);
-
 	return 0;
 }
 
@@ -424,7 +401,6 @@ int main (int argc, char * argv[]) {
 	}
 
 	if (stdout_is_tty) {
-		TRACE("getting display size");
 		struct winsize w;
 		ioctl(1, TIOCGWINSZ, &w);
 		term_width = w.ws_col;
@@ -435,7 +411,6 @@ int main (int argc, char * argv[]) {
 	int out = 0;
 
 	if (argc == 1 || optind == argc) {
-		TRACE("no file to look up");
 		if (display_dir(p) == 2) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], p, strerror(errno));
 		}
