@@ -44,30 +44,27 @@ int main(int argc, char * argv[]) {
 	}
 
 	char * result = mktemp(template);
-	if (!result) {
+	if (result == NULL || strlen(result) == 0) {
 		fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
 		return 1;
 	}
-	free(template);
-
-	if (!quiet) {
+	if (!quiet)
 		fprintf(stdout, "%s\n", result);
-	}
-
+	int rc = 0;
 	if (!dry_run) {
 		if (directory) {
 			if (mkdir(result,0777) < 0) {
 				fprintf(stderr, "%s: mkdir: %s: %s\n", argv[0], result, strerror(errno));
-				return 1;
+				rc = 1;
 			}
 		} else {
 			FILE * f = fopen(result,"w");
 			if (!f) {
 				fprintf(stderr, "%s: open: %s: %s\n", argv[0], result, strerror(errno));
-				return 1;
+				rc = 1;
 			}
 		}
 	}
-
-	return 0;
+	free(template);
+	return rc;
 }
