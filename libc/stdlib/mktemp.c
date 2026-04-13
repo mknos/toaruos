@@ -6,14 +6,17 @@
 #include <fcntl.h>
 
 char * mktemp(char * template) {
-	if (strstr(template + strlen(template)-6, "XXXXXX") != template + strlen(template) - 6) {
+	size_t len = strlen(template);
+	char * suffix = template + len - 6;
+	if (len < 6 || strcmp(suffix, "XXXXXX") != 0) {
+		memset(template, 0, len);
 		errno = EINVAL;
-		return NULL;
+		return template;
 	}
 	static int _i = 0;
-	char tmp[7] = {0};
-	sprintf(tmp,"%04d%02d", getpid(), _i++);
-	memcpy(template + strlen(template) - 6, tmp, 6);
+	int pid = (int)getpid() % 10000;
+	snprintf(suffix, 7, "%04d%02d", pid, _i);
+	_i = (_i + 1)  % 100;
 	return template;
 }
 
