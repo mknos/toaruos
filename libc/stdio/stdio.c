@@ -489,17 +489,13 @@ int fputc(int c, FILE *stream) {
 int putc(int c, FILE *stream) __attribute__((weak, alias("fputc")));
 
 int fgetc(FILE * stream) {
-	char buf[1];
-	int r;
-	r = fread(buf, 1, 1, stream);
-	if (r < 0) {
-		stream->flags |= STDIO_EOF;
-		return EOF;
-	} else if (r == 0) {
+	char buf;
+	int r = fread(&buf, 1, 1, stream);
+	if (r <= 0) {
 		stream->flags |= STDIO_EOF;
 		return EOF;
 	}
-	return (unsigned char)buf[0];
+	return (unsigned char)buf;
 }
 
 int getc(FILE * stream) __attribute__((weak, alias("fgetc")));
