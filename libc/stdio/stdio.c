@@ -334,10 +334,7 @@ FILE * fdopen(int fd, const char *mode){
 	out->offset = 0;
 	out->ungetc = -1;
 	out->flags = 0;
-
-	char tmp[30];
-	sprintf(tmp, "fd[%d]", fd);
-	out->_name = strdup(tmp);
+	asprintf(&out->_name, "fd[%d]", fd);
 
 	out->write_buf = malloc(BUFSIZ);
 	out->written = 0;
