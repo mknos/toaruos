@@ -125,8 +125,8 @@ static char _error_string[100];
 char * strerror(int errnum) {
 	char * str = (errnum >= 0 && (size_t)errnum < sizeof(_error_strings) / sizeof(*_error_strings)) ? _error_strings[errnum] : NULL;
 	if (!str) {
-		snprintf(_error_string, 100, "%d", errnum);
-		return _error_string;
+		snprintf(_error_string, sizeof(_error_string), "%d", errnum);
+		str = _error_string;
 	}
 	return str;
 }
