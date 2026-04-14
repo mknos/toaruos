@@ -8,8 +8,7 @@ FILE * tmpfile(void) {
 	sprintf(tmp, "/tmp/tmp%d.%d", getpid(), tmpfile_num++);
 
 	FILE * out = fopen(tmp, "w+b");
-
-	unlink(tmp);
-
+	if (out != NULL)
+		(void)unlink(tmp);
 	return out;
 }
