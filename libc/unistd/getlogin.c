@@ -1,6 +1,6 @@
 #include <unistd.h>
 #include <pwd.h>
-#include <string.h>
+#include <stdio.h>
 #include <errno.h>
 #include <sys/stat.h>
 
@@ -21,17 +21,14 @@ char * getlogin(void) {
 	}
 
 	char * name = ttyname(tty);
-	if (!name) return NULL;
-
-	/* Get the owner */
+	if (!name)
+		return NULL;
 	struct stat statbuf;
-	if (stat(name, &statbuf) == -1) return NULL;
-
+	if (stat(name, &statbuf) == -1)
+		return NULL;
 	struct passwd * passwd = getpwuid(statbuf.st_uid);
-
-	if (!passwd) return NULL;
-	if (!passwd->pw_name) return NULL;
-
-	memcpy(_name, passwd->pw_name, strlen(passwd->pw_name));
+	if (!passwd || !passwd->pw_name)
+		return NULL;
+	snprintf(_name, sizeof(_name), "%s", passwd->pw_name);
 	return _name;
 }
