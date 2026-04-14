@@ -1,7 +1,3 @@
-#include <libgen.h>
-#include <stdlib.h>
-#include <string.h>
-
 char * dirname(char * path) {
 	int has_slash = 0;
 	char * c = path;
