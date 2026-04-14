@@ -73,7 +73,7 @@ int tcsetpgrp(int fd, pid_t pgrp) {
 
 pid_t tcgetpgrp(int fd) {
 	pid_t pgrp;
-	ioctl(fd, TIOCGPGRP, &pgrp);
+	if (ioctl(fd, TIOCGPGRP, &pgrp) == -1)
+		return -1;
 	return pgrp;
 }
-
