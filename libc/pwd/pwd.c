@@ -59,13 +59,10 @@ struct passwd * fgetpwent(FILE * stream) {
 		pw_blob[strlen(pw_blob)-1] = '\0'; /* erase newline */
 	}
 
-	/* Tokenize */
 	char *p, *tokens[8], *last;
 	int i = 0;
-	for ((p = strtok_r(pw_blob, ":", &last)); p;
-			(p = strtok_r(NULL, ":", &last)), i++) {
-		tokens[i] = p;
-	}
+	while ((p = strtok_r(pw_blob, ":", &last)) != NULL)
+		tokens[i++] = p;
 
 	if (i < 8) return NULL;
 
