@@ -11,15 +11,15 @@ char * ttyname(int fd) {
 		errno = ENOTTY;
 		return NULL;
 	}
-
-	ioctl(fd, IOCTLTTYNAME, _tty_name);
-
+	if (ioctl(fd, IOCTLTTYNAME, _tty_name) == -1)
+		return NULL;
 	return _tty_name;
 }
 
 int ttyname_r(int fd, char * buf, size_t buflen) {
 	if (!isatty(fd)) return ENOTTY;
 	if (buflen < 30) return ERANGE;
-	ioctl(fd, IOCTLTTYNAME, buf);
+	if (ioctl(fd, IOCTLTTYNAME, buf) == -1)
+		return errno;
 	return 0;
 }
