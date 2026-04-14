@@ -45,11 +45,11 @@ const char * const sys_siglist[] = {
 };
 
 char * strsignal(int sig) {
-	static char _signal_description[256];
+	static char desc[256];
 	if (sig > 0 && sig < NUMSIGNALS) {
-		snprintf(_signal_description, 256, "%s", sys_siglist[sig]);
+		snprintf(desc, sizeof(desc), "%s", sys_siglist[sig]);
 	} else {
-		snprintf(_signal_description, 256, "Killed by signal %d", sig);
+		snprintf(desc, sizeof(desc), "Killed by signal %d", sig);
 	}
-	return _signal_description;
+	return desc;
 }
