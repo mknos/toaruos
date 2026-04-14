@@ -1,6 +1,8 @@
+#include <assert.h>
 #include <unistd.h>
 #include <getopt.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
 
@@ -45,8 +47,8 @@ int getopt_long(int argc, char * const argv[], const char *optstring, const stru
 					} else if (longopts) {
 						/* Scan through options */
 						nextchar++;
-						char tmp[strlen(nextchar)+1];
-						strcpy(tmp, nextchar);
+						char * tmp = strdup(nextchar);
+						assert(tmp != NULL);
 						char * eq = strchr(tmp, '=');
 						if (eq) {
 							*eq = '\0';
@@ -69,6 +71,7 @@ int getopt_long(int argc, char * const argv[], const char *optstring, const stru
 							if (print_errors) {
 								fprintf(stderr, "%s: Unknown long argument: %s\n", argv[0], tmp);
 							}
+							free(tmp);
 							nextchar = NULL;
 							optind++;
 							optopt = '\0';
@@ -83,6 +86,7 @@ int getopt_long(int argc, char * const argv[], const char *optstring, const stru
 									optind++;
 								}
 							}
+							free(tmp);
 							nextchar = NULL;
 							optind++;
 							if (!longopts[found].flag) {
