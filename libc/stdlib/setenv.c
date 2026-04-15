@@ -10,8 +10,7 @@ int setenv(const char *name, const char *value, int overwrite) {
 	}
 	if (!overwrite && getenv(name))
 		return 0;
-	char * c = strchrnul(name, '=');
-	if (*c) {
+	if (strchr(name, '=') != NULL) {
 		errno = EINVAL;
 		return -1;
 	}
