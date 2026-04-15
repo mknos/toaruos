@@ -28,20 +28,18 @@ int execvpe(const char *file, char *const argv[], char *const envp[]) {
 		char * xpath = strdup(path);
 		if (xpath == NULL)
 			return -1;
-		char * p, * last;
-		for ((p = strtok_r(xpath, ":", &last)); p; p = strtok_r(NULL, ":", &last)) {
-			int r;
-			struct stat stat_buf;
-			char * exe = malloc(strlen(p) + strlen(file) + 2);
-			if (exe == NULL) {
+		char *s, * p, * last;
+		for (s = xpath; ; s = NULL) {
+			p = strtok_r(s, ":", &last);
+			if (p == NULL)
+				break;
+			char * exe = NULL;
+			if (asprintf(&exe, "%s/%s", p, file) == -1) {
 				free(xpath);
 				return -1;
 			}
-			strcpy(exe, p);
-			strcat(exe, "/");
-			strcat(exe, file);
-
-			r = stat(exe, &stat_buf);
+			struct stat stat_buf;
+			int r = stat(exe, &stat_buf);
 			if (r == -1 || !(stat_buf.st_mode & 0111)) {
 				free(exe);
 				continue; /* XXX not technically correct; need to test perms */
