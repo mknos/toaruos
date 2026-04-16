@@ -151,12 +151,13 @@ static char * get_timezone(void) {
 			if (offset == db->offset) return (char*)db->abbrev;
 		}
 		/* Is it some number of hours? */
+		char sign = '+';
+		if (offset < 0) {
+			offset = -offset;
+			sign = '-';
+		}
 		if (offset % HOURS == 0) {
-			if (offset > 0) {
-				snprintf(buf, 20, "UTC+%d", offset / HOURS);
-			} else {
-				snprintf(buf, 20, "UTC-%d", -offset / HOURS);
-			}
+			snprintf(buf, sizeof(buf), "UTC%c%d", sign, offset / HOURS);
 			return buf;
 		}
 		return "???";
