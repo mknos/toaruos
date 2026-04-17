@@ -32,7 +32,7 @@ int main(int argc, char * argv[]) {
 		fd = open(file,O_RDONLY);
 	}
 	if (fd < 0) {
-		fprintf(stderr, "sync: open: %s: %s (%d)\n", file, strerror(errno), fd);
+		fprintf(stderr, "sync: open: %s: %s\n", file, strerror(errno));
 		return 1;
 	}
 	int res = ioctl(fd, IOCTLSYNC, NULL);
