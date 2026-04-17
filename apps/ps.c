@@ -162,6 +162,8 @@ struct process * process_entry(struct dirent *dent) {
 	if (collect_commandline) {
 		sprintf(tmp, "/proc/%s/cmdline", dent->d_name);
 		f = fopen(tmp, "r");
+		if (f == NULL)
+			return out;
 		char foo[1024];
 		int s = fread(foo, 1, 1024, f);
 		if (s > 0) {
