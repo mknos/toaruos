@@ -75,9 +75,9 @@ struct process * process_entry(struct dirent *dent) {
 	line[0] = 0;
 
 	while (fgets(line, LINE_LEN, f) != NULL) {
-		char * n = strstr(line,"\n");
+		char * n = strchr(line, '\n');
 		if (n) { *n = '\0'; }
-		char * tab = strstr(line,"\t");
+		char * tab = strchr(line, '\t');
 		if (tab) {
 			*tab = '\0';
 			tab++;
