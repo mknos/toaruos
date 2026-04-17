@@ -9,11 +9,16 @@
 #include <stdio.h>
 #include <errno.h>
 #include <string.h>
+#include <unistd.h>
 #include <sys/sysfunc.h>
 
 int main(int argc, char * argv[]) {
 	if (argc < 2) {
 		fprintf(stderr, "Usage: %s <modulepath>\n", argv[0]);
+		return 1;
+	}
+	if (getuid() != 0) {
+		fprintf(stderr, "%s: only root can do that\n", argv[0]);
 		return 1;
 	}
 	int status = sysfunc(TOARU_SYS_FUNC_INSMOD, &argv[1]);
