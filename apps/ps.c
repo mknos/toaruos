@@ -12,6 +12,7 @@
  * Copyright (C) 2013-2021 K. Lange
  */
 #include <sys/stat.h>
+#include <assert.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -62,7 +63,7 @@ struct process * process_entry(struct dirent *dent) {
 
 	int pid = 0, uid = 0, tgid = 0, mem = 0, shm = 0, vsz = 0, cpu = 0;
 	unsigned long ttime = 0;
-	char name[100];
+	char * name = NULL;
 
 	sprintf(tmp, "/proc/%s/status", dent->d_name);
 	f = fopen(tmp, "r");
@@ -88,7 +89,7 @@ struct process * process_entry(struct dirent *dent) {
 		} else if (strstr(line, "Tgid:") == line) {
 			tgid = atoi(tab);
 		} else if (strstr(line, "Name:") == line) {
-			strcpy(name, tab);
+			name = strdup(tab);
 		} else if (strstr(line, "VmSize:") == line) {
 			vsz = atoi(tab);
 		} else if (strstr(line, "RssShmem:") == line) {
@@ -121,6 +122,7 @@ struct process * process_entry(struct dirent *dent) {
 		}
 	}
 
+	assert(name != NULL);
 	struct process * out = malloc(sizeof(struct process));
 	out->uid = uid;
 	out->pid = tgid;
@@ -130,7 +132,7 @@ struct process * process_entry(struct dirent *dent) {
 	out->vsz = vsz;
 	out->cpu = cpu;
 	out->time = ttime;
-	out->process = strdup(name);
+	out->process = name;
 	out->command_line = NULL;
 
 	hashmap_set(process_ents, (void*)(uintptr_t)pid, out);
