@@ -15,7 +15,7 @@
 
 static int usage(char * argv[]) {
 	fprintf(stderr, "usage: %s [OWNER][:[GROUP]] FILE...\n", argv[0]);
-	return 1;
+	exit(1);
 }
 
 static int invalid(char * argv[], char c) {
@@ -83,17 +83,13 @@ int main(int argc, char * argv[]) {
 
 	int i = 1;
 	for (; i < argc; i++) {
-		if (argv[i][0] != '-') break;
-
-		switch (argv[i][0]) {
-			case 'h':
-				return usage(argv);
-			default:
-				return invalid(argv,argv[i][0]);
-		}
+		if (argv[i][0] != '-')
+			break;
+		fprintf(stderr, "%s: unknown option: '%c'\n", argv[0], argv[i][1]);
+		usage(argv);
 	}
-
-	if (i + 1 >= argc) return usage(argv);
+	if (i + 1 >= argc)
+		usage(argv);
 
 	uid_t user = -1;
 	uid_t group = -1;
