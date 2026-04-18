@@ -57,7 +57,8 @@ static void print_size(uint64_t size, char * name) {
 static uint64_t count_directory(char * source) {
 	DIR * dirp = opendir(source);
 	if (dirp == NULL) {
-		//fprintf(stderr, "could not open %s\n", source);
+		if (is_arg)
+			fprintf(stderr, "du: %s: %s\n", source, strerror(errno));
 		return 0;
 	}
 
@@ -88,7 +89,11 @@ static uint64_t count_directory(char * source) {
 
 static uint64_t count_thing(char * tmp) {
 	struct stat statbuf;
-	lstat(tmp,&statbuf);
+	if (lstat(tmp, &statbuf) == -1) {
+		if (is_arg)
+			fprintf(stderr, "du: %s: %s\n", tmp, strerror(errno));
+		return 0;
+	}
 	if (S_ISDIR(statbuf.st_mode)) {
 		return count_directory(tmp);
 	} else {
