@@ -198,7 +198,10 @@ int main(int argc, char * argv[]) {
 				"login",
 				NULL
 			};
-			execvp(args[0], args);
+			int r = execvp(args[0], args);
+			if (r == -1)
+				perror(args[0]);
+			exit(1);
 		} else {
 			int result, status;
 			do {
