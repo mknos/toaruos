@@ -12,14 +12,12 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <sys/ioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <pty.h>
-#include <sys/wait.h>
-#include <sys/fswait.h>
 
 int main(int argc, char * argv[]) {
 	int fd_serial;
