@@ -11,30 +11,29 @@
 #include <string.h>
 
 int main(int argc, char * argv[]) {
+	int rc = 0;
 	if ((argc > 1 && argv[1][0] == '-') || (argc < 2)) {
 		char tmp[256] = {0};
 		gethostname(tmp, 255);
 		printf("%s\n", tmp);
-		return 0;
 	} else {
 		if (geteuid() != 0) {
 			fprintf(stderr,"Must be root to set hostname.\n");
-			return 1;
+			rc = 1;
 		} else {
 			if (sethostname(argv[1], strlen(argv[1])) == -1) {
 				perror("sethostname");
-				return 1;
+				rc = 1;
 			}
 			FILE * file = fopen("/etc/hostname", "w");
 			if (!file) {
 				perror("fopen");
-				return 1;
+				rc = 1;
 			} else {
 				fprintf(file, "%s\n", argv[1]);
 				fclose(file);
-				return 0;
 			}
 		}
 	}
-	return 0;
+	return rc;
 }
