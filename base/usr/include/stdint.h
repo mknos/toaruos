@@ -38,8 +38,8 @@ extern "C" {
 #endif
 
 #if __STDINT_EXP(SCHAR_MAX) == 0x7f
-typedef signed char int8_t ;
-typedef unsigned char uint8_t ;
+typedef signed char int8_t;
+typedef unsigned char uint8_t;
 #define __int8_t_defined 1
 #endif
 
