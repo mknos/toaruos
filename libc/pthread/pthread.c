@@ -55,8 +55,9 @@ void * __tls_get_addr(void* input) {
 }
 
 void __make_tls(void) {
-	char * tlsSpace = valloc(4096);
-	memset(tlsSpace, 0x0, 4096);
+	size_t want = 4096;
+	char * tlsSpace = valloc(want);
+	memset(tlsSpace, 0, want);
 	/* self-pointer start? */
 	char ** tlsSelf = (char **)(tlsSpace);
 	*tlsSelf = (char*)tlsSelf;
@@ -79,8 +80,9 @@ void * __thread_start(void * pthreadbase) {
 }
 
 int pthread_create(pthread_t * thread, pthread_attr_t * attr, void *(*start_routine)(void *), void * arg) {
-	char * stack = valloc(PTHREAD_STACK_SIZE + 8192);
-	memset(stack, 0, PTHREAD_STACK_SIZE + 8192);
+	size_t want = PTHREAD_STACK_SIZE + 8192;
+	char * stack = valloc(want);
+	memset(stack, 0, want);
 	struct __pthread * this = (void*)(stack + PTHREAD_STACK_SIZE);
 	*thread = this;
 	this->entry = start_routine;
