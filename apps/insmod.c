@@ -17,6 +17,10 @@ int main(int argc, char * argv[]) {
 		fprintf(stderr, "Usage: %s <modulepath>\n", argv[0]);
 		return 1;
 	}
+	if (argc > 2) {
+		fprintf(stderr, "%s: extra operand '%s'\n", argv[0], argv[2]);
+		return 1;
+	}
 	if (getuid() != 0) {
 		fprintf(stderr, "%s: only root can do that\n", argv[0]);
 		return 1;
