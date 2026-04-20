@@ -14,18 +14,27 @@ int sigfillset(sigset_t * set) {
 }
 
 int sigaddset(sigset_t * set, int signum) {
-	if (signum > NUMSIGNALS) return -EINVAL;
+	if (signum < 0 || signum > NUMSIGNALS) {
+		errno = EINVAL;
+		return -1;
+	}
 	*set |= (1UL << signum);
 	return 0;
 }
 
 int sigdelset(sigset_t * set, int signum) {
-	if (signum > NUMSIGNALS) return -EINVAL;
+	if (signum < 0 || signum > NUMSIGNALS) {
+		errno = EINVAL;
+		return -1;
+	}
 	*set &= ~(1UL << signum);
 	return 0;
 }
 
 int sigismember(sigset_t * set, int signum) {
-	if (signum > NUMSIGNALS) return -EINVAL;
+	if (signum < 0 || signum > NUMSIGNALS) {
+		errno = EINVAL;
+		return -1;
+	}
 	return !!(*set & (1UL << signum));
 }
