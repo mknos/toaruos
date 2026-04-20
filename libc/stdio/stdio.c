@@ -124,9 +124,7 @@ int setvbuf(FILE * stream, char * buf, int mode, size_t size) {
 		return -1; /* Unsupported */
 	}
 	if (buf) {
-		if (stream->read_buf) {
-			free(stream->read_buf);
-		}
+		free(stream->read_buf);
 		stream->read_buf = buf;
 		stream->bufsiz = size;
 	}
@@ -354,10 +352,11 @@ int _fwouldblock(FILE * stream) {
 int fclose(FILE * stream) {
 	fflush(stream);
 	int out = syscall_close(stream->fd);
+	stream->fd = -1;
 	free(stream->_name);
 	free(stream->read_buf);
-	if (stream->write_buf) free(stream->write_buf);
-	stream->write_buf = NULL;
+	free(stream->write_buf);
+	stream->write_buf = stream->read_buf = NULL;
 	if (stream == &_stdin || stream == &_stdout || stream == &_stderr) {
 		return out;
 	} else {

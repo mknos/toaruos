@@ -436,6 +436,6 @@ int getaddrinfo(const char *node, const char *service,
 }
 
 void freeaddrinfo(struct addrinfo *res) {
-	if (res->ai_addr) free(res->ai_addr);
+	free(res->ai_addr);
 	free(res);
 }
