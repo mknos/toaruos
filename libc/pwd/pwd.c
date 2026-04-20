@@ -13,7 +13,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <errno.h>
 #include <pwd.h>
 
 /*
@@ -52,12 +51,12 @@ struct passwd * fgetpwent(FILE * stream) {
 			return NULL;
 	}
 
-	memset(pw_blob, 0x00, LINE_LEN);
-	fgets(pw_blob, LINE_LEN, stream);
-
-	if (pw_blob[strlen(pw_blob)-1] == '\n') {
-		pw_blob[strlen(pw_blob)-1] = '\0'; /* erase newline */
-	}
+	memset(pw_blob, 0, LINE_LEN);
+	if (fgets(pw_blob, LINE_LEN, stream) == NULL)
+		return NULL;
+	char * nl = strchr(pw_blob, '\n');
+	if (nl != NULL)
+		*nl = '\0';
 
 	char *s, *p, *tokens[8], *last;
 	int i;
