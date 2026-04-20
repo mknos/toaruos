@@ -91,13 +91,6 @@ long sys_sysfunc(long fn, char ** args) {
 			printf("\033[32m%s\033[0m", (char*)args);
 			return -EINVAL;
 
-		case TOARU_SYS_FUNC_KDEBUG:
-			/* FIXME: The kernel debugger is completely deprecated and fully removed
-			 *        in Misaka, and I'm not sure I want to add it back... */
-			if (this_core->current_process->user != 0) return -EACCES;
-			printf("kdebug: not implemented\n");
-			return -EINVAL;
-
 		case TOARU_SYS_FUNC_CLEARICACHE:
 			#ifdef __aarch64__
 			PTR_VALIDATE(&args[0]);
