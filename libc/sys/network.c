@@ -292,13 +292,10 @@ struct hostent * gethostbyname(const char * name) {
 	/* Form a DNS request */
 	char dat[256];
 	struct dns_packet * req = (struct dns_packet*)&dat;
-	uint16_t qid = rand() & 0xFFFF;
-	req->qid = htons(qid);
+	req->answers = req->authorities = req->additional = 0;
+	req->qid = rand() & 0xFFFF;
 	req->flags = htons(0x0100);
 	req->questions = htons(1);
-	req->answers = htons(0);
-	req->authorities = htons(0);
-	req->additional = htons(0);
 
 	/* Turn requested name into DNS request */
 	ssize_t i = 0;
