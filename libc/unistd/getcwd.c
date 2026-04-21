@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -8,9 +9,19 @@
 DEFN_SYSCALL2(getcwd, SYS_GETCWD, char *, size_t);
 
 char *getcwd(char *buf, size_t size) {
-	if (!buf) buf = malloc(size);
-	if (!buf) return NULL;
+	assert(size != 0);
+	int did_alloc = 0;
+	if (buf == NULL) {
+		buf = malloc(size);
+		if (buf == NULL)
+			return NULL;
+		did_alloc = 1;
+	}
 	char *cwd = (char *)syscall_getcwd(buf, size);
-	if (!cwd) errno = ERANGE; // size too small
+	if (cwd == NULL) {
+		if (did_alloc)
+			free(buf);
+		errno = ERANGE; // size too small
+	}
 	return cwd;
 }
