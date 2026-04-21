@@ -7,19 +7,22 @@
 static char _name[64]; /* NAME_MAX ? */
 
 char * getlogin(void) {
-
-	int tty = STDIN_FILENO;
-	if (!isatty(tty)) {
-		tty = STDOUT_FILENO;
-		if (!isatty(tty)) {
-			tty = STDERR_FILENO;
-			if (!isatty(tty)) {
-				errno = ENOTTY;
-				return NULL;
-			}
-		}
+	int fds[] = {
+		STDIN_FILENO,
+		STDOUT_FILENO,
+		STDERR_FILENO,
+		-1
+	};
+	int tty, i;
+	for (i = 0; fds[i] != -1; i++) {
+		tty = fds[i];
+		if (isatty(tty))
+			break;
 	}
-
+	if (fds[i] == -1) {
+		errno = ENOTTY;
+		return NULL;
+	}
 	char * name = ttyname(tty);
 	if (!name)
 		return NULL;
