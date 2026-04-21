@@ -7,7 +7,8 @@ int rmdir(const char *pathname) {
 	struct stat st;
 
 	/* pathname must directly name a directory, not a symlink */
-	if (lstat(pathname, &st) < 0) return -1;
+	if (lstat(pathname, &st) == -1)
+		return -1;
 	if (!S_ISDIR(st.st_mode)) {
 		errno = ENOTDIR;
 		return -1;
