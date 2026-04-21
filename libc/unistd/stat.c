@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <errno.h>
 #include <syscall.h>
 #include <syscall_nums.h>
@@ -9,22 +10,22 @@ DEFN_SYSCALL2(lstat, SYS_LSTAT, char *, void *);
 
 int stat(const char *file, struct stat *st){
 	int ret = syscall_statf((char *)file, (void *)st);
-	if (ret >= 0) {
-		return ret;
-	} else {
+	assert(ret <= 0);
+	if (ret != 0) {
 		errno = -ret;
-		memset(st, 0x00, sizeof(struct stat));
+		memset(st, 0, sizeof(struct stat));
 		return -1;
 	}
+	return 0;
 }
 
 int lstat(const char *path, struct stat *st) {
 	int ret = syscall_lstat((char *)path, (void *)st);
-	if (ret >= 0) {
-		return ret;
-	} else {
+	assert(ret <= 0);
+	if (ret != 0) {
 		errno = -ret;
-		memset(st, 0x00, sizeof(struct stat));
+		memset(st, 0, sizeof(struct stat));
 		return -1;
 	}
+	return 0;
 }
