@@ -83,10 +83,15 @@ int main(int argc, char * argv[]) {
 
 		if (target_is_dir) {
 			char * tmp = strdup(argv[i]);
-			char * target_basename = basename(tmp);
-			size_t size = strlen(destination) + strlen(target_basename) + 2;
-			target = malloc(size);
-			snprintf(target, size, "%s%s%s", destination, destination_has_trailing_slash ? "" : "/", target_basename);
+			if (tmp == NULL) {
+				perror(APP_NAME ": strdup");
+				exit(1);
+			}
+			char * bn = basename(tmp);
+			if (asprintf(&target, "%s%s%s", destination, destination_has_trailing_slash ? "" : "/", bn) == -1) {
+				perror(APP_NAME ": asprintf");
+				exit(1);
+			}
 			free(tmp);
 		}
 
@@ -103,7 +108,7 @@ int main(int argc, char * argv[]) {
 			}
 		}
 
-		if (rename(argv[i], target) < 0) {
+		if (rename(argv[i], target) == -1) {
 			if (errno != EXDEV && errno != ENOTSUP) {
 				fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
 				ret |= 1;
