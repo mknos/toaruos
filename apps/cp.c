@@ -29,9 +29,12 @@ static int copy_thing(char * tmp, char * tmp2);
 static int copy_link(char * source, char * dest, int mode, int uid, int gid) {
 	//fprintf(stderr, "need to copy link %s to %s\n", source, dest);
 	char tmp[1024];
-	readlink(source, tmp, 1024);
-	symlink(tmp, dest);
-	chmod(dest, mode);
+	if (readlink(source, tmp, sizeof(tmp)) == -1)
+		return 1;
+	if (symlink(tmp, dest) == -1)
+		return 1;
+	if (chmod(dest, mode) == -1)
+		return 1;
 	return 0;
 }
 
@@ -128,7 +131,7 @@ static int copy_directory(char * source, char * dest, int mode, int uid, int gid
 static int copy_thing(char * tmp, char * tmp2) {
 	struct stat statbuf;
 	int ret = symlinks ? lstat(tmp, &statbuf) : stat(tmp, &statbuf);
-	if (ret < 0) {
+	if (ret == -1) {
 		fprintf(stderr, APP_NAME ": %s: %s\n", tmp, strerror(errno));
 		return 1;
 	}
