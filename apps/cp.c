@@ -42,19 +42,17 @@ static int copy_file(char * source, char * dest, int mode,int uid, int gid) {
 	//fprintf(stderr, "need to copy file %s to %s %x\n", source, dest, mode);
 
 	int s_fd = open(source, O_RDONLY);
-	if (s_fd < 0) {
+	if (s_fd == -1) {
 		fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
 		return 1;
 	}
-
 	int d_fd = open(dest, O_WRONLY | O_CREAT, mode);
-	if (d_fd < 0) {
+	if (d_fd == -1) {
 		fprintf(stderr, APP_NAME ": %s: %s\n", dest, strerror(errno));
 		return 1;
 	}
-
 	ssize_t length = lseek(s_fd, 0, SEEK_END);
-	if (length < 0) {
+	if (length == -1) {
 		fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
 		return 1;
 	}
@@ -69,13 +67,13 @@ static int copy_file(char * source, char * dest, int mode,int uid, int gid) {
 
 	while (length > 0) {
 		ssize_t r = read(s_fd, buf, length < CHUNK_SIZE ? length : CHUNK_SIZE);
-		if (r < 0) {
+		if (r == -1) {
 			fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
 			return 1;
 		}
 		//fprintf(stderr, "copying %d bytes from %s to %s\n", r, source, dest);
 		ssize_t w = write(d_fd, buf, r);
-		if (w < 0) {
+		if (w == -1) {
 			fprintf(stderr, APP_NAME ": %s: %s\n", dest, strerror(errno));
 			return 1;
 		}
