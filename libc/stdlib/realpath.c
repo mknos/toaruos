@@ -5,13 +5,6 @@
 #include <unistd.h>
 #include <errno.h>
 
-#ifndef __toaru__
-#undef realpath
-#define realpath _realpath_toaru
-#endif
-
-#define SYMLINK_MAX 5
-
 static void _append_dir(char *out, char *element) {
 	strcat(out,"/");
 	strcat(out,element);
@@ -87,17 +80,3 @@ char *realpath(const char *path, char *resolved_path) {
 
 	return resolved_path;
 }
-
-#ifndef __toaru__
-int main(int argc, char * argv[]) {
-	char tmp[PATH_MAX+1];
-
-	if (!realpath(argv[1], tmp)) {
-		fprintf(stderr, "invalid path, errno=%d\n", errno);
-		return 1;
-	}
-
-	fprintf(stderr, "%s=%s\n", argv[1], tmp);
-	return 0;
-}
-#endif
