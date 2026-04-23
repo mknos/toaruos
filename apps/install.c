@@ -131,7 +131,7 @@ main(int argc, char *argv[])
 			exit(1);
 		}
 		if ((to_sb.st_mode & S_IFMT) != S_IFREG) {
-			fprintf(stderr, "%s: %s\n", to_name, strerror(EFTYPE));
+			fprintf(stderr, "%s: not a regular file\n", to_name);
 			exit(1);
 		}
 		if (to_sb.st_dev == from_sb.st_dev &&
@@ -168,7 +168,7 @@ install(char *from_name, char *to_name, uint16_t fset, uint32_t flags)
 			exit(1);
 		}
 		if ((from_sb.st_mode & S_IFMT) != S_IFREG) {
-			fprintf(stderr, "%s: %s\n", from_name, strerror(EFTYPE));
+			fprintf(stderr, "%s: not a regular file\n", from_name);
 			exit(1);
 		}
 		/* Build the target path. */
