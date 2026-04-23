@@ -67,7 +67,7 @@ char *group, *owner, pathbuf[PATH_MAX];
 
 #define	DIRECTORY	0x01		/* Tell install it's a directory. */
 
-void	copy(int, char *, int, char *, off_t);
+void	copy(int, char *, int, char *);
 void	install(char *, char *, uint16_t, uint32_t);
 void	usage(void);
 
@@ -201,7 +201,7 @@ install(char *from_name, char *to_name, uint16_t fset, uint32_t flags)
 			fprintf(stderr, "%s: %s\n", from_name, strerror(errno));
 			exit(1);
 		}
-		copy(from_fd, from_name, to_fd, to_name, from_sb.st_size);
+		copy(from_fd, from_name, to_fd, to_name);
 		(void)close(from_fd);
 	}
 
@@ -232,7 +232,7 @@ install(char *from_name, char *to_name, uint16_t fset, uint32_t flags)
  *	copy from one file to another
  */
 void
-copy(int from_fd, char *from_name, int to_fd, char *to_name, off_t size)
+copy(int from_fd, char *from_name, int to_fd, char *to_name)
 {
 	int nr, nw;
 	int serrno;
