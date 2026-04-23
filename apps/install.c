@@ -53,7 +53,6 @@ static char sccsid[] = "@(#)xinstall.c	8.1.1 (2.11BSD) 1996/2/21";
 #include <unistd.h>
 
 #define _PATH_DEVNULL "/dev/null"
-#define	_PATH_STRIP "/bin/strip"
 
 #ifndef PATH_MAX
 #define PATH_MAX 2048
@@ -63,7 +62,6 @@ static char sccsid[] = "@(#)xinstall.c	8.1.1 (2.11BSD) 1996/2/21";
 
 struct passwd *pp;
 struct group *gp;
-int dostrip;
 int mode = S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH;
 char *group, *owner, pathbuf[PATH_MAX];
 
@@ -71,7 +69,6 @@ char *group, *owner, pathbuf[PATH_MAX];
 
 void	copy(int, char *, int, char *, off_t);
 void	install(char *, char *, uint16_t, uint32_t);
-void	strip(char *);
 void	usage(void);
 
 int
@@ -85,6 +82,7 @@ main(int argc, char *argv[])
 	while ((ch = getopt(argc, argv, "cg:m:o:s")) != EOF)
 		switch((char)ch) {
 		case 'c':
+		case 's':
 			break;
 		case 'g':
 			group = optarg;
@@ -99,9 +97,6 @@ main(int argc, char *argv[])
 			break;
 		case 'o':
 			owner = optarg;
-			break;
-		case 's':
-			dostrip = 1;
 			break;
 		default:
 			usage();
@@ -209,8 +204,7 @@ install(char *from_name, char *to_name, uint16_t fset, uint32_t flags)
 		copy(from_fd, from_name, to_fd, to_name, from_sb.st_size);
 		(void)close(from_fd);
 	}
-	if (dostrip)
-		strip(to_name);
+
 	/*
 	 * Set owner, group, mode for target; do the chown first,
 	 * chown may lose the setuid bits.
@@ -257,31 +251,6 @@ copy(int from_fd, char *from_name, int to_fd, char *to_name, off_t size)
 		(void)unlink(to_name);
 		fprintf(stderr, "%s: %s\n", from_name, strerror(serrno));
 		exit(1);
-	}
-}
-
-/*
- * strip --
- *	use strip(1) to strip the target file
- */
-void
-strip(char *to_name)
-{
-	int serrno, status;
-
-	switch (fork()) {
-	case -1:
-		serrno = errno;
-		(void)unlink(to_name);
-		fprintf(stderr, "fork: %s\n", strerror(serrno));
-		exit(1);
-	case 0:
-		execl(_PATH_STRIP, "strip", to_name, NULL);
-		fprintf(stderr, "%s: %s\n", _PATH_STRIP, strerror(errno));
-		exit(1);
-	default:
-		if (wait(&status) == -1 || status)
-			(void)unlink(to_name);
 	}
 }
 
