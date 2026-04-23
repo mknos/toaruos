@@ -14,19 +14,18 @@
  */
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <getopt.h>
 #include <errno.h>
 
-#include <sys/ioctl.h>
-
 #define DSP_PATH "/dev/dsp"
 
-static int usage(char * argv[]) {
+static void usage(char * argv[]) {
 	fprintf(stderr, "usage: %s [-d dsp_path] /path/to/48ks16le.wav\n", argv[0]);
-	return 1;
+	exit(1);
 }
 
 int main(int argc, char * argv[]) {
@@ -43,14 +42,15 @@ int main(int argc, char * argv[]) {
 				break;
 
 			default:
-				return usage(argv);
+				usage(argv);
 		}
 	}
 
-	if (optind == argc) return usage(argv);
+	if (optind == argc)
+		usage(argv);
 
 	spkr = open(dsp_path, O_WRONLY);
-	if (spkr < 0) {
+	if (spkr == -1) {
 		fprintf(stderr, "%s: %s: %s\n", argv[0], dsp_path, strerror(errno));
 		return 1;
 	}
@@ -59,20 +59,19 @@ int main(int argc, char * argv[]) {
 		song = STDIN_FILENO;
 	} else {
 		song = open(argv[optind], O_RDONLY);
-		if (song < 0) {
+		if (song == -1) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[optind], strerror(errno));
 			return 1;
 		}
 	}
 
 	while ((r = read(song, buf, sizeof(buf))) > 0) {
-		if (write(spkr, buf, r) < 0) {
+		if (write(spkr, buf, r) == -1) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], dsp_path, strerror(errno));
 			return 1;
 		}
 	}
-
-	if (r < 0) {
+	if (r == -1) {
 		fprintf(stderr, "%s: %s: %s\n", argv[0], argv[optind], strerror(errno));
 		return 1;
 	}
