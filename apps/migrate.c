@@ -132,7 +132,7 @@ void free_ramdisk(char * path) {
 #include "../kernel/misc/args.c"
 static hashmap_t * get_cmdline(void) {
 	char * results = args_from_procfs();
-	if (results) free(results);
+	free(results);
 	return kernel_args_map;
 }
 
