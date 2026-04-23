@@ -23,11 +23,8 @@ char * getlogin(void) {
 		errno = ENOTTY;
 		return NULL;
 	}
-	char * name = ttyname(tty);
-	if (!name)
-		return NULL;
 	struct stat statbuf;
-	if (stat(name, &statbuf) == -1)
+	if (fstat(tty, &statbuf) == -1)
 		return NULL;
 	struct passwd * passwd = getpwuid(statbuf.st_uid);
 	if (!passwd || !passwd->pw_name)
