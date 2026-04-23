@@ -206,15 +206,17 @@ int main(int argc, char * argv[]) {
 	system("mount tmpfs x,755 /dev/base");
 
 	if (strstr(root, "/dev/ram") != NULL) {
-		char * tmp = strdup(root);
-		char * c = strchr(tmp, ',');
-		if (c) {
-			*c = '\0';
+		char * path = strdup(root);
+		if (path == NULL) {
+			TRACE_("Fatal: strdup\n");
+			return 1;
 		}
-		TRACE_("Freeing ramdisk at %s", tmp);
-		free_ramdisk(tmp);
-		free(tmp);
+		char * c = strchr(path, ',');
+		if (c)
+			*c = '\0';
+		TRACE_("Freeing ramdisk at %s", path);
+		free_ramdisk(path);
+		free(path);
 	}
-
 	return 0;
 }
