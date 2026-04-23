@@ -69,18 +69,16 @@ char *group, *owner, pathbuf[PATH_MAX];
 
 #define	DIRECTORY	0x01		/* Tell install it's a directory. */
 
-void	copy();
-void	install();
-void	strip();
-void	usage();
+void	copy(int, char *, int, char *, off_t);
+void	install(char *, char *, uint16_t, uint32_t);
+void	strip(char *);
+void	usage(void);
 
 int
-main(argc, argv)
-	int argc;
-	register char *argv[];
+main(int argc, char *argv[])
 {
 	struct stat from_sb, to_sb;
-	uint16_t fset;
+	uint16_t fset = 0;
 	int ch, no_target;
 	char *to_name;
 
@@ -162,14 +160,11 @@ main(argc, argv)
  *	build a path name and install the file
  */
 void
-install(from_name, to_name, fset, flags)
-	register char *from_name, *to_name;
-	uint16_t fset;
-	uint32_t flags;
+install(char *from_name, char *to_name, uint16_t fset, uint32_t flags)
 {
 	struct stat from_sb, to_sb;
 	int devnull, from_fd, to_fd, serrno;
-	register char *p;
+	char *p;
 
 	/* If try to install NULL file to a directory, fails. */
 	if (flags & DIRECTORY || strcmp(from_name, _PATH_DEVNULL)) {
@@ -243,12 +238,9 @@ install(from_name, to_name, fset, flags)
  *	copy from one file to another
  */
 void
-copy(from_fd, from_name, to_fd, to_name, size)
-	register int from_fd, to_fd;
-	char *from_name, *to_name;
-	off_t size;
+copy(int from_fd, char *from_name, int to_fd, char *to_name, off_t size)
 {
-	register int nr, nw;
+	int nr, nw;
 	int serrno;
 	char buf[MAXBSIZE];
 
@@ -273,11 +265,9 @@ copy(from_fd, from_name, to_fd, to_name, size)
  *	use strip(1) to strip the target file
  */
 void
-strip(to_name)
-	register char *to_name;
+strip(char *to_name)
 {
-	register int serrno;
-	int status;
+	int serrno, status;
 
 	switch (fork()) {
 	case -1:
@@ -300,7 +290,7 @@ strip(to_name)
  *	print a usage message and die
  */
 void
-usage()
+usage(void)
 {
 	(void)fprintf(stderr,
 "usage: install [-cs] [-g group] [-m mode] [-o owner] file1 file2;\n\tor file1 ... fileN directory\n");
