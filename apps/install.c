@@ -162,7 +162,7 @@ main(int argc, char *argv[])
 void
 install(char *from_name, char *to_name, uint16_t fset, uint32_t flags)
 {
-	struct stat from_sb, to_sb;
+	struct stat from_sb;
 	int devnull, from_fd, to_fd, serrno;
 	char *p;
 
