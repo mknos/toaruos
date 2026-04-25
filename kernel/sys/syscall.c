@@ -884,10 +884,6 @@ long sys_fcntl(int fd, int cmd, long arg) {
 	if (!FD_CHECK(fd)) return -EBADF;
 
 	switch (cmd) {
-		case F_GETFD:
-			return 0; /* We don't support any flags. CLOEXEC is the only thing in here. */
-		case F_SETFD:
-			return 0; /* We don't support any flags, so can't set any flags. */
 		case F_GETFL: {
 			int mode = 0;
 			if (FD_MODE(fd) & 03) mode = O_RDWR;
@@ -896,21 +892,19 @@ long sys_fcntl(int fd, int cmd, long arg) {
 			/* TODO we don't persist O_APPEND and there are other flags we don't support */
 			return mode;
 		}
-		case F_SETFL: {
-			return 0; /* TODO NONBLOCK, APPEND, SYNC... */
-		}
 		case F_DUPFD: {
 			if (arg < 0 || arg > 256) return -EINVAL; /* We expect a value of, like, 10 from dash. */
 			extern long process_fd_dup_least(process_t *, long, long);
 			return process_fd_dup_least((process_t*)this_core->current_process, fd, arg);
 		}
+		case F_SETFL: /* TODO NONBLOCK, APPEND, SYNC... */
+		case F_GETFD:
+		case F_SETFD:
 		case F_GETLK:
 		case F_SETLK:
 		case F_SETLKW:
-			/* No lock support */
-			return -EINVAL;
+			return -ENOTSUP;
 	}
-
 	return -EINVAL;
 }
 
