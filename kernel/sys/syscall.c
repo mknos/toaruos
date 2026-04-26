@@ -1159,23 +1159,6 @@ long sys_sigwait(sigset_t * set, int * sig) {
 	return signal_await(awaited, sig);
 }
 
-long sys_fswait(int c, int fds[]) {
-	PTR_VALIDATE(fds);
-	if (!fds || c < 0) return -EFAULT;
-	for (int i = 0; i < c; ++i) {
-		if (!FD_CHECK(fds[i])) return -EBADF;
-	}
-	fs_node_t ** nodes = calloc(c + 1, sizeof(fs_node_t *));
-	for (int i = 0; i < c; ++i) {
-		nodes[i] = FD_ENTRY(fds[i]);
-	}
-	nodes[c] = NULL;
-
-	int result = process_wait_nodes((process_t *)this_core->current_process, nodes, -1);
-	free(nodes);
-	return result;
-}
-
 long sys_fswait_timeout(int c, int fds[], int timeout) {
 	PTR_VALIDATE(fds);
 	if (!fds || c < 0) return -EFAULT;
@@ -1183,14 +1166,16 @@ long sys_fswait_timeout(int c, int fds[], int timeout) {
 		if (!FD_CHECK(fds[i])) return -EBADF;
 	}
 	fs_node_t ** nodes = calloc(c + 1, sizeof(fs_node_t *));
-	for (int i = 0; i < c; ++i) {
+	for (int i = 0; i < c; ++i)
 		nodes[i] = FD_ENTRY(fds[i]);
-	}
-	nodes[c] = NULL;
 
 	int result = process_wait_nodes((process_t *)this_core->current_process, nodes, timeout);
 	free(nodes);
 	return result;
+}
+
+long sys_fswait(int c, int fds[]) {
+	return sys_fswait_timeout(c, fds, -1);
 }
 
 long sys_fswait_multi(int c, int fds[], int timeout, int out[]) {
