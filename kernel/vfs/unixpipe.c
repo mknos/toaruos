@@ -94,10 +94,7 @@ static int wait_pipe(fs_node_t * node, void * process) {
 	return 0;
 }
 
-
 int make_unix_pipe(fs_node_t ** pipes) {
-	size_t size = UNIX_PIPE_BUFFER;
-
 	pipes[0] = calloc(1, sizeof(fs_node_t));
 	pipes[1] = calloc(1, sizeof(fs_node_t));
 
@@ -125,7 +122,7 @@ int make_unix_pipe(fs_node_t ** pipes) {
 	internals->write_end = pipes[1];
 	internals->read_closed = 0;
 	internals->write_closed = 0;
-	internals->buffer = ring_buffer_create(size);
+	internals->buffer = ring_buffer_create(UNIX_PIPE_BUFFER);
 
 	pipes[0]->device = internals;
 	pipes[1]->device = internals;
