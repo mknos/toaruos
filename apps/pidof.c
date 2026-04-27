@@ -96,12 +96,13 @@ int main (int argc, char * argv[]) {
 	if (argc < 2) return 1;
 
 	int space = 0;
-
-	/* Open the directory */
-	DIR * dirp = opendir("/proc");
-
 	int found_something = 0;
 
+	DIR * dirp = opendir("/proc");
+	if (dirp == NULL) {
+		perror("/proc");
+		return 1;
+	}
 	struct dirent * ent = readdir(dirp);
 	while (ent != NULL) {
 		if (ent->d_name[0] >= '0' && ent->d_name[0] <= '9') {
@@ -112,6 +113,7 @@ int main (int argc, char * argv[]) {
 				printf("%d", proc->pid);
 				found_something = 1;
 			}
+			free(proc);
 		}
 		ent = readdir(dirp);
 	}
