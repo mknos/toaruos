@@ -22,6 +22,15 @@
 static int hide_defaults = 1;
 static int printed = 0;
 
+static struct winsize *get_size(void) {
+	static struct winsize w;
+	if (ioctl(STDERR_FILENO, TIOCGWINSZ, &w) == -1) {
+		perror("stty: TIOCGWINSZ");
+		exit(1);
+	}
+	return &w;
+}
+
 static void print_cc(struct termios * t, const char * lbl, int val, int def) {
 	int c = t->c_cc[val];
 	if (hide_defaults && c == def) return;
@@ -168,11 +177,10 @@ static int show_settings(int all) {
 	tcgetattr(STDERR_FILENO, &t);
 	print_baud_rate(&t);
 
-	/* Baud rate */
 	/* Size */
-	struct winsize w;
-	ioctl(STDERR_FILENO, TIOCGWINSZ, &w);
-	fprintf(stdout, "rows %d; columns %d; ypixels %d; xpixels %d;\n", w.ws_row, w.ws_col, w.ws_ypixel, w.ws_xpixel);
+	struct winsize *w = get_size();
+	fprintf(stdout, "rows %d; columns %d; ypixels %d; xpixels %d;\n",
+		w->ws_row, w->ws_col, w->ws_ypixel, w->ws_xpixel);
 	printed = 0;
 
 	/* Keys */
@@ -285,12 +293,6 @@ static int show_settings(int all) {
 	return 0;
 }
 
-static void show_size(void) {
-	struct winsize w;
-	ioctl(STDERR_FILENO, TIOCGWINSZ, &w);
-	fprintf(stdout, "%d %d\n", w.ws_row, w.ws_col);
-}
-
 int main(int argc, char * argv[]) {
 
 	int i = 1;
@@ -349,8 +351,8 @@ int main(int argc, char * argv[]) {
 		}
 
 		if (!strcmp(argv[i], "size")) {
-			show_size();
-
+			struct winsize *w = get_size();
+			fprintf(stdout, "%d %d\n", w->ws_row, w->ws_col);
 			i++;
 			continue;
 		}
