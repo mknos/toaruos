@@ -114,9 +114,9 @@ int main(int argc, char * argv[]) {
 	for (int i = 2; i < argc; ++i) {
 		int actual_mode = 0;
 		struct stat _stat;
-		if (stat(argv[i], &_stat) < 0) {
+		if (stat(argv[i], &_stat) == -1) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
-			out |= 1;
+			out = 1;
 			continue;
 		}
 
@@ -132,12 +132,11 @@ int main(int argc, char * argv[]) {
 				break;
 		}
 
-		if (chmod(argv[i], actual_mode) < 0) {
+		if (chmod(argv[i], actual_mode) == -1) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
-			out |= 1;
+			out = 1;
 			continue;
 		}
 	}
-
 	return out;
 }
