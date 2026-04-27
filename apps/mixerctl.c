@@ -21,7 +21,6 @@ static char usage[] =
 "Usage  %s [-d device_id] -l\n"
 "       %s [-d device_id] [-k knob_id] -r\n"
 "       %s [-d device_id] [-k knob_id] -w knob_value\n"
-"       %s -h\n"
 "\n"
 " -d: \033[3mDevice id to address. Defaults to the main sound device.\033[0m\n"
 " -l: \033[3mList the knobs on a device.\033[0m\n"
@@ -29,8 +28,7 @@ static char usage[] =
 " -r: \033[3mPerform a read on the given device's knob. Defaults to the device's\n"
 "     master knob.\033[0m\n"
 " -w: \033[3mPerform a write on the given device's knob. The value should be a\n"
-"     float from 0.0 to 1.0.\033[0m\n"
-" -h: \033[3mPrint this help message and exit.\033[0m\n";
+"     float from 0.0 to 1.0.\033[0m\n";
 
 int main(int argc, char * argv[]) {
 	uint32_t device_id = SND_DEVICE_MAIN;
@@ -42,7 +40,7 @@ int main(int argc, char * argv[]) {
 
 	int c;
 
-	while ((c = getopt(argc, argv, "d:lk:rw:h?")) != -1) {
+	while ((c = getopt(argc, argv, "d:lk:rw:")) != -1) {
 		switch (c) {
 			case 'd':
 				device_id = atoi(optarg);
@@ -64,8 +62,6 @@ int main(int argc, char * argv[]) {
 					exit(EXIT_FAILURE);
 				}
 				break;
-			case 'h':
-			case '?':
 			default:
 				fprintf(stderr, usage, argv[0], argv[0], argv[0], argv[0], argv[0]);
 				exit(EXIT_FAILURE);
@@ -73,7 +69,7 @@ int main(int argc, char * argv[]) {
 	}
 
 	int mixer = open("/dev/mixer", O_RDONLY);
-	if (mixer < 1) {
+	if (mixer == -1) {
 		//perror("open");
 		exit(EXIT_FAILURE);
 	}
@@ -81,7 +77,7 @@ int main(int argc, char * argv[]) {
 	if (list_flag) {
 		snd_knob_list_t list = {0};
 		list.device = device_id;
-		if (ioctl(mixer, SND_MIXER_GET_KNOBS, &list) < 0) {
+		if (ioctl(mixer, SND_MIXER_GET_KNOBS, &list) == -1) {
 			perror("ioctl");
 			exit(EXIT_FAILURE);
 		}
@@ -89,7 +85,7 @@ int main(int argc, char * argv[]) {
 			snd_knob_info_t info = {0};
 			info.device = device_id;
 			info.id = list.ids[i];
-			if (ioctl(mixer, SND_MIXER_GET_KNOB_INFO, &info) < 0) {
+			if (ioctl(mixer, SND_MIXER_GET_KNOB_INFO, &info) == -1) {
 				perror("ioctl");
 				exit(EXIT_FAILURE);
 			}
@@ -103,7 +99,7 @@ int main(int argc, char * argv[]) {
 		snd_knob_value_t value = {0};
 		value.device = device_id;
 		value.id = knob_id;
-		if (ioctl(mixer, SND_MIXER_READ_KNOB, &value) < 0) {
+		if (ioctl(mixer, SND_MIXER_READ_KNOB, &value) == -1) {
 			perror("ioctl");
 			exit(EXIT_FAILURE);
 		}
@@ -117,7 +113,7 @@ int main(int argc, char * argv[]) {
 		value.device = device_id;
 		value.id = knob_id;
 		value.val = (uint32_t)(write_value * SND_KNOB_MAX_VALUE);
-		if (ioctl(mixer, SND_MIXER_WRITE_KNOB, &value) < 0) {
+		if (ioctl(mixer, SND_MIXER_WRITE_KNOB, &value) == -1) {
 			perror("ioctl");
 			exit(EXIT_FAILURE);
 		}
