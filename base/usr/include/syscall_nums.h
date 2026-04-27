@@ -59,7 +59,7 @@
 #define SYS_SYMLINK 56
 #define SYS_READLINK 57
 #define SYS_LSTAT 58
-#define SYS_FSWAIT 59
+/* 59 - unused, was fswait */
 #define SYS_FSWAIT2 60
 #define SYS_CHOWN 61
 #define SYS_SETSID 62

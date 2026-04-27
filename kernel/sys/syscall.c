@@ -1174,10 +1174,6 @@ long sys_fswait_timeout(int c, int fds[], int timeout) {
 	return result;
 }
 
-long sys_fswait(int c, int fds[]) {
-	return sys_fswait_timeout(c, fds, -1);
-}
-
 long sys_fswait_multi(int c, int fds[], int timeout, int out[]) {
 	PTR_VALIDATE(fds);
 	PTR_VALIDATE(out);
@@ -1328,7 +1324,6 @@ static scall_func syscalls[] = {
 	[SYS_SLEEPABS]     = (scall_func)(uintptr_t)sys_sleepabs,
 	[SYS_SLEEP]        = (scall_func)(uintptr_t)sys_sleep,
 	[SYS_PIPE]         = (scall_func)(uintptr_t)sys_pipe,
-	[SYS_FSWAIT]       = (scall_func)(uintptr_t)sys_fswait,
 	[SYS_FSWAIT2]      = (scall_func)(uintptr_t)sys_fswait_timeout,
 	[SYS_FSWAIT3]      = (scall_func)(uintptr_t)sys_fswait_multi,
 	[SYS_CLONE]        = (scall_func)(uintptr_t)sys_clone,
