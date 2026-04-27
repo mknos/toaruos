@@ -25,17 +25,12 @@
  */
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <string.h>
-#include <signal.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
 #include <sys/utsname.h>
 #include <sys/times.h>
 #include <sys/fswait.h>
 
-#include <kernel/video.h>
 #include <toaru/pex.h>
 #include <toaru/hashmap.h>
 
