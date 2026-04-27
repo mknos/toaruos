@@ -18,11 +18,6 @@ static int usage(char * argv[]) {
 	exit(1);
 }
 
-static int invalid(char * argv[], char c) {
-	fprintf(stderr, "%s: %c: unrecognized option\n", argv[0], c);
-	return 1;
-}
-
 static int parse_user_group(char * argv[], char * arg, uid_t * user, gid_t * group) {
 
 	/* Does this look like a number? */
