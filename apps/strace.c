@@ -75,7 +75,6 @@ const char * syscall_names[] = {
 	[SYS_SLEEPABS]     = "sleepabs",
 	[SYS_SLEEP]        = "sleep",
 	[SYS_PIPE]         = "pipe",
-	[SYS_FSWAIT]       = "fswait",
 	[SYS_FSWAIT2]      = "fswait_timeout",
 	[SYS_FSWAIT3]      = "fswait_multi",
 	[SYS_CLONE]        = "clone",
@@ -165,7 +164,6 @@ char syscall_mask[] = {
 	[SYS_SLEEPABS]     = 1,
 	[SYS_SLEEP]        = 1,
 	[SYS_PIPE]         = 1,
-	[SYS_FSWAIT]       = 1,
 	[SYS_FSWAIT2]      = 1,
 	[SYS_FSWAIT3]      = 1,
 	[SYS_CLONE]        = 1,
@@ -898,10 +896,6 @@ static void handle_syscall(pid_t pid, struct URegs * r) {
 			} COMMA;
 			pointer_arg(uregs_syscall_arg2(r));
 			break;
-		case SYS_FSWAIT:
-			int_arg(uregs_syscall_arg1(r)); COMMA;
-			fds_arg(pid, uregs_syscall_arg1(r), uregs_syscall_arg2(r));
-			break;
 		case SYS_FSWAIT2:
 			int_arg(uregs_syscall_arg1(r)); COMMA;
 			fds_arg(pid, uregs_syscall_arg1(r), uregs_syscall_arg2(r)); COMMA;
@@ -1198,7 +1192,7 @@ int main(int argc, char * argv[]) {
 								}
 							} else if (!strcmp(option+1,"desc")) {
 								int syscalls[] = {
-									SYS_OPEN, SYS_READ, SYS_WRITE, SYS_CLOSE, SYS_STAT, SYS_FSWAIT,
+									SYS_OPEN, SYS_READ, SYS_WRITE, SYS_CLOSE, SYS_STAT,
 									SYS_FSWAIT2, SYS_FSWAIT3, SYS_SEEK, SYS_IOCTL, SYS_PIPE,
 									SYS_DUP2, SYS_READDIR, SYS_OPENPTY, SYS_PREAD, SYS_PWRITE, SYS_FCNTL,
 									SYS_FCHMOD, SYS_FCHOWN, SYS_FTRUNCATE,
