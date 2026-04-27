@@ -15,7 +15,6 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/ioctl.h>
 
 #define CHUNK_SIZE 4096
 
