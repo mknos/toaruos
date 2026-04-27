@@ -93,6 +93,10 @@ int main(int argc, char * argv[]) {
 
 		open_socket();
 		console = fopen("/dev/console","a");
+		if (console == NULL) {
+			perror("/dev/console");
+			return 1;
+		}
 
 		if (!quiet) say_hello();
 
