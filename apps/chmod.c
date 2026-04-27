@@ -114,7 +114,7 @@ int main(int argc, char * argv[]) {
 	for (int i = 2; i < argc; ++i) {
 		int actual_mode = 0;
 		struct stat _stat;
-		if (stat(argv[i], &_stat) == -1) {
+		if (mode_set != MODE_SET && stat(argv[i], &_stat) == -1) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
 			out = 1;
 			continue;
