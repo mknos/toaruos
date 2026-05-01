@@ -1,14 +1,6 @@
 /**
  * date - Print the current date and time.
  *
- * TODO: The traditional POSIX version of this tool is supposed
- *       to accept a format *and* allow you to set the time.
- *       We currently lack system calls for setting the time,
- *       but when we add those this should probably be updated.
- *
- *       At the very least, improving this to print the "correct"
- *       default format would be good.
- *
  * @copyright
  * This file is part of ToaruOS and is released under the terms
  * of the NCSA / University of Illinois License - see LICENSE.md
@@ -22,10 +14,13 @@
 #include <sys/time.h>
 
 static void usage(void) {
-	printf(
-			"usage: date [-?] +FORMAT\n"
+#define X_S "\033[3m"
+#define X_E "\033[0m"
+	fprintf(stderr,
+			"usage: date +" X_S "FORMAT" X_E "\n"
+			"       date " X_S "MMDDhhmmCCYY.ss" X_E "\n"
 			"\n"
-			" -?     \033[3mshow this help text\033[0m\n"
+			"Print the time in a given format, or set the current clock time.\n"
 			"\n");
 	exit(1);
 }
@@ -75,8 +70,9 @@ int main(int argc, char * argv[]) {
 	struct timeval now;
 	char buf[BUFSIZ] = {0};
 	int opt;
+	int ret = 0;
 
-	while ((opt = getopt(argc,argv,"?")) != -1) {
+	while ((opt = getopt(argc, argv, "")) != -1) {
 		switch (opt) {
 			default:
 				usage();
@@ -122,13 +118,13 @@ _invalid:
 set_time:
 		now.tv_usec = 0;
 		now.tv_sec = mktime(timeinfo);
-		int r = settimeofday(&now, NULL);
-		if (r == -1)
-			perror("date");
-		return r;
+		if (settimeofday(&now, NULL) == -1) {
+			perror("date: cannot set date");
+			ret = 1;
+		}
 	}
 
 	strftime(buf,BUFSIZ,format,timeinfo);
 	puts(buf);
-	return 0;
+	return ret;
 }
