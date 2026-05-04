@@ -17,6 +17,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 static int usage(char * argv[]) {
 	fprintf(stderr, "usage: %s [-l | -s] file1 file2 [skip1 [skip2]]\n", argv[0]);
