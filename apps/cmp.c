@@ -19,9 +19,15 @@
 #include <string.h>
 #include <limits.h>
 
-static int usage(char * argv[]) {
-	fprintf(stderr, "usage: %s [-l | -s] file1 file2 [skip1 [skip2]]\n", argv[0]);
-	return 2;
+enum exitcode {
+	MATCH   = 0,
+	NOMATCH = 1,
+	ERROR   = 2,
+};
+
+static void usage(void) {
+	fprintf(stderr, "usage: cmp [-l | -s] file1 file2 [skip1 [skip2]]\n");
+	exit(ERROR);
 }
 
 /**
@@ -32,7 +38,8 @@ static int usage(char * argv[]) {
 static int maybe_suffix(char * argv[], char * c, size_t *ret) {
 	char * end = NULL;
 	size_t out = strtoul(c, &end, 10);
-	if (end == c) goto _invalid;
+	if (end == c)
+		goto _invalid;
 
 	size_t amount = 1024;
 	int power = 0;
@@ -63,8 +70,10 @@ static int maybe_suffix(char * argv[], char * c, size_t *ret) {
 			power += 1; /* fallthrough */
 		case 'K':
 		case 'k':
-			if (end[1] == 'B' && end[2] == '\0') amount = 1000;
-			else if (end[1] != '\0') goto _invalid;
+			if (end[1] == 'B' && end[2] == '\0')
+				amount = 1000;
+			else if (end[1] != '\0')
+				goto _invalid;
 			power += 1;
 			break;
 
@@ -90,7 +99,7 @@ _invalid:
 int main(int argc, char * argv[]) {
 	int c;
 	int format = 0;
-	int retval = 0;
+	int retval = MATCH;
 	while ((c = getopt(argc, argv, "ls")) != -1) {
 		switch (c) {
 			case 'l':
@@ -100,11 +109,12 @@ int main(int argc, char * argv[]) {
 				format = 's';
 				break;
 			default:
-				return usage(argv);
+				usage();
 		}
 	}
 
-	if (optind + 1 >= argc || optind + 4 < argc) return usage(argv);
+	if (optind + 1 >= argc || optind + 4 < argc)
+		usage();
 
 	const char * f_names[2];
 	FILE * f_files[2];
@@ -116,24 +126,31 @@ int main(int argc, char * argv[]) {
 			f_files[i] = stdin;
 		} else {
 			f_files[i] = fopen(f_names[i], "r");
-			if (!f_files[i]) return fprintf(stderr, "%s: %s: %s\n", argv[0], f_names[i], strerror(errno)), 2;
+			if (f_files[i] == NULL) {
+				fprintf(stderr, "%s: %s: %s\n", argv[0], f_names[i], strerror(errno));
+				return ERROR;
+			}
 		}
 	}
 
 	if (f_files[0] == stdin && f_files[1] == stdin) {
 		fprintf(stderr, "stdin may only be specified for one argument\n");
-		return 2;
+		return ERROR;
 	}
 
 	for (int i = 0; optind + i + 2 < argc; ++i) {
 		size_t skip;
-		if (maybe_suffix(argv, argv[optind+2+i], &skip)) return 2;
+		if (maybe_suffix(argv, argv[optind+2+i], &skip))
+			return ERROR;
 		if (skip) {
 			if (skip > LONG_MAX || fseek(f_files[i], skip, SEEK_SET)) {
 				clearerr(f_files[i]);
 				while (skip) {
 					int c = fgetc(f_files[i]);
-					if (c < 0 && ferror(f_files[i])) return fprintf(stderr, "%s: %s: %s\n", argv[0], f_names[i], strerror(errno)), 2;
+					if (c < 0 && ferror(f_files[i])) {
+						fprintf(stderr, "%s: %s: %s\n", argv[0], f_names[i], strerror(errno));
+						return ERROR;
+					}
 					skip--;
 				}
 			}
@@ -147,18 +164,24 @@ int main(int argc, char * argv[]) {
 		int c[2];
 		for (int i = 0; i < 2; ++i) {
 			c[i] = fgetc(f_files[i]);
-			if (c[i] < 0 && ferror(f_files[i])) return fprintf(stderr, "%s: %s: %s\n", argv[0], f_names[i], strerror(errno)), 2;
+			if (c[i] < 0 && ferror(f_files[i])) {
+				fprintf(stderr, "%s: %s: %s\n", argv[0], f_names[i], strerror(errno));
+				return ERROR;
+			}
 		}
 
 		if (c[0] != c[1]) {
 			if (c[0] == EOF || c[1] == EOF) {
-				if (format != 's') fprintf(stderr, "%s: EOF on %s\n", argv[0], f_names[c[1] == EOF]);
-				return 1;
+				if (format != 's')
+					fprintf(stderr, "%s: EOF on %s\n", argv[0], f_names[c[1] == EOF]);
+				return NOMATCH;
 			}
-			if (format == 0) fprintf(stdout, "%s %s differ: char %zu, line %zu\n", f_names[0], f_names[1], count, line);
-			if (format != 'l') return 1;
+			if (format == 0)
+				fprintf(stdout, "%s %s differ: char %zu, line %zu\n", f_names[0], f_names[1], count, line);
+			if (format != 'l')
+				return NOMATCH;
 			fprintf(stdout, "%zu %o %o\n", count, c[0], c[1]);
-			retval = 1;
+			retval = NOMATCH;
 		}
 
 		count += 1;
