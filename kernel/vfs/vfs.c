@@ -636,13 +636,12 @@ int symlink_fs(char * target, char * name) {
 }
 
 ssize_t readlink_fs(fs_node_t *node, char * buf, size_t size) {
-	if (!node) return -ENOENT;
-
-	if (node->readlink) {
-		return node->readlink(node, buf, size);
-	} else {
+	if (!node || !size)
 		return -EINVAL;
-	}
+	if (!node->readlink)
+		return -ENOTSUP;
+
+	return node->readlink(node, buf, size);
 }
 
 
