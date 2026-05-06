@@ -557,8 +557,6 @@ long sys_rename(const char * src, const char * dest) {
 	if (!src) return -EFAULT;
 	PTR_VALIDATE(dest);
 	if (!dest) return -EFAULT;
-
-	extern int rename_file_fs(const char * src, const char * dest);
 	return rename_file_fs(src, dest);
 }
 

@@ -115,6 +115,7 @@ struct dirent *readdir_fs(fs_node_t *node, unsigned long index);
 fs_node_t *finddir_fs(fs_node_t *node, char *name);
 int mkdir_fs(char *name, mode_t permission);
 int create_file_fs(char *name, mode_t permission);
+int rename_file_fs(const char *src, const char *dest);
 fs_node_t *kopen(const char *filename, unsigned int flags);
 char *canonicalize_path(const char *cwd, const char *input);
 fs_node_t *clone_fs(fs_node_t * source);
