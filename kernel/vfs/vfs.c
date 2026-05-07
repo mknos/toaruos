@@ -352,8 +352,9 @@ int ioctl_fs(fs_node_t *node, unsigned long request, void * argp) {
 }
 
 fs_node_t * file_get_parent(const char * path) {
-	char * parent_path = malloc(strlen(path) + 5);
-	snprintf(parent_path, strlen(path) + 4, "%s/..", path);
+	size_t size = strlen(path) + sizeof("/..");
+	char * parent_path = malloc(size);
+	snprintf(parent_path, size, "%s/..", path);
 	fs_node_t * parent  = kopen(parent_path, 0);
 	free(parent_path);
 	return parent;
