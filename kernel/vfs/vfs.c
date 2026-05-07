@@ -678,11 +678,14 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	while (pch != NULL) {
 		// XXX: Path elements should be checked for existence!
 		if (strcmp(pch, PATH_UP) == 0) {
+			// XXX: Invalid path "/bin/sh/.." is allowed
 			node_t * n = list_pop(out);
 			if (n) {
 				free(n->value);
 				free(n);
 			}
+		} else if (strcmp(pch, PATH_DOT) == 0) {
+			// XXX: Invalid path "/bin/sh/." is allowed
 		} else {
 			char * s = strdup(pch);
 			list_insert(out, s);
