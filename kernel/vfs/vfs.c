@@ -673,8 +673,16 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	 */
 	while (pch != NULL) {
 		// XXX: Path elements should be checked for existence!
-		char * s = strdup(pch);
-		list_insert(out, s);
+		if (strcmp(pch, PATH_UP) == 0) {
+			node_t * n = list_pop(out);
+			if (n) {
+				free(n->value);
+				free(n);
+			}
+		} else {
+			char * s = strdup(pch);
+			list_insert(out, s);
+		}
 		pch = strtok_r(NULL, PATH_SEPARATOR_STRING, &save);
 	}
 	free(path);
