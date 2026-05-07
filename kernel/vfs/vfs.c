@@ -41,7 +41,7 @@ hashmap_t * fs_types = NULL;
 #define MIN(l,r) ((l) < (r) ? (l) : (r))
 #define MAX(l,r) ((l) > (r) ? (l) : (r))
 
-#define debug_print(x, ...) do { if (0) {printf("vfs.c [%s] ", #x); printf(__VA_ARGS__); printf("\n"); } } while (0)
+#define debug_print(x, ...) do { printf("vfs: [%s] ", #x); printf(__VA_ARGS__); printf("\n"); } while (0)
 
 static int cb_printf(void * user, char c) {
 	fs_node_t * f = user;
