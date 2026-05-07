@@ -730,22 +730,15 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	foreach(item, out) {
 		size += strlen(item->value) + 1;
 	}
-
 	/* join() the list */
 	char *output = calloc(size + 1, sizeof(char));
 	char *output_offset = output;
-	if (size == 0) {
-		output[0] = '\0';
-	} else {
-		/* Otherwise, append each element together */
-		foreach(item, out) {
-			output_offset[0] = PATH_SEPARATOR;
-			output_offset++;
-			memcpy(output_offset, item->value, strlen(item->value) + 1);
-			output_offset += strlen(item->value);
-		}
+	foreach(item, out) {
+		output_offset[0] = PATH_SEPARATOR;
+		output_offset++;
+		memcpy(output_offset, item->value, strlen(item->value) + 1);
+		output_offset += strlen(item->value);
 	}
-
 	/* Clean up the various things we used to get here */
 	list_destroy(out);
 	list_free(out);
@@ -1130,6 +1123,10 @@ fs_node_t *kopen_recur(const char *filename, uint64_t flags, uint64_t symlink_de
 			 * TODO: kopen_recur has no way to pass along a failure reason?
 			 *       This will appear as 'ENOENT' instead of 'EACCESS', should fix that...
 			 */
+			goto fail2;
+		}
+		if (!(node_ptr->flags & FS_DIRECTORY)) {
+			debug_print(INFO, "%s: not a directory", path_offset);
 			goto fail2;
 		}
 		debug_print(INFO, "... Searching for %s", path_offset);
