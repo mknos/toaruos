@@ -426,9 +426,6 @@ int create_file_fs(char *name, mode_t permission) {
 	char *cwd = (char *)(this_core->current_process->wd_name);
 	char *path = canonicalize_path(cwd, name);
 
-	char * parent_path = malloc(strlen(path) + 5);
-	snprintf(parent_path, strlen(path) + 4, "%s/..", path);
-
 	char * f_path = path + strlen(path) - 1;
 	while (f_path > path) {
 		if (*f_path == '/') {
@@ -442,11 +439,7 @@ int create_file_fs(char *name, mode_t permission) {
 		f_path++;
 	}
 
-	debug_print(NOTICE, "creating file %s within %s (hope these strings are good)", f_path, parent_path);
-
-	parent = kopen(parent_path, 0);
-	free(parent_path);
-
+	parent = file_get_parent(path);
 	if (!parent) {
 		debug_print(WARNING, "failed to open parent");
 		free(path);
@@ -478,9 +471,6 @@ int unlink_fs(char * name) {
 	char *cwd = (char *)(this_core->current_process->wd_name);
 	char *path = canonicalize_path(cwd, name);
 
-	char * parent_path = malloc(strlen(path) + 5);
-	snprintf(parent_path, strlen(path) + 4, "%s/..", path);
-
 	char * f_path = path + strlen(path) - 1;
 	while (f_path > path) {
 		if (*f_path == '/') {
@@ -494,11 +484,7 @@ int unlink_fs(char * name) {
 		f_path++;
 	}
 
-	debug_print(WARNING, "unlinking file %s within %s (hope these strings are good)", f_path, parent_path);
-
-	parent = kopen(parent_path, 0);
-	free(parent_path);
-
+	parent = file_get_parent(path);
 	if (!parent) {
 		free(path);
 		return -ENOENT;
@@ -529,8 +515,6 @@ int mkdir_fs(char *name, mode_t permission) {
 
 	char *cwd = (char *)(this_core->current_process->wd_name);
 	char *path = canonicalize_path(cwd, name);
-	char * parent_path = malloc(strlen(path) + 5);
-	snprintf(parent_path, strlen(path) + 4, "%s/..", path);
 
 	char * f_path = path + strlen(path) - 1;
 	while (f_path > path) {
@@ -545,11 +529,7 @@ int mkdir_fs(char *name, mode_t permission) {
 		f_path++;
 	}
 
-	debug_print(WARNING, "creating directory %s within %s (hope these strings are good)", f_path, parent_path);
-
-	parent = kopen(parent_path, 0);
-	free(parent_path);
-
+	parent = file_get_parent(path);
 	if (!parent) {
 		free(path);
 		return -ENOENT;
@@ -594,9 +574,6 @@ int symlink_fs(char * target, char * name) {
 	char *cwd = (char *)(this_core->current_process->wd_name);
 	char *path = canonicalize_path(cwd, name);
 
-	char * parent_path = malloc(strlen(path) + 5);
-	snprintf(parent_path, strlen(path) + 4, "%s/..", path);
-
 	char * f_path = path + strlen(path) - 1;
 	while (f_path > path) {
 		if (*f_path == '/') {
@@ -606,11 +583,7 @@ int symlink_fs(char * target, char * name) {
 		f_path--;
 	}
 
-	debug_print(NOTICE, "creating symlink %s within %s", f_path, parent_path);
-
-	parent = kopen(parent_path, 0);
-	free(parent_path);
-
+	parent = file_get_parent(path);
 	if (!parent) {
 		free(path);
 		return -ENOENT;
