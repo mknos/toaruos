@@ -699,6 +699,7 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	free(out);
 
 	/* And return a working, absolute path */
+	debug_print(NOTICE, "cwd(%s) name(%s) --> canonical(%s)\r\n", cwd, input, output);
 	return output;
 }
 
