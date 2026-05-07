@@ -698,29 +698,9 @@ char *canonicalize_path(const char *cwd, const char *input) {
 	 * (do nothing)
 	 */
 	while (pch != NULL) {
-		if (!strcmp(pch,PATH_UP)) {
-			/*
-			 * Path = ..
-			 * Pop the stack to move up a directory
-			 */
-			node_t * n = list_pop(out);
-			if (n) {
-				free(n->value);
-				free(n);
-			}
-		} else if (!strcmp(pch,PATH_DOT)) {
-			/*
-			 * Path = .
-			 * Do nothing
-			 */
-		} else {
-			/*
-			 * Regular path, push it
-			 * XXX: Path elements should be checked for existence!
-			 */
-			char * s = strdup(pch);
-			list_insert(out, s);
-		}
+		// XXX: Path elements should be checked for existence!
+		char * s = strdup(pch);
+		list_insert(out, s);
 		pch = strtok_r(NULL, PATH_SEPARATOR_STRING, &save);
 	}
 	free(path);
