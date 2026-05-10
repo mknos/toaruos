@@ -11,12 +11,8 @@
 #include <kernel/types.h>
 #include <kernel/vfs.h>
 #include <kernel/printf.h>
+#include <kernel/string.h>
 #include <kernel/tokenize.h>
-
-#include <kernel/list.h>
-#include <kernel/hashmap.h>
-
-#define TARFS_LOG_LEVEL WARNING
 
 struct tarfs {
 	fs_node_t * device;
