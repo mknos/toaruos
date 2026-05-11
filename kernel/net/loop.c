@@ -95,8 +95,9 @@ static ssize_t write_loop(fs_node_t *node, off_t offset, size_t size, uint8_t *b
 }
 
 static void loop_init(struct loop_nic * nic) {
-	nic->eth.device_node = calloc(sizeof(fs_node_t),1);
-	snprintf(nic->eth.device_node->name, 100, "%s", nic->eth.if_name);
+	nic->eth.device_node = calloc(sizeof(fs_node_t), 1);
+	snprintf(nic->eth.device_node->name,
+		sizeof(nic->eth.device_node->name), "%s", nic->eth.if_name);
 	nic->eth.device_node->flags = FS_BLOCKDEVICE;
 	nic->eth.device_node->mask  = 0666;
 	nic->eth.device_node->ioctl = ioctl_loop;
@@ -111,8 +112,8 @@ static void loop_init(struct loop_nic * nic) {
 }
 
 fs_node_t * loopbook_install(void) {
-	struct loop_nic * nic = calloc(1,sizeof(struct loop_nic));
-	snprintf(nic->eth.if_name, 31, "lo");
+	struct loop_nic * nic = calloc(1, sizeof(struct loop_nic));
+	snprintf(nic->eth.if_name, sizeof(nic->eth.if_name), "lo");
 	loop_init(nic);
 	return nic->eth.device_node;
 }
