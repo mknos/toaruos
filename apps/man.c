@@ -341,10 +341,8 @@ int main(int argc, char * argv[]) {
 		}
 	}
 
-	/* At least one argument is required. */
-	if (optind == argc) {
-		return 0;
-	}
+	if (optind == argc)
+		return usage(argv);
 
 	/* Convert the default sections list (from the envvar, compiled default, or argument)
 	 * to an array we can iterate over more easily. */
