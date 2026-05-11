@@ -20,7 +20,6 @@
 #include <kernel/misc.h>
 #include <kernel/time.h>
 #include <kernel/ptrace.h>
-#include <kernel/hashmap.h>
 #include <kernel/module.h>
 #include <kernel/ksym.h>
 #include <kernel/mmu.h>

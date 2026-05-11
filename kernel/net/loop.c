@@ -12,7 +12,6 @@
 #include <kernel/printf.h>
 #include <kernel/vfs.h>
 #include <kernel/spinlock.h>
-#include <kernel/list.h>
 #include <kernel/net/netif.h>
 #include <kernel/net/eth.h>
 #include <errno.h>

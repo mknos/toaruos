@@ -11,7 +11,6 @@
 #include <kernel/string.h>
 #include <kernel/printf.h>
 #include <kernel/pci.h>
-#include <kernel/hashmap.h>
 #include <kernel/process.h>
 #include <kernel/vfs.h>
 #include <kernel/mmu.h>
