@@ -262,22 +262,6 @@ static char ** sections_from_string(char * str) {
 }
 
 /**
- * @brief Check if a string looks like a filename.
- *
- * Just checks if a path contains a /
- *
- * @param arg Possible filename.
- * @returns 1 if it looks like a filename, else 0.
- */
-static int is_file_name(char * arg) {
-	while (*arg) {
-		if (*arg == '/') return 1;
-		arg++;
-	}
-	return 0;
-}
-
-/**
  * @brief Check if a string looks like a section number.
  *
  * A section number can be a single lowercase letter,
@@ -366,7 +350,7 @@ int main(int argc, char * argv[]) {
 			for (char ** s = section ? (char*[]){section, NULL} : sections; *s; ++s) {
 				found |= search_section(*s, argv[optind]);
 			}
-		} else if (is_file_name(argv[optind])) {
+		} else if (strchr(argv[optind], '/') != NULL) {
 			/* Accept things that look like raw paths to roff sources */
 			if (try_filename(argv[optind], argv[optind], "")) found = 1;
 		} else if (section) {
