@@ -315,7 +315,7 @@ int main(int argc, char * argv[]) {
 	int show_all = 0;
 	int search_names = 0;
 	int opt;
-	while ((opt = getopt(argc, argv, "?awS:k-:")) != -1) {
+	while ((opt = getopt(argc, argv, "awS:k-:")) != -1) {
 		switch (opt) {
 			case 'a':
 				show_all = 1;
@@ -336,7 +336,7 @@ int main(int argc, char * argv[]) {
 				}
 				fprintf(stderr, "%s: '--%s' is not a recognized long option.\n", argv[0], optarg);
 				/* fallthrough */
-			case '?':
+			default:
 				return usage(argv);
 		}
 	}
