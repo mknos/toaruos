@@ -157,8 +157,10 @@ static int search_section(char * i, char * keyword) {
 	char * dirpath;
 	asprintf(&dirpath, MAN_DIR, i);
 	DIR * dir = opendir(dirpath);
-	if (!dir) return 0; /* Not a valid section? */
-
+	if (!dir) {
+		free(dirpath);
+		return 0; /* Not a valid section? */
+	}
 	int found = 0;
 	struct dirent * ent;
 	while ((ent = readdir(dir))) {
