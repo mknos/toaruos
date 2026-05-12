@@ -105,20 +105,17 @@ static int try_filename(char * filename, char * page, char * i) {
  * @returns 0 if neither filename worked, 1 if one did.
  */
 static int try_section(char *i, char * page) {
+	int found;
 	char * filename;
 	asprintf(&filename, MAN_FMT, i, page, i);
-	if (try_filename(filename, page, i)) {
-		free(filename);
-		return 1;
-	}
+	found = try_filename(filename, page, i);
 	free(filename);
+	if (found)
+		return 1;
 	asprintf(&filename, MAN_FMT ".gz", i, page, i);
-	if (try_filename(filename, page, i)) {
-		free(filename);
-		return 1;
-	}
+	found = try_filename(filename, page, i);
 	free(filename);
-	return 0;
+	return found;
 }
 
 /**
