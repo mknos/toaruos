@@ -912,11 +912,17 @@ int main(int argc, char * argv[]) {
 	true_output = stdout;
 	error_output = stdout; /* These are errors we want to show up in a pager */
 
+	int width;
 	int opt;
 	while ((opt = getopt(argc, argv, "?W:S:EP-:")) != -1) {
 		switch (opt) {
 			case 'W':
-				w.ws_col = atoi(optarg);
+				width = atoi(optarg);
+				if (width <= 0) {
+					fprintf(stderr, "%s: width must be positive\n", argv[0]);
+					return 1;
+				}
+				w.ws_col = width;
 				break;
 			case 'S':
 				only_section = optarg;
