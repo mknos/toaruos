@@ -320,11 +320,10 @@ static ssize_t do_search(ssize_t offset, int direction) {
 		if (direction >= 0) {
 			/* Search forward. */
 			for (ssize_t i = linesLen - term_height - offset + 1 + direction; i < linesLen; ++i) {
-				if (i < 0) continue;
-				if (escape_skipping_search(lines[i], search_string,search_size,NULL)) {
-					fprintf(stderr, "what\n");
+				if (i < 0)
+					continue;
+				if (escape_skipping_search(lines[i], search_string, search_size, NULL))
 					return linesLen - i - term_height + 1;
-				}
 			}
 			/* No result so set things up so we continue reading input to see
 			 * if the search string appears in a line we haven't processed yet. */
