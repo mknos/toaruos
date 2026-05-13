@@ -508,8 +508,13 @@ static char * collect_arg(char * c, char **out) {
 		while (*c && is_tab_or_space(*c)) c++;
 	}
 
-	if (value) *out = strdup(value);
-
+	if (value) {
+		*out = strdup(value);
+		if (*out == NULL) {
+			perror("roff: strdup");
+			exit(1);
+		}
+	}
 	return c;
 }
 
