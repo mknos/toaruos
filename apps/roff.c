@@ -190,11 +190,8 @@ static int skip_escape(char *x, size_t *len) {
 			return c - x;
 		}
 
-		/* "Italic correction */
 		case ',':
 		case '/':
-			return 2;
-
 		case '?':
 			return 2;
 
@@ -273,14 +270,22 @@ static void switch_font(struct RoffContext * ctx, unsigned int font) {
 
 	/* Aliases first */
 	switch (ctx->current_font) {
-		case '1': ctx->current_font = 'R'; break;
-		case '2': ctx->current_font = 'I'; break;
-		case '3': ctx->current_font = 'B'; break;
-		case '4': ctx->current_font = PAIR('B','I'); break;
-		case PAIR('C','B'): ctx->current_font = 'B'; break;
-		case PAIR('C','I'): ctx->current_font = 'I'; break;
-		case PAIR('C','R'): ctx->current_font = 'R'; break;
-		case PAIR('C','W'): ctx->current_font = 'R'; break;
+		case '1':
+		case PAIR('C','R'):
+		case PAIR('C','W'):
+			ctx->current_font = 'R';
+			break;
+		case '2':
+		case PAIR('C','I'):
+			ctx->current_font = 'I';
+			break;
+		case '3':
+		case PAIR('C','B'):
+			ctx->current_font = 'B';
+			break;
+		case '4':
+			ctx->current_font = PAIR('B','I');
+			break;
 	}
 }
 
