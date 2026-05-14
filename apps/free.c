@@ -48,8 +48,10 @@ int main(int argc, char * argv[]) {
 	const char * unit = "kB";
 
 	FILE * f = fopen("/proc/meminfo", "r");
-	if (!f) return 1;
-
+	if (f == NULL) {
+		perror("/proc/meminfo");
+		return 1;
+	}
 	int total, free, used;
 	char buf[1024] = {0};
 	fgets(buf, 1024, f);
