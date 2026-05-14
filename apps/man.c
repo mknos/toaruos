@@ -73,24 +73,28 @@ static int usage(char * argv[]) {
  */
 static int try_filename(char * filename, char * page, char * i) {
 	struct stat st;
-	if (!stat(filename, &st)) {
-		if (where_is) {
-			puts(filename);
-			return 1;
-		}
-		int is_gz = strlen(filename) > 3 && !strcmp(filename + strlen(filename)-3,".gz");
-		char * systemcmd;
-		asprintf(&systemcmd,
-			!is_gz ?
-			(ROFF_CMD " '%s' | " MORE_CMD) :
-			("gunzip -c '%s' | " ROFF_CMD " -- - | " MORE_CMD),
-			filename, page, i);
-		int result = system(systemcmd);
-		if (result) exit(WEXITSTATUS(result));
-		free(systemcmd);
+	if (stat(filename, &st) != 0)
+		return 0;
+	if (where_is) {
+		puts(filename);
 		return 1;
 	}
-	return 0;
+	int is_gz = strlen(filename) > 3 && !strcmp(filename + strlen(filename)-3,".gz");
+	char * systemcmd;
+	if (asprintf(&systemcmd,
+		!is_gz ?
+		(ROFF_CMD " '%s' | " MORE_CMD) :
+		("gunzip -c '%s' | " ROFF_CMD " -- - | " MORE_CMD),
+		filename, page, i) == -1) {
+
+		perror("man: asprintf");
+		exit(1);
+	}
+	int result = system(systemcmd);
+	free(systemcmd);
+	if (result)
+		exit(WEXITSTATUS(result));
+	return 1;
 }
 
 /**
@@ -107,12 +111,18 @@ static int try_filename(char * filename, char * page, char * i) {
 static int try_section(char *i, char * page) {
 	int found;
 	char * filename;
-	asprintf(&filename, MAN_FMT, i, page, i);
+	if (asprintf(&filename, MAN_FMT, i, page, i) == -1) {
+		perror("man: asprintf");
+		exit(1);
+	}
 	found = try_filename(filename, page, i);
 	free(filename);
 	if (found)
 		return 1;
-	asprintf(&filename, MAN_FMT ".gz", i, page, i);
+	if (asprintf(&filename, MAN_FMT ".gz", i, page, i) == -1) {
+		perror("man: asprintf");
+		exit(1);
+	}
 	found = try_filename(filename, page, i);
 	free(filename);
 	return found;
@@ -152,7 +162,10 @@ static int try_section(char *i, char * page) {
 static int search_section(char * i, char * keyword) {
 	size_t len_i = strlen(i);
 	char * dirpath;
-	asprintf(&dirpath, MAN_DIR, i);
+	if (asprintf(&dirpath, MAN_DIR, i) == -1) {
+		perror("man: asprintf");
+		exit(1);
+	}
 	DIR * dir = opendir(dirpath);
 	if (!dir) {
 		free(dirpath);
@@ -164,10 +177,17 @@ static int search_section(char * i, char * keyword) {
 		if (ent->d_name[0] == '.') continue;
 
 		char * filename;
-		asprintf(&filename,"%s/%s", dirpath, ent->d_name);
+		if (asprintf(&filename,"%s/%s", dirpath, ent->d_name) == -1) {
+			perror("man: asprintf");
+			exit(1);
+		}
 		int is_gz = strlen(filename) > 3 && !strcmp(filename + strlen(filename)-3,".gz");
 
 		char * page = strdup(ent->d_name);
+		if (page == NULL) {
+			perror("man: strdup");
+			exit(1);
+		}
 		size_t len_page = strlen(page);
 
 		if (is_gz) {
@@ -204,11 +224,15 @@ static int search_section(char * i, char * keyword) {
 			}
 
 			char * systemcmd;
-			asprintf(&systemcmd,
+			if (asprintf(&systemcmd,
 				!is_gz ?
 				(ROFF_CMD " -S NAME -P '%s' | " GREP_CMD "%s") :
 				("gunzip -c '%s' | " ROFF_CMD " -S NAME -- - | " GREP_CMD "%s"),
-				filename, keyword, dry_run ? " >/dev/null" : "");
+				filename, keyword, dry_run ? " >/dev/null" : "") == -1) {
+
+				perror("man: asprintf");
+				exit(1);
+			}
 			int result = system(systemcmd);
 			free(systemcmd);
 			if (result != 0) break;
@@ -237,12 +261,20 @@ static int search_section(char * i, char * keyword) {
  */
 static char ** sections_from_string(char * str) {
 	char * working_space = strdup(str); /* Beacuse we modifiy it and it may come from _environ */
+	if (working_space == NULL) {
+		perror("man: strdup");
+		exit(1);
+	}
 	size_t count = 1;
 	char * c = working_space;
 	for (; *c; ++c) {
 		if (*c == ':') count++;
 	}
-	char ** sects = calloc(sizeof(char*),count+1);
+	char ** sects = calloc(count + 1, sizeof(char*));
+	if (sects == NULL) {
+		perror("man: calloc");
+		exit(1);
+	}
 	size_t i = 0;
 	c = working_space;
 	while (*c) {
