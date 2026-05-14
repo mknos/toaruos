@@ -12,7 +12,6 @@
 #include <stdlib.h>
 #include <getopt.h>
 #include <time.h>
-#include <termios.h>
 #include <unistd.h>
 #include <poll.h>
 #include <signal.h>
