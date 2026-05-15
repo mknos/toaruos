@@ -156,6 +156,10 @@ static int root_is_tmpfs(void) {
 }
 
 int main(int argc, char * argv[]) {
+	if (getuid() != 0) {
+		fprintf(stderr, "%s: only root should run this\n", argv[0]);
+		return 1;
+	}
 
 	hashmap_t * cmdline = get_cmdline();
 
