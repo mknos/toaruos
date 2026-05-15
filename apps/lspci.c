@@ -169,15 +169,13 @@ const char * pci_device_lookup(unsigned short vendor_id, unsigned short device_i
 	return NULL;
 }
 
-static void show_usage(char * argv[]) {
+static void usage(void) {
 	fprintf(stderr,
-			"lspci - show information about PCI devices\n"
-			"\n"
-			"usage: %s [-n]\n"
+			"usage: lspci [-n]\n"
 			"\n"
 			" -n     \033[3mshow numeric device codes\033[0m\n"
-			" -?     \033[3mshow this help text\033[0m\n"
-			"\n", argv[0]);
+			"\n");
+	exit(1);
 }
 
 int main(int argc, char * argv[]) {
@@ -185,17 +183,16 @@ int main(int argc, char * argv[]) {
 	int opt;
 	char * query = NULL;
 
-	while ((opt = getopt(argc, argv, "nq:?")) != -1) {
+	while ((opt = getopt(argc, argv, "nq:")) != -1) {
 		switch (opt) {
-			case '?':
-				show_usage(argv);
-				return 0;
 			case 'n':
 				numeric = 1;
 				break;
 			case 'q':
 				query = optarg;
 				break;
+			default:
+				usage();
 		}
 	}
 
