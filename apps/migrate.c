@@ -13,6 +13,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,24 +52,22 @@ void copy_file(char * source, char * dest, int mode,int uid, int gid) {
 	//TRACE_("Copying %s...", dest);
 
 	int d_fd = open(dest, O_WRONLY | O_CREAT, mode);
-	int s_fd = open(source, O_RDONLY);
-
-	ssize_t length;
-
-	length = lseek(s_fd, 0, SEEK_END);
-	lseek(s_fd, 0, SEEK_SET);
-
-	//fprintf(stderr, "%d bytes to copy\n", length);
-
-	char buf[CHUNK_SIZE];
-
-	while (length > 0) {
-		size_t r = read(s_fd, buf, length < CHUNK_SIZE ? length : CHUNK_SIZE);
-		//fprintf(stderr, "copying %d bytes from %s to %s\n", r, source, dest);
-		write(d_fd, buf, r);
-		length -= r;
-		//fprintf(stderr, "%d bytes remaining\n", length);
+	if (d_fd == -1) {
+		fprintf(stderr, "failed to open output '%s': %s\n", dest, strerror(errno));
+		return;
 	}
+	int s_fd = open(source, O_RDONLY);
+	if (s_fd == -1) {
+		fprintf(stderr, "failed to open input '%s': %s\n", source, strerror(errno));
+		return;
+	}
+	char buf[CHUNK_SIZE];
+	ssize_t r;
+	do {
+		r = read(s_fd, buf, CHUNK_SIZE);
+		if (r > 0)
+			write(d_fd, buf, r);
+	} while (r > 0);
 
 	close(s_fd);
 	close(d_fd);
