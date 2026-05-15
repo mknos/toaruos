@@ -10,13 +10,15 @@
 #include <stdio.h>
 
 int main(int argc, char ** argv) {
+	if (argc != 1) {
+		fprintf(stderr, "logname: extra operand: '%s'\nusage: logname\n", argv[1]);
+		return 1;
+	}
 	char * name = getlogin();
 	if (!name) {
 		fprintf(stderr, "%s: failed to determine login name\n", argv[0]);
 		return 1;
 	}
-
 	fprintf(stdout, "%s\n", name);
 	return 0;
 }
-
