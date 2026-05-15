@@ -31,6 +31,9 @@ int main(int argc, char * argv[]) {
 			case 'q':
 				quiet = 1;
 				break;
+			default:
+				fprintf(stderr, "usage: %s [-dqu] TEMPLATE\n", argv[0]);
+				return 1;
 		}
 	}
 
