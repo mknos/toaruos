@@ -11,6 +11,7 @@
  */
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -19,16 +20,14 @@
 #include <sys/stat.h>
 #include <sys/time.h>
 
-static void show_usage(int argc, char * argv[]) {
+static void usage(void) {
 	printf(
-			"stat - display file status\n"
-			"\n"
-			"usage: %s [-Lq] PATH\n"
+			"usage: stat [-Lq] PATH\n"
 			"\n"
 			" -L     \033[3mdereference symlinks\033[0m\n"
 			" -q     \033[3mdon't print anything, just return 0 if file exists\033[0m\n"
-			" -?     \033[3mshow this help text\033[0m\n"
-			"\n", argv[0]);
+			"\n");
+	exit(1);
 }
 
 static int dereference = 0, quiet = 0;
@@ -99,7 +98,7 @@ static int stat_file(char * file) {
 int main(int argc, char ** argv) {
 	int opt;
 
-	while ((opt = getopt(argc, argv, "?Lq")) != -1) {
+	while ((opt = getopt(argc, argv, "Lq")) != -1) {
 		switch (opt) {
 			case 'L':
 				dereference = 1;
@@ -107,25 +106,17 @@ int main(int argc, char ** argv) {
 			case 'q':
 				quiet = 1;
 				break;
-			case '?':
-				show_usage(argc,argv);
-				return 1;
+			default:
+				usage();
 		}
 	}
-
-	if (optind >= argc) {
-		show_usage(argc, argv);
-		return 1;
-	}
+	if (optind >= argc)
+		usage();
 
 	int ret = 0;
-
 	while (optind < argc) {
 		ret |= stat_file(argv[optind]);
 		optind++;
 	}
-
 	return ret;
-
 }
-
