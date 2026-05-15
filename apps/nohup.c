@@ -40,8 +40,8 @@ int main(int argc, char ** argv) {
 	char * file = NULL;
 
 	if (do_what & Redirect_stdin) {
-		int new_stdin = open("/dev/null",O_WRONLY);
-		if (new_stdin < 0) {
+		int new_stdin = open("/dev/null", O_WRONLY);
+		if (new_stdin == -1) {
 			fprintf(stderr, "%s: can not redirect stdin to /dev/null: %s\n", argv[0], strerror(errno));
 			return NOHUP_INTERNAL_FAILURE;
 		}
@@ -49,15 +49,23 @@ int main(int argc, char ** argv) {
 	}
 
 	if (do_what & Redirect_stdout) {
-		asprintf(&file, "nohup.out");
+		file = strdup("nohup.out");
+		if (file == NULL) {
+			perror(argv[0]);
+			return NOHUP_INTERNAL_FAILURE;
+		}
 		int new_stdout = open(file,O_APPEND|O_WRONLY|O_CREAT,0644);
-		if (new_stdout < 0) {
-			if (getenv("HOME")) {
+		if (new_stdout == -1) {
+			char * home = getenv("HOME");
+			if (home != NULL) {
 				free(file);
-				asprintf(&file, "%s/nohup.out", getenv("HOME"));
+				if (asprintf(&file, "%s/nohup.out", home) == -1) {
+					perror(argv[0]);
+					return NOHUP_INTERNAL_FAILURE;
+				}
 				new_stdout = open(file,O_APPEND|O_WRONLY|O_CREAT,0644);
 			}
-			if (new_stdout < 0) {
+			if (new_stdout == -1) {
 				fprintf(stderr, "%s: %s: %s\n", argv[0], file, strerror(errno));
 				return NOHUP_INTERNAL_FAILURE;
 			}
@@ -78,7 +86,7 @@ int main(int argc, char ** argv) {
 		fprintf(stderr, "%s: redirecting stderr to stdout\n", argv[0]);
 	}
 
-	if (file) free(file);
+	free(file);
 
 	if (do_what & Redirect_stderr) {
 		dup2(STDOUT_FILENO,STDERR_FILENO);
