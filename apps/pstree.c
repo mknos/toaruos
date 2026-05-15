@@ -6,16 +6,12 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2014-2018 K. Lange
  */
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 #include <dirent.h>
 
-#include <toaru/list.h>
 #include <toaru/tree.h>
 
 typedef struct process {
