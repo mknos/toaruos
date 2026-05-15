@@ -35,9 +35,15 @@ p_t * build_entry(struct dirent * dent) {
 
 	sprintf(tmp, "/proc/%s/status", dent->d_name);
 	f = fopen(tmp, "r");
-
+	if (f == NULL) {
+		perror(tmp);
+		exit(1);
+	}
 	p_t * proc = malloc(sizeof(p_t));
-
+	if (proc == NULL) {
+		perror("pstree: malloc");
+		exit(1);
+	}
 	while (fgets(line, LINE_LEN, f) != NULL) {
 		char * n = strstr(line,"\n");
 		if (n) { *n = '\0'; }
@@ -146,11 +152,11 @@ void print_process_tree_node(tree_node_t * node, size_t depth, int indented, int
 }
 
 int main (int argc, char * argv[]) {
-
-	/* Open the directory */
 	DIR * dirp = opendir("/proc");
-
-	/* Read the entries in the directory */
+	if (dirp == NULL) {
+		perror("pstree: /proc");
+		return 1;
+	}
 	tree_t * procs = tree_create();
 
 	struct dirent * ent = readdir(dirp);
