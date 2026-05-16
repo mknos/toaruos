@@ -41,7 +41,6 @@ void usage(int argc, char * argv[]) {
 int main(int argc, char * argv[]) {
 	char * cmdline = args_from_procfs();
 
-	/* Figure out what we're doing */
 	int opt;
 	while ((opt = getopt(argc, argv, "g:q:s")) != -1) {
 		switch (opt) {
@@ -65,6 +64,6 @@ int main(int argc, char * argv[]) {
 				usage(argc, argv);
 		}
 	}
-
-	fprintf(stdout, "%s\n", cmdline);
+	printf("%s\n", cmdline);
+	return 0;
 }
