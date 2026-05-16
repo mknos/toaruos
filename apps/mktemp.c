@@ -38,14 +38,15 @@ int main(int argc, char * argv[]) {
 	}
 
 	char * template;
-	int i = optind;
-
-	if (i == argc) {
+	if (optind == argc)
 		template = strdup("/tmp/tmp.XXXXXX");
-	} else {
-		template = strdup(argv[i]);
-	}
+	else
+		template = strdup(argv[optind]);
 
+	if (template == NULL) {
+		fprintf(stderr, "%s: strdup: %s\n", argv[0], strerror(errno));
+		return 1;
+	}
 	char * result = mktemp(template);
 	if (result == NULL || strlen(result) == 0) {
 		fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
