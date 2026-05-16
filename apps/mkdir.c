@@ -27,7 +27,7 @@ int makedir(const char * dir, int mask, int parents) {
 	char * c = tmp;
 	while ((c = strchr(c+1,'/'))) {
 		*c = '\0';
-		if (mkdir(tmp,mask) < 0) {
+		if (mkdir(tmp, mask) == -1) {
 			if (errno != EEXIST)
 				return -1;
 		}
@@ -59,7 +59,7 @@ int main(int argc, char ** argv) {
 	}
 
 	for (int i = optind; i < argc; ++i) {
-		if (makedir(argv[i], 0777, parents) < 0) {
+		if (makedir(argv[i], 0777, parents) == -1) {
 			if (parents && errno == EEXIST) continue;
 			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
 			retval = 1;
