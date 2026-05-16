@@ -8,11 +8,20 @@
  */
 #include <unistd.h>
 #include <stdio.h>
+#include <stdlib.h>
+
+static void usage(void) {
+	fprintf(stderr, "usage: logname\n");
+	exit(1);
+}
 
 int main(int argc, char ** argv) {
-	if (argc != 1) {
-		fprintf(stderr, "logname: extra operand: '%s'\nusage: logname\n", argv[1]);
-		return 1;
+	int opt;
+	while ((opt = getopt(argc, argv, "")) != -1)
+		usage();
+	if (optind < argc) {
+		fprintf(stderr, "logname: extra operand: '%s'\n", argv[optind]);
+		usage();
 	}
 	char * name = getlogin();
 	if (!name) {
