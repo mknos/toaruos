@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <grp.h>
 #include <pwd.h>
 
 int main(int argc, char ** argv) {
@@ -21,7 +22,11 @@ int main(int argc, char ** argv) {
 	/* Then get the group list. */
 	int groupCount = getgroups(0, NULL);
 	if (groupCount) {
-		gid_t * myGroups = malloc(sizeof(gid_t) * groupCount);
+		gid_t * myGroups = calloc(groupCount, sizeof(gid_t));
+		if (myGroups == NULL) {
+			perror(argv[0]);
+			return 1;
+		}
 		groupCount = getgroups(groupCount, myGroups);
 		for (int i = 0; i < groupCount; ++i) {
 			p = getpwuid(myGroups[i]);
