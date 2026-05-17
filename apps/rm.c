@@ -28,19 +28,15 @@ static int rm_directory(char * source) {
 		fprintf(stderr, "could not open %s\n", source);
 		return 1;
 	}
-
-	struct dirent * ent = readdir(dirp);
-	while (ent != NULL) {
-		if (!strcmp(ent->d_name,".") || !strcmp(ent->d_name,"..")) {
-			ent = readdir(dirp);
+	struct dirent * ent;
+	while ((ent = readdir(dirp)) != NULL) {
+		if (!strcmp(ent->d_name, ".") || !strcmp(ent->d_name, ".."))
 			continue;
-		}
 		char tmp[strlen(source)+strlen(ent->d_name)+2];
 		sprintf(tmp, "%s/%s", source, ent->d_name);
 		int status = rm_thing(tmp);
 		if (status) return status;
 		rewinddir(dirp);
-		ent = readdir(dirp);
 	}
 	closedir(dirp);
 
