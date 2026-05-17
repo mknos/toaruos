@@ -40,8 +40,7 @@ static int rm_directory(char * source) {
 	}
 	closedir(dirp);
 
-	int res = unlink(source);
-	if (res < 0) {
+	if (unlink(source) == -1) {
 		fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
 		return 1;
 	}
@@ -61,8 +60,7 @@ static int rm_thing(char * tmp) {
 		}
 		return rm_directory(tmp);
 	} else {
-		int res = unlink(tmp);
-		if (res < 0) {
+		if (unlink(tmp) == -1) {
 			fprintf(stderr, APP_NAME ": %s: %s\n", tmp, strerror(errno));
 			return 1;
 		}
