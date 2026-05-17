@@ -175,7 +175,5 @@ do_fork:
 			result = waitpid(f, NULL, 0);
 		} while (result < 0);
 	}
-	child = 0;
-
 	return 0;
 }
