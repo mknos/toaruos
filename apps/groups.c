@@ -10,7 +10,6 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <grp.h>
 #include <pwd.h>
 
 int main(int argc, char ** argv) {
@@ -39,4 +38,3 @@ int main(int argc, char ** argv) {
 	endpwent();
 	return 0;
 }
-
