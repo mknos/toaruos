@@ -1323,12 +1323,14 @@ int main(int argc, char ** argv) {
 		key_event_state_t kbd_state = {0};
 
 		/* Prune any keyboard input we got before the terminal started. */
+		char tmp;
 		struct stat s;
-		fstat(kfd, &s);
-		for (unsigned int i = 0; i < s.st_size; i++) {
-			char tmp[1];
-			read(kfd, tmp, 1);
+		if (fstat(kfd, &s) == -1) {
+			perror("/dev/kbd");
+			return 1;
 		}
+		for (unsigned int i = 0; i < s.st_size; i++)
+			read(kfd, &tmp, 1);
 
 		int fds[] = {fd_master, kfd, mfd, amfd};
 
