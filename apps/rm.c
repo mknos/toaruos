@@ -81,8 +81,9 @@ static int rm_top_level(char **argv, int argc, int optind) {
 
 int main(int argc, char * argv[]) {
 	int opt;
-	while ((opt = getopt(argc, argv, "fr")) != -1) {
+	while ((opt = getopt(argc, argv, "fRr")) != -1) {
 		switch (opt) {
+			case 'R':
 			case 'r':
 				recursive = 1;
 				break;
