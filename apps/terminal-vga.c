@@ -1333,7 +1333,7 @@ int main(int argc, char ** argv) {
 		int fds[] = {fd_master, kfd, mfd, amfd};
 
 		#define BUF_SIZE 4096
-		unsigned char buf[4096];
+		unsigned char buf[BUF_SIZE];
 		while (!exit_application) {
 
 			int res[] = {0,0,0,0};
