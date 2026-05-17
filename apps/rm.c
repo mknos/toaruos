@@ -13,10 +13,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
-
-#include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/ioctl.h>
 
 #ifndef IS_MV
 #define APP_NAME "rm"
