@@ -10,7 +10,6 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018-2021 K. Lange
  */
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <dirent.h>
@@ -18,7 +17,6 @@
 #include <fcntl.h>
 #include <time.h>
 #include <sys/ioctl.h>
-#include <sys/socket.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
 #include <sys/time.h>
@@ -201,7 +199,7 @@ int main(int argc, char * argv[]) {
 			int r = execvp(args[0], args);
 			if (r == -1)
 				perror(args[0]);
-			exit(1);
+			return 1;
 		} else {
 			int result, status;
 			do {
