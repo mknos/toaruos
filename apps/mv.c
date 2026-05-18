@@ -1,11 +1,6 @@
 /**
  * @brief Move files
  *
- * Poor implementation, mostly just 'cp' and 'rm'.
- *
- * Ideally, should figure out if it can use 'rename'... and also
- * we should implement 'rename'...
- *
  * @copyright
  * This file is part of ToaruOS and is released under the terms
  * of the NCSA / University of Illinois License - see LICENSE.md
@@ -17,7 +12,6 @@
 #include <libgen.h>
 #include <unistd.h>
 #include <errno.h>
-#include <sys/wait.h>
 
 #define APP_NAME "mv"
 #define IS_MV
@@ -102,7 +96,7 @@ int main(int argc, char * argv[]) {
 				char tmp[10] = {0};
 				fgets(tmp, 10, stdin);
 				if (tmp[0] != 'y' && tmp[0] != 'Y') {
-					ret |= 1;
+					ret = 1;
 					goto _continue;
 				}
 			}
@@ -111,10 +105,10 @@ int main(int argc, char * argv[]) {
 		if (rename(argv[i], target) == -1) {
 			if (errno != EXDEV && errno != ENOTSUP) {
 				fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
-				ret |= 1;
+				ret = 1;
 			} else if (copy_thing(argv[i], target) || rm_thing(argv[i])) {
 				fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
-				ret |= 1;
+				ret = 1;
 			}
 		}
 
