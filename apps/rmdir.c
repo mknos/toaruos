@@ -7,18 +7,19 @@
  * Copyright (C) 2026 K. Lange
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <libgen.h>
 #include <errno.h>
 
-static int usage(char * argv[]) {
-	fprintf(stderr, "usage: %s [-pv] path...\n"
+static void usage(void) {
+	fprintf(stderr, "usage: rmdir [-pv] path...\n"
 		"\n"
 		"  -p  Remove parents if also empty\n"
 		"  -v  Print directory names when they are successfully removed\n"
-		"\n", argv[0]);
-	return 1;
+		"\n");
+	exit(1);
 }
 
 int main(int argc, char * argv[]) {
@@ -34,17 +35,17 @@ int main(int argc, char * argv[]) {
 				verbose = 1;
 				break;
 			default:
-				return usage(argv);
+				usage();
 		}
 	}
-
-	if (optind == argc) return usage(argv);
+	if (optind == argc)
+		usage();
 
 	int ret = 0;
 	while (optind < argc) {
-		if (rmdir(argv[optind]) < 0) {
+		if (rmdir(argv[optind]) == -1) {
 			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[optind], strerror(errno));
-			ret |= 1;
+			ret = 1;
 			optind++;
 			continue;
 		}
@@ -54,9 +55,9 @@ int main(int argc, char * argv[]) {
 		if (parents) {
 			char * parent = dirname(argv[optind]);
 			while (parent && strcmp(parent,".") && strcmp(parent,"/")) {
-				if (rmdir(parent) < 0) {
+				if (rmdir(parent) == -1) {
 					fprintf(stderr, "%s: %s: %s\n", argv[0], parent, strerror(errno));
-					ret |= 1;
+					ret = 1;
 					break;
 				}
 
