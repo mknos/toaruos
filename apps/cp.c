@@ -65,7 +65,7 @@ static int copy_file(char * source, char * dest, int mode,int uid, int gid) {
 	char buf[CHUNK_SIZE];
 
 	while (length > 0) {
-		ssize_t r = read(s_fd, buf, length < CHUNK_SIZE ? length : CHUNK_SIZE);
+		ssize_t r = read(s_fd, buf, CHUNK_SIZE);
 		if (r == -1) {
 			fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
 			return 1;
@@ -177,6 +177,12 @@ static int copy_top_level(char **argv, int argc, int optind) {
 	return ret;
 }
 
+static void usage(void) {
+	fprintf(stderr, "usage: cp [-RrP] source target\n"
+		"       cp [-RrP] source ... directory\n");
+	exit(1);
+}
+
 int main(int argc, char ** argv) {
 
 	int opt;
@@ -191,7 +197,7 @@ int main(int argc, char ** argv) {
 				symlinks = 0;
 				break;
 			default:
-				return 1;
+				usage();
 		}
 	}
 
@@ -199,7 +205,7 @@ int main(int argc, char ** argv) {
 		return copy_top_level(argv, argc, optind);
 	} else {
 		fprintf(stderr, "cp: not enough arguments\n");
-		return 1;
+		usage();
 	}
 
 	return 0;
