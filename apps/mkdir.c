@@ -7,11 +7,9 @@
  * Copyright (C) 2013-2014 K. Lange
  */
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <sys/types.h>
