@@ -9,6 +9,7 @@
  * Copyright (C) 2013-2018 K. Lange
  */
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <errno.h>
@@ -79,6 +80,11 @@ static int rm_top_level(char **argv, int argc, int optind) {
 	return ret;
 }
 
+static void usage(void) {
+	fprintf(stderr, "usage: %s [-fRr] file ...\n", APP_NAME);
+	exit(1);
+}
+
 int main(int argc, char * argv[]) {
 	int opt;
 	while ((opt = getopt(argc, argv, "fRr")) != -1) {
@@ -91,10 +97,11 @@ int main(int argc, char * argv[]) {
 				/* ignore */
 				break;
 			default:
-				return 1;
+				usage();
 		}
 	}
-
+	if (optind == argc)
+		usage();
 	return rm_top_level(argv, argc, optind);
 }
 #endif
