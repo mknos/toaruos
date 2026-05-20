@@ -18,7 +18,11 @@
 #endif
 
 void usage(void) {
+#ifdef __toaru__
 	printf("usage: wc [-clmw] [file ...]\n");
+#else
+	printf("usage: wc [-clw] [file ...]\n");
+#endif
 	exit(1);
 }
 
@@ -30,7 +34,12 @@ int main(int argc, char * argv[]) {
 
 	int opt;
 
+#ifdef __toaru__
 	while ((opt = getopt(argc,argv,"cmlw")) != -1) {
+#else
+	while ((opt = getopt(argc,argv,"clw")) != -1) {
+#endif
+
 		switch (opt) {
 			case 'c':
 				show_bytes = 1;
@@ -92,9 +101,6 @@ int main(int argc, char * argv[]) {
 				} else if (state == UTF8_REJECT) {
 					state = 0;
 				}
-#else
-				fprintf(stderr, "option -m not implemented\n");
-				return 1;
 #endif
 			} else {
 				c = ch;
