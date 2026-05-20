@@ -14,7 +14,7 @@ void err(int rc, const char *fmt, ...) {
 	va_end(args);
 	fputs(_argv_0, stderr);
 	fputs(": ", stderr);
-	fputs(s);
+	fputs(s, stderr);
 	fputs(": ", stderr);
 	fputs(strerror(errno), stderr);
 	fputc('\n', stderr);
