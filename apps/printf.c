@@ -71,7 +71,7 @@ static int	 getint();
 static int	 getlong();
 static char	*getstr();
 static char	*mklong();
-static void	 usage();
+static void	 usage(void);
 
 static char **gargv;
 
@@ -84,26 +84,18 @@ main(argc, argv)
 	int argc;
 	char *argv[];
 {
-	extern int optind;
 	static char *skip1, *skip2;
 	int ch, end, fieldwidth, precision;
 	char convch, nextch, *format, *start;
 	register char *fmt;
 
 	while ((ch = getopt(argc, argv, "")) != EOF)
-		switch (ch) {
-		case '?':
-		default:
-			usage();
-			return (1);
-		}
+		usage();
 	argc -= optind;
 	argv += optind;
 
-	if (argc < 1) {
+	if (argc < 1)
 		usage();
-		return (1);
-	}
 
 	/*
 	 * Basic algorithm is to scan the format string for conversion
@@ -382,7 +374,8 @@ asciicode()
 }
 
 static void
-usage()
+usage(void)
 {
 	(void)fprintf(stderr, "usage: printf format [arg ...]\n");
+	exit(1);
 }
