@@ -10,6 +10,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2013-2014 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -33,16 +34,14 @@ int main(int argc, char * argv[]) {
 	}
 
 	if (i == argc)
-		return EXIT_ERROR;
+		return EXIT_NOMATCH;
 
 	char * path = getenv("PATH");
 	if (!path)
 		path = DEFAULT_PATH;
 	char * xpath = strdup(path);
-	if (!xpath) {
-		perror("which: strdup");
-		return 1;
-	}
+	if (xpath == NULL)
+		err(EXIT_ERROR, "strdup");
 	for (; i < argc; ++i) {
 		if (strchr(argv[i], '/')) {
 			if (access(argv[i], X_OK) == 0)
@@ -52,10 +51,8 @@ int main(int argc, char * argv[]) {
 			int found = 0;
 			for ((p = strtok_r(xpath, ":", &last)); p; p = strtok_r(NULL, ":", &last)) {
 				char * exe;
-				if (asprintf(&exe, "%s/%s", p, argv[i]) == -1) {
-					perror("which: asprintf");
-					return 1;
-				}
+				if (asprintf(&exe, "%s/%s", p, argv[i]) == -1)
+					err(EXIT_ERROR, "asprintf");
 				if (access(exe, X_OK) == 0) {
 					found = 1;
 					printf("%s\n", exe);
