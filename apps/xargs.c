@@ -34,12 +34,9 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char sccsid[] = "@(#)xargs.c	8.1 (Berkeley) 6/6/93";
-#endif
-
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -85,10 +82,9 @@ main(int argc, char *argv[])
 		switch(ch) {
 		case 'n':
 			nflag = 1;
-			if ((nargs = atoi(optarg)) <= 0) {
-				fprintf(stderr, "illegal argument count\n");
-				exit(1);
-			}
+			nargs = atoi(optarg);
+			if (nargs <= 0)
+				errx(1, "illegal argument count");
 			break;
 		case 's':
 			nline = atoi(optarg);
@@ -115,8 +111,7 @@ main(int argc, char *argv[])
 	 */
 	if (!(av = bxp =
 	    calloc(argc + nargs + 2, sizeof(char **)))) {
-		perror("xargs");
-		exit(1);
+		err(1, "calloc");
 	}
 
 	/*
@@ -149,15 +144,11 @@ main(int argc, char *argv[])
 	 * slot.
 	 */
 	nline -= cnt;
-	if (nline <= 0) {
-		fprintf(stderr, "insufficient space for command\n");
-		exit(1);
-	}
-
-	if (!(bbp = malloc(nline + 1))) {
-		perror("xargs");
-		exit(1);
-	}
+	if (nline <= 0)
+		errx(1, "insufficient space for command");
+	bbp = malloc(nline + 1);
+	if (bbp == NULL)
+		err(1, "malloc");
 	ebp = (argp = p = bbp) + nline - 1;
 
 	for (insingle = indouble = 0;;)
@@ -186,10 +177,8 @@ main(int argc, char *argv[])
 				continue;
 
 			/* Quotes do not escape newlines. */
-arg1:			if (insingle || indouble) {
-				 fprintf(stderr, "unterminated quote\n");
-				 exit(1);
-			}
+arg1:			if (insingle || indouble)
+				 errx(1, "unterminated quote");
 
 arg2:			*p = '\0';
 			*xp++ = argp;
@@ -200,10 +189,8 @@ arg2:			*p = '\0';
 			 * but not on args, object.
 			 */
 			if (xp == exp || p == ebp || ch == EOF) {
-				if (xflag && xp != exp && p == ebp) {
-					fprintf(stderr, "insufficient space for arguments\n");
-					exit(1);
-				}
+				if (xflag && xp != exp && p == ebp)
+					errx(1, "insufficient space for arguments");
 				*xp = NULL;
 				run(av);
 				if (ch == EOF)
@@ -226,10 +213,8 @@ arg2:			*p = '\0';
 			break;
 		case '\\':
 			/* Backslash escapes anything, is escaped by quotes. */
-			if (!insingle && !indouble && (ch = getchar()) == EOF) {
-				fprintf(stderr, "backslash at EOF\n");
-				exit(1);
-			}
+			if (!insingle && !indouble && (ch = getchar()) == EOF)
+				errx(1, "backslash at EOF");
 			/* FALLTHROUGH */
 		default:
 addch:			if (p < ebp) {
@@ -238,15 +223,11 @@ addch:			if (p < ebp) {
 			}
 
 			/* If only one argument, not enough buffer space. */
-			if (bxp == xp) {
-				fprintf(stderr, "insufficient space for argument\n");
-				exit(1);
-			}
+			if (bxp == xp)
+				errx(1, "insufficient space for argument");
 			/* Didn't hit argument limit, so if xflag object. */
-			if (xflag) {
-				fprintf(stderr, "insufficient space for arguments\n");
-				exit(1);
-			}
+			if (xflag)
+				errx(1, "insufficient space for arguments");
 
 			*xp = NULL;
 			run(av);
@@ -278,20 +259,15 @@ run(char **argv)
 	noinvoke = 0;
 	switch(pid = fork()) {
 	case -1:
-		perror("fork");
-		exit(1);
+		err(1, "fork");
 	case 0:
 		execvp(argv[0], argv);
-		(void)fprintf(stderr,
-		    "xargs: %s: %s\n", argv[0], strerror(errno));
 		noinvoke = 1;
-		abort();
+		err(1, "%s", argv[0]);
 	}
 	pid = waitpid(pid, &status, 0);
-	if (pid == -1) {
-		perror("waitpid");
-		exit(1);
-	}
+	if (pid == -1)
+		err(1, "waitpid");
 	/* If we couldn't invoke the utility, exit 127. */
 	if (noinvoke)
 		exit(127);
