@@ -18,8 +18,6 @@ static const char usage[] =
 "Usage: %s [-s] TARGET NAME\n"
 "    -s: Create a symbolic link.\n";
 
-extern int link(const char *old, const char *new);
-
 int main(int argc, char * argv[]) {
 	int symlink_flag = 0;
 
