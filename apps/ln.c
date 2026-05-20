@@ -14,9 +14,11 @@
 #include <errno.h>
 #include <string.h>
 
-static const char usage[] =
-"Usage: %s [-s] TARGET NAME\n"
-"    -s: Create a symbolic link.\n";
+static void usage(void) {
+	fprintf(stderr, "usage: ln [-s] TARGET NAME\n"
+		"    -s: Create a symbolic link.\n");
+	exit(1);
+}
 
 int main(int argc, char * argv[]) {
 	int symlink_flag = 0;
@@ -28,13 +30,14 @@ int main(int argc, char * argv[]) {
 				symlink_flag = 1;
 				break;
 			default:
-				fprintf(stderr, usage, argv[0]);
-				exit(EXIT_FAILURE);
+				usage();
 		}
 	}
-	if (argc - optind < 2) {
-		fprintf(stderr, usage, argv[0]);
-		exit(EXIT_FAILURE);
+	if (argc - optind < 2)
+		usage();
+	if (argc - optind > 2) {
+		fprintf(stderr, "%s: extra operand: '%s'\n", argv[0], argv[optind + 2]);
+		usage();
 	}
 	char * target = argv[optind];
 	char * name = argv[optind + 1];
