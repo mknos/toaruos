@@ -81,10 +81,8 @@ int main(int argc, char * argv[]) {
 					case 'o':
 						flags |= FLAG_OSNAME;
 						break;
-					case 'h':
 					default:
 						show_usage(argc, argv);
-						break;
 				}
 				c++;
 			}
