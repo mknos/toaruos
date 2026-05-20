@@ -19,6 +19,7 @@
 
 #include <assert.h>
 #include <ctype.h>
+#include <err.h>
 #include <limits.h>
 #include <locale.h>
 #include <stdbool.h>
@@ -87,11 +88,8 @@ const char* parse_construct_character(const char* string,
 
 	if ( string[0] == '\\' )
 	{
-		if ( string[0] == '\0' ) {
-			fprintf(stderr, "unescaped backslash at end of string\n");
-			exit(1);
-		}
-
+		if ( string[0] == '\0' )
+			errx(1, "unescaped backslash at end of string");
 		if ( '0' <= string[1] && string[1] <= '3' )
 		{
 			unsigned char value = 0;
@@ -187,8 +185,7 @@ const char* parse_construct(const char* string, struct construct* construct)
 			else
 			{
 				char* class_name = strdup(string + start);
-				fprintf(stderr, "invalid character class: %s\n", class_name);
-				exit(1);
+				errx(1, "invalid character class: %s", class_name);
 			}
 			return string + end + 2;
 		}
@@ -206,18 +203,11 @@ const char* parse_construct(const char* string, struct construct* construct)
 			struct construct eq_construct;
 			const char* eq_end =
 				parse_construct_character(string + start, &eq_construct);
-			if ( !eq_end ) {
-				fprintf(stderr, "malformed equivalence class\n");
-				exit(1);
-			}
-			if ( eq_end > string + end ) {
-				fprintf(stderr, "malformed equivalence class\n");
-				exit(1);
-			}
-			if ( eq_end[0] != '=' || eq_end[1] != ']' ) {
-				fprintf(stderr, "equivalence class operand must be a single character\n");
-				exit(1);
-			}
+			if ( !eq_end || eq_end > string + end )
+				errx(1, "malformed equivalence class");
+			if ( eq_end[0] != '=' || eq_end[1] != ']' )
+				errx(1, "equivalence class operand must be a single character");
+
 			construct->type = CONSTRUCT_TYPE_EQUIVALENCE_CLASS;
 			construct->equivalence_class.c = eq_construct.character.c;
 			return eq_end + 2;
@@ -392,10 +382,8 @@ unsigned char iterate_constructs_repeat(struct construct_iterator_repeat* iter)
 	unsigned char c;
 	if ( !iterate_constructs(&iter->iterator, &c) )
 	{
-		if ( !iter->has_last_c ) {
-			fprintf(stderr, "when not truncating set1, string2 must be non-empty\n");
-			exit(1);
-		}
+		if ( !iter->has_last_c )
+			errx(1, "when not truncating set1, string2 must be non-empty");
 		c = iter->last_c;
 	}
 	return iter->has_last_c = true, iter->last_c = c;
@@ -570,10 +558,8 @@ int main(int argc, char* argv[])
 
 	compact_arguments(&argc, &argv);
 
-	if ( argc <= 1 ) {
-		fprintf(stderr, "missing operand\n");
-		exit(1);
-	}
+	if ( argc <= 1 )
+		errx(1, "missing operand");
 	const char* string_1 = argv[1];
 
 	bool deletes[UCHAR_MAX + 1];
@@ -590,17 +576,12 @@ int main(int argc, char* argv[])
 
 	if ( flag_delete && flag_squeeze )
 	{
-		if ( argc <= 2 ) {
-			fprintf(stderr, "missing operand after: '%s'\n", string_1);
-			exit(1);
-		}
+		if ( argc <= 2 )
+			errx(1, "missing operand after: '%s'", string_1);
 		const char* string_2 = argv[2];
 
-		if ( 4 <= argc ) {
-			fprintf(stderr, "extra operand: '%s'\n", argv[3]);
-			exit(1);
-		}
-
+		if ( 4 <= argc )
+			errx(1, "extra operand: '%s'", argv[3]);
 		if ( flag_complement )
 			calculate_character_set_complement(deletes, string_1);
 		else
@@ -610,10 +591,8 @@ int main(int argc, char* argv[])
 	}
 	else if ( flag_delete && !flag_squeeze )
 	{
-		if ( 3 <= argc ) {
-			fprintf(stderr, "extra operand: '%s'\n", argv[3]);
-			exit(1);
-		}
+		if ( 3 <= argc )
+			errx(1, "extra operand: '%s'", argv[3]);
 
 		if ( flag_complement )
 			calculate_character_set_complement(deletes, string_1);
@@ -641,23 +620,16 @@ int main(int argc, char* argv[])
 			calculate_character_set(squeezes, string_2);
 		}
 		else if ( 4 <= argc )
-		{
-			fprintf(stderr, "extra operand '%s'\n", argv[3]);
-			exit(1);
-		}
+			errx(1, "extra operand '%s'", argv[3]);
 	}
 	else if ( !flag_delete && !flag_squeeze )
 	{
-		if ( argc <= 2 ) {
-			fprintf(stderr, "missing operand after: '%s'\n", string_1);
-			exit(1);
-		}
+		if ( argc <= 2 )
+			errx(1, "missing operand after: '%s'", string_1);
 		const char* string_2 = argv[2];
 
-		if ( 4 <= argc ) {
-			fprintf(stderr, "extra operand: '%s'", argv[3]);
-			exit(1);
-		}
+		if ( 4 <= argc )
+			errx(1, "extra operand: '%s'", argv[3]);
 
 		if ( flag_complement )
 			calculate_translator_complement(translator, string_1, string_2);
