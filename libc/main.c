@@ -60,11 +60,7 @@ static void _libc_init(void) {
 		}
 	}
 	if (!environ) {
-		environ = malloc(sizeof(char *) * 4);
-		environ[0] = NULL;
-		environ[1] = NULL;
-		environ[2] = NULL;
-		environ[3] = NULL;
+		environ = calloc(4, sizeof(char *));
 		_environ_size = 4;
 	} else {
 		/* Find actual size */
@@ -83,18 +79,12 @@ static void _libc_init(void) {
 			_environ_size = size * 2;
 		}
 
-		char ** new_environ = malloc(sizeof(char*) * _environ_size);
+		char ** new_environ = calloc(_environ_size, sizeof(char*));
 		int i = 0;
 		while (i < _environ_size && environ[i]) {
 			new_environ[i] = environ[i];
 			i++;
 		}
-
-		while (i < _environ_size) {
-			new_environ[i] = NULL;
-			i++;
-		}
-
 		environ = new_environ;
 	}
 	if (getenv("__LIBC_DEBUG")) __libc_debug = 1;
