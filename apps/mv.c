@@ -89,20 +89,23 @@ int main(int argc, char * argv[]) {
 			free(tmp);
 		}
 
-		if (!force && !stat(target, &statbuf)) {
+		int skip = 0;
+		struct stat src_stat;
+		if (lstat(argv[i], &src_stat) == -1) {
+			fprintf(stderr, "%s: failed to stat '%s': %s\n", argv[0], argv[i], strerror(errno));
+			ret = skip = 1;
+		}
+		if (!skip && !force && stat(target, &statbuf) == 0) {
 			if (interactive) { /* || (isatty(STDIN_FILENO) && some_check_for_writability...) */
 				fprintf(stderr, "%s: overwrite '%s'? ", argv[0], target);
 				fflush(stderr); /* just in case */
 				char tmp[10] = {0};
 				fgets(tmp, 10, stdin);
-				if (tmp[0] != 'y' && tmp[0] != 'Y') {
-					ret = 1;
-					goto _continue;
-				}
+				if (tmp[0] != 'y' && tmp[0] != 'Y')
+					ret = skip = 1;
 			}
 		}
-
-		if (rename(argv[i], target) == -1) {
+		if (!skip && rename(argv[i], target) == -1) {
 			if (errno != EXDEV && errno != ENOTSUP) {
 				fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
 				ret = 1;
@@ -111,10 +114,8 @@ int main(int argc, char * argv[]) {
 				ret = 1;
 			}
 		}
-
-	_continue:
-		if (target != destination) free(target);
+		if (target != destination)
+			free(target);
 	}
-
 	return ret;
 }
