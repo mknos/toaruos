@@ -14,10 +14,7 @@
 #include <unistd.h>
 #include <errno.h>
 #include <dirent.h>
-
-#include <fcntl.h>
 #include <sys/stat.h>
-#include <sys/ioctl.h>
 
 static int show_total = 0;
 static int human = 0;
