@@ -6,13 +6,13 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
 #include <getopt.h>
-#include <errno.h>
 #include <ctype.h>
 #include <toaru/list.h>
 
@@ -130,11 +130,9 @@ int main(int argc, char * argv[]) {
 	} else {
 		while (optind < argc) {
 			FILE * f = fopen(argv[optind], "r");
-			if (!f) {
-				fprintf(stderr, "%s: %s: %s\n", argv[0], argv[optind], strerror(errno));
-			} else {
-				list_insert(files, f);
-			}
+			if (f == NULL)
+				err(1, "failed to open '%s'", argv[optind]);
+			list_insert(files, f);
 			optind++;
 		}
 	}
@@ -149,10 +147,8 @@ int main(int argc, char * argv[]) {
 				fprintf(stderr, "%s: oversized line\n", argv[0]);
 			}
 			char * line = strdup(line_buf);
-			if (line == NULL) {
-				perror("sort: strdup");
-				exit(1);
-			}
+			if (line == NULL)
+				err(1, "strdup");
 			if (quicksort) {
 				list_insert(lines, line);
 				continue;
@@ -188,10 +184,8 @@ int main(int argc, char * argv[]) {
 
 	if (quicksort) {
 		char **ln = calloc(lines->length, sizeof(char *));
-		if (ln == NULL) {
-			perror("sort: calloc");
-			exit(1);
-		}
+		if (ln == NULL)
+			err(1, "calloc");
 		size_t i = 0;
 		foreach (lnode, lines) {
 			ln[i] = lnode->value;
