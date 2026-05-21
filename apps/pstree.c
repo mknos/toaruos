@@ -6,7 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2014-2018 K. Lange
  */
-#include <stdint.h>
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,15 +31,11 @@ p_t * build_entry(struct dirent * dent) {
 
 	sprintf(tmp, "/proc/%s/status", dent->d_name);
 	f = fopen(tmp, "r");
-	if (f == NULL) {
-		perror(tmp);
-		exit(1);
-	}
+	if (f == NULL)
+		err(1, "%s", tmp);
 	p_t * proc = malloc(sizeof(p_t));
-	if (proc == NULL) {
-		perror("pstree: malloc");
-		exit(1);
-	}
+	if (proc == NULL)
+		err(1, "malloc");
 	while (fgets(line, LINE_LEN, f) != NULL) {
 		char * n = strstr(line,"\n");
 		if (n) { *n = '\0'; }
@@ -149,10 +145,8 @@ void print_process_tree_node(tree_node_t * node, size_t depth, int indented, int
 
 int main (int argc, char * argv[]) {
 	DIR * dirp = opendir("/proc");
-	if (dirp == NULL) {
-		perror("pstree: /proc");
-		return 1;
-	}
+	if (dirp == NULL)
+		err(1, "procfs");
 	tree_t * procs = tree_create();
 
 	struct dirent * ent = readdir(dirp);
@@ -178,4 +172,3 @@ int main (int argc, char * argv[]) {
 
 	return 0;
 }
-
