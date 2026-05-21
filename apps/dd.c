@@ -1,7 +1,4 @@
-#if 0
-static char *sccsid = "@(#)dd.c	4.4 (Berkeley) 1/22/85";
-#endif
-
+#include <err.h>
 #include <fcntl.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -250,8 +247,7 @@ main(int argc, char *argv[])
 				goto cloop;
 			}
 		}
-		fprintf(stderr,"bad arg: %s\n", string);
-		exit(1);
+		errx(1, "bad arg: %s", string);
 	}
 	if(conv == null && cflag&(LCASE|UCASE))
 		conv = cnull;
@@ -259,51 +255,38 @@ main(int argc, char *argv[])
 		ibf = open(ifile, O_RDONLY);
 	else
 		ibf = dup(0);
-	if(ibf < 0) {
-		perror(ifile);
-		exit(1);
-	}
+	if (ibf == -1)
+		err(1, "cannot read '%s'", ifile);
 	if (ofile)
 		obf = open(ofile, O_CREAT | O_WRONLY | O_APPEND, 0644);
 	else
 		obf = dup(1);
-	if(obf < 0) {
-		fprintf(stderr,"cannot create: %s\n", ofile);
-		exit(1);
-	}
+	if (obf == -1)
+		err(1, "cannot create: '%s'", ofile);
 	if (bs) {
 		ibs = obs = bs;
 		if (conv == null)
 			fflag++;
 	}
-	if(ibs == 0 || obs == 0) {
-		fprintf(stderr,"counts: cannot be zero\n");
-		exit(1);
-	}
+	if (ibs == 0 || obs == 0)
+		errx(1, "counts: cannot be zero");
 	ibuf = malloc(ibs);
-	if (ibuf == NULL) {
-		fprintf(stderr, "not enough memory\n");
-		exit(1);
-	}
+	if (ibuf == NULL)
+		err(1, "malloc");
 	if (fflag)
 		obuf = ibuf;
 	else
 		obuf = malloc(obs);
-
-	if (obuf == NULL) {
-		fprintf(stderr, "not enough memory\n");
-		exit(1);
-	}
+	if (obuf == NULL)
+		err(1, "malloc");
 	ibc = obc = cbc = 0;
 	op = obuf;
 
 	if (signal(SIGINT, SIG_IGN) != SIG_IGN)
 		signal(SIGINT, term);
-	while(skip) {
-		if (read(ibf, ibuf, ibs) == -1) {
-			perror("dd: read error during skip");
-			exit(1);
-		}
+	while (skip) {
+		if (read(ibf, ibuf, ibs) == -1)
+			err(1, "read error during skip");
 		skip--;
 	}
 	while(seekn) {
@@ -425,17 +408,13 @@ number(long big)
 	case 'x':
 		string = cs;
 		n *= number(BIG);
-		if (n>=big || n<0) {
-			fprintf(stderr, "dd: argument %ld out of range\n", n);
-			exit(1);
-		}
+		if (n>=big || n<0)
+			errx(1, "argument %ld out of range", n);
 		return(n);
 
 	case '\0':
-		if (n>=big || n<0) {
-			fprintf(stderr, "dd: argument %ld out of range\n", n);
-			exit(1);
-		}
+		if (n>=big || n<0)
+			errx(1, "argument %ld out of range", n);
 		return(n);
 	}
 	abort();
