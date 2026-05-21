@@ -35,14 +35,16 @@
  */
 
 #include <ctype.h>
-#include <errno.h>
+#include <err.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
+#ifndef _POSIX2_LINE_MAX
 #define _POSIX2_LINE_MAX 4096
+#endif
 
 int	cflag;
 char	dchar;
@@ -99,10 +101,8 @@ main(int argc, char *argv[])
 	if (*argv)
 		for (; *argv; ++argv) {
 			fp = fopen(*argv, "r");
-			if (fp == NULL) {
-				fprintf(stderr, "%s: %s\n", *argv, strerror(errno));
-				exit(1);
-			}
+			if (fp == NULL)
+				err(1, "%s", *argv);
 			fcn(fp, *argv);
 			(void)fclose(fp);
 		}
@@ -149,19 +149,13 @@ get_list(char *list)
 					autostop = stop;
 			}
 		}
-		if (*p) {
-			fprintf(stderr, "[-cf] list: illegal list value\n");
-			exit(1);
-		}
-		if (!stop || !start) {
-			fprintf(stderr, "[-cf] list: values may not include zero\n");
-			exit(1);
-		}
-		if (stop > _POSIX2_LINE_MAX) {
-			fprintf(stderr, "[-cf] list: %d too large (max %d)\n",
+		if (*p)
+			errx(1, "[-cf] list: illegal list value");
+		if (!stop || !start)
+			errx(1, "[-cf] list: values may not include zero");
+		if (stop > _POSIX2_LINE_MAX)
+			errx(1, "[-cf] list: %d too large (max %d)",
 			    stop, _POSIX2_LINE_MAX);
-			exit(1);
-		}
 		if (maxval < stop)
 			maxval = stop;
 		for (pos = positions + start; start++ <= stop; *pos++ = 1) continue;
@@ -214,10 +208,8 @@ f_cut(FILE *fp, char *fname)
 	for (sep = dchar; fgets(lbuf, sizeof(lbuf), fp);) {
 		output = 0;
 		for (isdelim = 0, p = lbuf;; ++p) {
-			if (!(ch = *p)) {
-				fprintf(stderr, "%s: line too long.\n", fname);
-				exit(1);
-			}
+			if (!(ch = *p))
+				errx(1, "%s: line too long", fname);
 			/* this should work if newline is delimiter */
 			if (ch == sep)
 				isdelim = 1;
