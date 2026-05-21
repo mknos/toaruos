@@ -17,6 +17,7 @@
  * Write number sequence-
  */
 
+#include <err.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -33,10 +34,8 @@ long parse(const char* string)
 	if ( string[0] == '0' && (string[1] == 'x' || string[1] == 'X') )
 		base = 16;
 	long result = strtol(string, &end, base);
-	if ( errno || *end ) {
-		fprintf(stderr, "invalid integer: '%s'\n", string);
-		exit(1);
-	}
+	if ( errno || *end )
+		errx(1, "invalid integer: '%s'", string);
 	return result;
 }
 
@@ -59,13 +58,11 @@ int main(int argc, char* argv[])
 	}
 
 	intmax_t first = 1;
-	intmax_t last;
+	intmax_t last = 1;
 	intmax_t increment = 1;
 
-	if ( argc - optind < 1 ) {
-		fprintf(stderr, "expected operand\n");
-		exit(1);
-	}
+	if ( argc - optind < 1 )
+		errx(1, "expected operand");
 	else if ( argc - optind == 1 )
 		last = parse(argv[optind]);
 	else if ( argc - optind == 2 )
@@ -79,16 +76,11 @@ int main(int argc, char* argv[])
 		increment = parse(argv[optind + 1]);
 		last = parse(argv[optind + 2]);
 	}
-	else {
-		fprintf(stderr, "unexpected extra operand: '%s'\n",
-			argv[optind + 3]);
-		exit(1);
-	}
+	else
+		errx(1, "unexpected extra operand: '%s'", argv[optind + 3]);
 
-	if ( !increment ) {
-		fprintf(stderr, "increment cannot be zero\n");
-		exit(1);
-	}
+	if ( !increment )
+		errx(1, "increment cannot be zero");
 
 	if ( (0 < increment && last < first) ||
 	     (0 > increment && last > first) )
@@ -121,9 +113,7 @@ int main(int argc, char* argv[])
 
 	fputs(terminator, stdout);
 
-	if ( ferror(stdout) || fflush(stdout) == EOF ) {
-		perror("seq: stdout");
-		exit(1);
-	}
+	if ( ferror(stdout) || fflush(stdout) == EOF )
+		errx(1, "stdout");
 	return 0;
 }
