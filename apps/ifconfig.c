@@ -11,6 +11,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2021 K. Lange
  */
+#include <err.h>
 #include <errno.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -69,28 +70,22 @@ static int print_human_readable_size(char * _out, size_t s) {
 
 static int open_netdev(const char * if_name) {
 	const char *c = if_name;
-	if (!isalpha((unsigned char) *c++)) {
-		errno = EINVAL;
-		return -1;
-	}
-	for (; *c != '\0'; c++)
-		if (!isalnum((unsigned char) *c)) {
-			errno = EINVAL;
-			return -1;
-		}
-
-	char if_path[100];
-	snprintf(if_path, 100, "/dev/net/%s", if_name);
-	return open(if_path, O_RDONLY);
+	int goodname = 1;
+	if (!isalpha((unsigned char) *c++))
+		goodname = 0;
+	for (; goodname && *c != '\0'; c++)
+		if (!isalnum((unsigned char) *c))
+			goodname = 0;
+	if (!goodname)
+		errx(1, "invalid interface name: '%s'", if_name);
+	return open(if_name, O_RDONLY);
 }
 
 static int print_interface(int netdev, const char *if_name) {
-	if (netdev < 0)
+	if (netdev == -1)
 		netdev = open_netdev(if_name);
-	if (netdev < 0) {
-		perror(_argv_0);
-		return 1;
-	}
+	if (netdev == -1)
+		err(1, "failed to open interface: '%s'", if_name);
 
 	uint32_t flags = 0;
 	ioctl(netdev, SIOCGIFFLAGS, &flags);
@@ -154,16 +149,13 @@ static int print_interface(int netdev, const char *if_name) {
 
 static int print_all_interfaces(void) {
 	int retval = 0;
-
-	/* Read /dev/net for interfaces */
-	DIR * d = opendir("/dev/net");
+	DIR * d = opendir(".");
 	if (!d)
 		goto neterr;
 	int ifcount = 0;
 	struct dirent * ent;
 	while ((ent = readdir(d))) {
 		if (ent->d_name[0] == '.') continue;
-
 		if (print_interface(-1, ent->d_name))
 			retval = 1;
 		else
@@ -172,8 +164,7 @@ static int print_all_interfaces(void) {
 	closedir(d);
 	if (!ifcount) {
 neterr:
-		fprintf(stderr, "%s: network disabled\n", _argv_0);
-		retval = 1;
+		errx(1, "network disabled");
 	}
 	return retval;
 }
@@ -219,14 +210,14 @@ static int _set_address(int netdev, const char * cmd, const char * arg, const ch
 #define command_with_address(cmd, itype) if (!strcmp(argv[i], cmd)) { if (_set_address(netdev, argv[i], argv[i+1], #itype, itype)) { return 1; } continue; }
 
 int main(int argc, char * argv[]) {
+	if (chdir("/dev/net") == -1)
+		err(1, "network disabled");
 	if (argc < 2) return print_all_interfaces();
 	int netdev = open_netdev(argv[1]);
-	if (netdev < 0) {
+	if (netdev == -1) {
 		if (errno == ENOENT)
-			fprintf(stderr, "%s: No such interface\n", argv[1]);
-		else
-			perror(argv[1]);
-		return 1;
+			errx(1, "%s: No such interface", argv[1]);
+		err(1, "%s", argv[1]);
 	}
 	if (argc == 2)
 		return print_interface(netdev, argv[1]);
@@ -253,6 +244,5 @@ int main(int argc, char * argv[]) {
 			return 1;
 		}
 	}
-
 	return 0;
 }
