@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -72,28 +73,21 @@ int main(int argc, char * argv[]) {
 	int ret = 0;
 
 	for (int i = optind; i < argc - 1; ++i) {
-
 		char * target = destination;
-
-		if (target_is_dir) {
-			char * tmp = strdup(argv[i]);
-			if (tmp == NULL) {
-				perror(APP_NAME ": strdup");
-				exit(1);
-			}
-			char * bn = basename(tmp);
-			if (asprintf(&target, "%s%s%s", destination, destination_has_trailing_slash ? "" : "/", bn) == -1) {
-				perror(APP_NAME ": asprintf");
-				exit(1);
-			}
-			free(tmp);
-		}
-
 		int skip = 0;
 		struct stat src_stat;
 		if (lstat(argv[i], &src_stat) == -1) {
 			fprintf(stderr, "%s: failed to stat '%s': %s\n", argv[0], argv[i], strerror(errno));
 			ret = skip = 1;
+		}
+		if (!skip && target_is_dir) {
+			char * tmp = strdup(argv[i]);
+			if (tmp == NULL)
+				err(1, "strdup");
+			char * bn = basename(tmp);
+			if (asprintf(&target, "%s%s%s", destination, destination_has_trailing_slash ? "" : "/", bn) == -1)
+				err(1, "asprintf");
+			free(tmp);
 		}
 		if (!skip && !force && stat(target, &statbuf) == 0) {
 			if (interactive) { /* || (isatty(STDIN_FILENO) && some_check_for_writability...) */
