@@ -23,7 +23,7 @@ static int recursive = 1;
 #include "rm.c"
 
 void usage(void) {
-	fprintf(stderr, "usage: mv [-if] source_file... destination\n");
+	fprintf(stderr, "usage: mv [-ifn] source_file... destination\n");
 	exit(1);
 }
 
@@ -31,16 +31,21 @@ int main(int argc, char * argv[]) {
 	int opt;
 	int interactive = 0;
 	int force = 0;
+	int noclobber = 0;
 
-	while ((opt = getopt(argc, argv, "if")) != -1) {
+	while ((opt = getopt(argc, argv, "ifn")) != -1) {
 		switch (opt) {
 			case 'i':
-				force = 0;
 				interactive = 1;
+				force = noclobber = 0;
 				break;
 			case 'f':
 				force = 1;
-				interactive = 0;
+				interactive = noclobber = 0;
+				break;
+			case 'n':
+				noclobber = 1;
+				interactive = force = 0;
 				break;
 			default:
 				usage();
@@ -97,7 +102,8 @@ int main(int argc, char * argv[]) {
 				fgets(tmp, 10, stdin);
 				if (tmp[0] != 'y' && tmp[0] != 'Y')
 					ret = skip = 1;
-			}
+			} else if (noclobber)
+				skip = 1; // successfully do nothing
 		}
 		if (!skip && rename(argv[i], target) == -1) {
 			if (errno != EXDEV && errno != ENOTSUP) {
