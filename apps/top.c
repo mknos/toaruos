@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2021-2022 K. Lange
  */
+#include <err.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -221,15 +222,19 @@ void free_entry(struct process * out) {
  * is formatted as a string for display.
  */
 char * format_username(int uid) {
-	static char tmp[100];
-	struct passwd * p = getpwuid(uid);
-	if (p) {
-		snprintf(tmp, 100, "%-8s", p->pw_name);
-	} else {
-		snprintf(tmp, 100, "%-8d", uid);
-	}
+	struct passwd *p;
+	char *name = NULL;
+	int rc;
+
+	p = getpwuid(uid);
+	if (p)
+		rc = asprintf(&name, "%-8s", p->pw_name);
+	else
+		rc = asprintf(&name, "%-8d", uid);
+	if (rc == -1)
+		err(1, "asprintf");
 	endpwent();
-	return strdup(tmp);
+	return name;
 }
 
 /**
@@ -268,9 +273,9 @@ struct process * process_entry(struct dirent *dent) {
 	line[0] = 0;
 
 	while (fgets(line, LINE_LEN, f) != NULL) {
-		char * n = strstr(line,"\n");
+		char * n = strchr(line, '\n');
 		if (n) { *n = '\0'; }
-		char * tab = strstr(line,"\t");
+		char * tab = strchr(line, '\t');
 		if (tab) {
 			*tab = '\0';
 			tab++;
@@ -314,6 +319,8 @@ struct process * process_entry(struct dirent *dent) {
 	}
 
 	struct process * out = malloc(sizeof(struct process));
+	if (out == NULL)
+		err(1, "malloc");
 	out->uid = uid;
 	out->pid = tgid;
 	out->tid = pid;
@@ -323,7 +330,11 @@ struct process * process_entry(struct dirent *dent) {
 	out->cpu = cpu;
 	out->cpua = cpua;
 	out->process = strdup(name);
+	if (out->process == NULL)
+		err(1, "strdup");
 	out->state = strdup(state);
+	if (out->state == NULL)
+		err(1, "strdup");
 	out->command_line = NULL;
 	out->user = format_username(out->uid);
 
@@ -335,6 +346,8 @@ struct process * process_entry(struct dirent *dent) {
 	int s = fread(foo, 1, 1024, f);
 	if (s > 0) {
 		out->command_line = malloc(s + 1);
+		if (out->command_line == NULL)
+			err(1, "malloc");
 		memset(out->command_line, 0, s + 1);
 		memcpy(out->command_line, foo, s);
 		for (int i = 0; i < s; ++i) {
@@ -445,7 +458,7 @@ static void get_tmpfs_info(size_t * size) {
 	fclose(f);
 
 	/* Should probably be looking for UsedBlocks: and advancing from there... */
-	char *b = strstr(buf, ":");
+	char *b = strchr(buf, ':');
 	if (!b) return;
 	b += 2;
 
@@ -485,6 +498,8 @@ static void print_meter(const char * title, const char * label, int width, int c
 	printf("\033[1m%s [", title);
 
 	char * fill = malloc(available + 1);
+	if (fill == NULL)
+		err(1, "malloc");
 	size_t j = 0;
 	for (int i = 0; i < fillSlots; ++i, j++) fill[j] = '|';
 	for (int i = 0; i < emptSlots; ++i, j++) fill[j] = ' ';
@@ -564,7 +579,9 @@ static struct process ** read_processes(size_t * count) {
 
 	/* Turn list into an array */
 	*count = ents_list->length;
-	struct process ** processList = malloc(sizeof(struct process*) * *count);
+	struct process ** processList = calloc(*count, sizeof(struct process*));
+	if (processList == NULL)
+		err(1, "calloc");
 	size_t ent = 0;
 	while (ents_list->length) {
 		node_t * node = list_pop(ents_list);
@@ -600,7 +617,8 @@ static int do_once(char *hostname) {
 
 	/* Gather screen size */
 	struct winsize w;
-	ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+	if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == -1)
+		err(1, "ioctl");
 
 	/* Figure out how we're going to lay out widgets */
 	int top_rows = 1 + cpu_count;
