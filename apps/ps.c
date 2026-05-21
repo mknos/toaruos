@@ -13,6 +13,7 @@
  */
 #include <sys/stat.h>
 #include <assert.h>
+#include <err.h>
 #include <fcntl.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -124,6 +125,8 @@ struct process * process_entry(struct dirent *dent) {
 
 	assert(name != NULL);
 	struct process * out = malloc(sizeof(struct process));
+	if (out == NULL)
+		err(1, "malloc");
 	out->uid = uid;
 	out->pid = tgid;
 	out->tid = pid;
@@ -168,6 +171,8 @@ struct process * process_entry(struct dirent *dent) {
 		int s = fread(foo, 1, 1024, f);
 		if (s > 0) {
 			out->command_line = calloc(s + 1, 1);
+			if (out->command_line == NULL)
+				err(1, "calloc");
 			memcpy(out->command_line, foo, s);
 
 			for (int i = 0; i < s; ++i) {
@@ -302,12 +307,10 @@ int main (int argc, char * argv[]) {
 		}
 	}
 
-	/* Open the directory */
 	DIR * dirp = opendir("/proc");
-
-	/* Read the entries in the directory */
+	if (dirp == NULL)
+		err(1, "procfs");
 	list_t * ents_list = list_create();
-
 	process_ents = hashmap_create_int(10);
 
 	struct dirent * ent = readdir(dirp);
