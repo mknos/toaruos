@@ -130,7 +130,7 @@ int main(int argc, char * argv[]) {
 		for (int i = 0; i < count; ++i) {
 			if (entries[i].d_name[0] != '.') {
 				char path[256];
-				sprintf(path, "/etc/startup.d/%s", entries[i].d_name);
+				sprintf(path, "%s/%s", INITD_PATH, entries[i].d_name);
 				start_options((char *[]){path, NULL});
 			}
 		}
