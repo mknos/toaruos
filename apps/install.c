@@ -34,12 +34,10 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 
-#include <ctype.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <pwd.h>
 #include <stdio.h>
-#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
@@ -62,14 +60,13 @@ char *group, *owner, pathbuf[PATH_MAX];
 #define	DIRECTORY	0x01		/* Tell install it's a directory. */
 
 void	copy(int, char *, int, char *);
-void	install(char *, char *, uint16_t, uint32_t);
+void	install(char *, char *, int);
 void	usage(void);
 
 int
 main(int argc, char *argv[])
 {
 	struct stat from_sb, to_sb;
-	uint16_t fset = 0;
 	int ch, no_target;
 	char *to_name;
 
@@ -111,7 +108,7 @@ main(int argc, char *argv[])
 	no_target = stat(to_name = argv[argc - 1], &to_sb);
 	if (!no_target && (to_sb.st_mode & S_IFMT) == S_IFDIR) {
 		for (; *argv != to_name; ++argv)
-			install(*argv, to_name, fset, DIRECTORY);
+			install(*argv, to_name, DIRECTORY);
 		exit(0);
 	}
 
@@ -140,7 +137,7 @@ main(int argc, char *argv[])
 		 */
 		(void)unlink(to_name);
 	}
-	install(*argv, to_name, fset, 0);
+	install(*argv, to_name, 0);
 	exit(0);
 }
 
@@ -149,7 +146,7 @@ main(int argc, char *argv[])
  *	build a path name and install the file
  */
 void
-install(char *from_name, char *to_name, uint16_t fset, uint32_t flags)
+install(char *from_name, char *to_name, int flags)
 {
 	struct stat from_sb;
 	int devnull, from_fd, to_fd, serrno;
