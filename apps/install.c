@@ -31,14 +31,6 @@
  * SUCH DAMAGE.
  */
 
-#if 0
-static char copyright[] =
-"@(#) Copyright (c) 1987, 1993\n\
-	The Regents of the University of California.  All rights reserved.\n";
-
-static char sccsid[] = "@(#)xinstall.c	8.1.1 (2.11BSD) 1996/2/21";
-#endif
-
 #include <sys/wait.h>
 #include <sys/stat.h>
 
@@ -60,8 +52,10 @@ static char sccsid[] = "@(#)xinstall.c	8.1.1 (2.11BSD) 1996/2/21";
 
 #define MAXBSIZE 4096
 
+#if 0
 struct passwd *pp;
 struct group *gp;
+#endif
 int mode = S_IRWXU|S_IRGRP|S_IXGRP|S_IROTH|S_IXOTH;
 char *group, *owner, pathbuf[PATH_MAX];
 
