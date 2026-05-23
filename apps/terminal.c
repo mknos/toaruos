@@ -2719,8 +2719,10 @@ int main(int argc, char ** argv) {
 		yutani_window_move(yctx, window, yctx->display_width / 2 - window->width / 2, yctx->display_height / 2 - window->height / 2);
 	}
 
-	/* Open a PTY */
-	openpty(&fd_master, &fd_slave, NULL, NULL, NULL);
+	if (openpty(&fd_master, &fd_slave, NULL, NULL, NULL) == -1) {
+		fprintf(stderr, "openpty failed: %s\n", strerror(errno));
+		return 1;
+	}
 	terminal = fdopen(fd_slave, "w");
 
 	/* Initialize the terminal buffer and ANSI library for the first time. */

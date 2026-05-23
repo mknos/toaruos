@@ -1232,8 +1232,8 @@ int main(int argc, char ** argv) {
 
 	putenv("TERM=toaru-vga");
 
-	openpty(&fd_master, &fd_slave, NULL, NULL, NULL);
-
+	if (openpty(&fd_master, &fd_slave, NULL, NULL, NULL) == -1)
+		err(1, "openpty");
 	terminal = fdopen(fd_slave, "w");
 
 	struct winsize w;
