@@ -11,12 +11,9 @@ DEFN_SYSCALL3(readdir, SYS_READDIR, int, int, void *);
 
 DIR * opendir (const char * dirname) {
 	int fd = open(dirname, O_RDONLY|O_DIRECTORY);
-	if (fd < 0) {
-		/* errno was set by open */
+	if (fd == -1)
 		return NULL;
-	}
-
-	DIR * dir = (DIR *)malloc(sizeof(DIR));
+	DIR * dir = malloc(sizeof(DIR));
 	if (dir == NULL)
 		return NULL;
 	dir->fd = fd;
@@ -34,21 +31,20 @@ int closedir (DIR * dir) {
 
 struct dirent * readdir (DIR * dirp) {
 	static struct dirent ent;
+	struct dirent * d = NULL;
 
 	int ret = syscall_readdir(dirp->fd, ++dirp->cur_entry, &ent);
-	if (ret < 0) {
+	switch (ret) {
+	case -1:
 		errno = -ret;
+		/* fallthru */
+	case 0:
 		memset(&ent, 0, sizeof(struct dirent));
-		return NULL;
+		break;
+	default:
+		d = &ent;
 	}
-
-	if (ret == 0) {
-		/* end of directory */
-		memset(&ent, 0, sizeof(struct dirent));
-		return NULL;
-	}
-
-	return &ent;
+	return d;
 }
 
 long telldir(DIR * dirp) {
