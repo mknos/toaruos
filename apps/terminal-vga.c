@@ -11,6 +11,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2013-2021 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -268,7 +269,7 @@ static int _selection_count = 0;
 static int _selection_i = 0;
 
 static int to_eight(uint32_t codepoint, char * out) {
-	memset(out, 0x00, 7);
+	memset(out, 0, 7);
 
 	if (codepoint < 0x0080) {
 		out[0] = (char)codepoint;
@@ -343,6 +344,8 @@ char * copy_selection(void) {
 	}
 
 	selection_text = malloc(_selection_count + 1);
+	if (selection_text == NULL)
+		err(1, "malloc");
 	selection_text[_selection_count] = '\0';
 	_selection_i = 0;
 	iterate_selection(write_selection);
@@ -397,6 +400,8 @@ void * handle_input_writing(void * unused) {
 
 static void write_input_buffer(char * data, size_t len) {
 	struct input_data * d = malloc(sizeof(struct input_data) + len);
+	if (d == NULL)
+		err(1, "malloc");
 	d->len = len;
 	memcpy(&d->data, data, len);
 	spin_lock(&input_buffer_lock);
@@ -734,10 +739,8 @@ void term_set_cell(int x, int y, uint32_t c) {
 void term_clear(int i) {
 	if (i == 2) {
 		/* Oh dear */
-		csr_x = 0;
-		csr_y = 0;
-		csr_h = 0;
-		memset((void *)term_buffer, 0x00, term_width * term_height * sizeof(term_cell_t));
+		csr_x = csr_y = csr_h = 0;
+		memset(term_buffer, 0, term_width * term_height * sizeof(term_cell_t));
 		term_redraw_all();
 	} else if (i == 0) {
 		for (int x = csr_x; x < term_width; ++x) {
@@ -960,29 +963,14 @@ static void term_switch_buffer(int buffer) {
 }
 
 static void full_reset(void) {
-	/* Reset everything */
-	csr_x = 0;
-	csr_y = 0;
-	csr_h = 0;
-
 	/* Huh, why don't we haven't an _orig_h - surely hold should be saved? */
-	_orig_x = 0;
-	_orig_y = 0;
-
-	current_fg = TERM_DEFAULT_FG;
-	current_bg = TERM_DEFAULT_BG;
-	_orig_fg = TERM_DEFAULT_FG;
-	_orig_bg = TERM_DEFAULT_BG;
-
-	active_buffer = 0;
+	csr_x = csr_y = csr_h = _orig_x = _orig_y = active_buffer = 0;
+	current_fg = _orig_fg = TERM_DEFAULT_FG;
+	current_bg = _orig_bg = TERM_DEFAULT_BG;
 	term_buffer = term_buffer_a;
-
-	/* Clear both buffers to 0 */
-	memset((void *)term_buffer_a, 0x00, term_width * term_height * sizeof(term_cell_t));
-	memset((void *)term_buffer_b, 0x00, term_width * term_height * sizeof(term_cell_t));
-
-	/* Enable cursor */
 	cursor_on = 1;
+	memset(term_buffer_a, 0, term_width * term_height * sizeof(term_cell_t));
+	memset(term_buffer_b, 0, term_width * term_height * sizeof(term_cell_t));
 }
 
 term_callbacks_t term_callbacks = {
@@ -1007,20 +995,20 @@ term_callbacks_t term_callbacks = {
 };
 
 void reinit(void) {
-	if (term_buffer) {
-		/* Do nothing */
-	} else {
-		term_buffer_a = malloc(sizeof(term_cell_t) * term_width * term_height);
-		memset(term_buffer_a, 0x0, sizeof(term_cell_t) * term_width * term_height);
-
-		term_buffer_b = malloc(sizeof(term_cell_t) * term_width * term_height);
-		memset(term_buffer_b, 0x0, sizeof(term_cell_t) * term_width * term_height);
-
+	if (!term_buffer) {
+		term_buffer_a = calloc(term_width * term_height, sizeof(term_cell_t));
+		if (term_buffer_a == NULL)
+			err(1, "calloc");
+		term_buffer_b = calloc(term_width * term_height, sizeof(term_cell_t));
+		if (term_buffer_b == NULL)
+			err(1, "calloc");
+		basecopy = calloc(term_width * term_height, sizeof(unsigned short));
+		if (basecopy == NULL)
+			err(1, "calloc");
+		flipcopy = calloc(term_width * term_height, sizeof(unsigned short));
+		if (flipcopy == NULL)
+			err(1, "calloc");
 		term_buffer = term_buffer_a;
-		basecopy = malloc(sizeof(unsigned short) * term_width * term_height);
-		memset(basecopy, 0, sizeof(unsigned short) * term_width * term_height);
-		flipcopy = malloc(sizeof(unsigned short) * term_width * term_height);
-		memset(flipcopy, 0, sizeof(unsigned short) * term_width * term_height);
 	}
 
 	ansi_state = ansi_init(ansi_state, term_width, term_height, &term_callbacks);
@@ -1236,10 +1224,8 @@ int main(int argc, char ** argv) {
 	}
 
 	int vga_text_fd = open("/dev/vga0", 0, 0);
-	if (vga_text_fd == -1) {
-		perror("failed to open vga0 device");
-		return 1;
-	}
+	if (vga_text_fd == -1)
+		err(1, "/dev/vga0");
 	ioctl(vga_text_fd, IO_VID_WIDTH,  &term_width);
 	ioctl(vga_text_fd, IO_VID_HEIGHT, &term_height);
 	ioctl(vga_text_fd, IO_VID_ADDR,   &textmemptr);
@@ -1282,10 +1268,8 @@ int main(int argc, char ** argv) {
 		tcsetpgrp(STDIN_FILENO, getpid());
 
 		char **tokens = calloc(2, sizeof(char *));
-		if (tokens == NULL) {
-			perror("terminal-vga: calloc");
-			return 1;
-		}
+		if (tokens == NULL)
+			err(1, "calloc");
 		if (argv[optind] != NULL)
 			tokens[0] = argv[optind];
 		else {
@@ -1297,12 +1281,9 @@ int main(int argc, char ** argv) {
 				tokens[0] = shell;
 			}
 		}
-		int ret = execvp(tokens[0], tokens);
-		if (ret == -1)
-			perror(tokens[0]);
-		return 1;
+		execvp(tokens[0], tokens);
+		err(1, "execvp (%s)", tokens[0]);
 	} else {
-
 		child_pid = f;
 
 		int kfd = open("/dev/kbd", O_RDONLY);
@@ -1322,10 +1303,8 @@ int main(int argc, char ** argv) {
 		/* Prune any keyboard input we got before the terminal started. */
 		char tmp;
 		struct stat s;
-		if (fstat(kfd, &s) == -1) {
-			perror("/dev/kbd");
-			return 1;
-		}
+		if (fstat(kfd, &s) == -1)
+			err(1, "fstat /dev/kbd");
 		for (unsigned int i = 0; i < s.st_size; i++)
 			read(kfd, &tmp, 1);
 
