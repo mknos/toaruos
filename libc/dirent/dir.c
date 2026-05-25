@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <unistd.h>
 #include <stdlib.h>
 #include <fcntl.h>
@@ -32,18 +33,18 @@ int closedir (DIR * dir) {
 struct dirent * readdir (DIR * dirp) {
 	static struct dirent ent;
 	struct dirent * d = NULL;
+	int wipe = 1;
 
 	int ret = syscall_readdir(dirp->fd, ++dirp->cur_entry, &ent);
-	switch (ret) {
-	case -1:
+	assert(ret <= 1);
+	if (ret < 0)
 		errno = -ret;
-		/* fallthru */
-	case 0:
-		memset(&ent, 0, sizeof(struct dirent));
-		break;
-	default:
+	else if (ret == 1) {
+		wipe = 0;
 		d = &ent;
 	}
+	if (wipe)
+		memset(&ent, 0, sizeof(ent));
 	return d;
 }
 
