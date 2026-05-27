@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <syscall.h>
@@ -90,11 +91,17 @@ static FILE * _head = NULL;
 
 void __stdio_init_buffers(void) {
 	_stdin.read_buf = malloc(BUFSIZ);
+	assert(_stdin.read_buf != NULL);
 	_stdout.write_buf = malloc(BUFSIZ);
+	assert(_stdout.write_buf != NULL);
 	_stderr.write_buf = malloc(BUFSIZ);
+	assert(_stderr.write_buf != NULL);
 	_stdin._name = strdup("stdin");
+	assert(_stdin._name != NULL);
 	_stdout._name = strdup("stdout");
+	assert(_stdout._name != NULL);
 	_stderr._name = strdup("stderr");
+	assert(_stderr._name != NULL);
 }
 
 void __stdio_cleanup(void) {
