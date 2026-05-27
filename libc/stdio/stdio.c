@@ -404,13 +404,7 @@ int fseek(FILE * stream, long offset, int whence) {
 	stream->available = 0;
 	stream->ungetc = -1;
 	stream->flags = 0;
-
-	int resp = syscall_seek(stream->fd,offset,whence);
-	if (resp < 0) {
-		errno = -resp;
-		return -1;
-	}
-	return 0;
+	__sets_errno(syscall_seek(stream->fd, offset, whence));
 }
 
 long ftell(FILE * stream) {
@@ -428,12 +422,7 @@ long ftell(FILE * stream) {
 	stream->available = 0;
 	stream->ungetc = -1;
 	stream->flags = 0;
-	long resp = syscall_seek(stream->fd, 0, SEEK_CUR);
-	if (resp < 0) {
-		errno = -resp;
-		return -1;
-	}
-	return resp;
+	__sets_errno(syscall_seek(stream->fd, 0, SEEK_CUR));
 }
 
 int fgetpos(FILE *stream, fpos_t *pos) {
