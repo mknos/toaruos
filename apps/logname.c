@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
 	while ((opt = getopt(argc, argv, "")) != -1)
 		usage();
 	if (optind < argc) {
-		fprintf(stderr, "logname: extra operand: '%s'\n", argv[optind]);
+		fprintf(stderr, "%s: extra operand: '%s'\n", argv[0], argv[optind]);
 		usage();
 	}
 	char * name = getlogin();
