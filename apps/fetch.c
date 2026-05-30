@@ -64,7 +64,7 @@ int parse_url(char * d, struct http_req * r) {
 		return 1;
 	}
 
-	char * s = strstr(d, "/");
+	char * s = strchr(d, '/');
 	if (!s) {
 		strcpy(r->domain, d);
 		strcpy(r->path, "");
@@ -74,13 +74,13 @@ int parse_url(char * d, struct http_req * r) {
 		strcpy(r->domain, d);
 		strcpy(r->path, s);
 	}
-	if (strstr(r->domain,":")) {
-		char * port = strstr(r->domain,":");
+
+	char * port = strchr(r->domain, ':');
+	if (port) {
 		*port = '\0';
 		port++;
 		r->port = atoi(port);
 	}
-
 	return 0;
 }
 
