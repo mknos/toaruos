@@ -114,6 +114,6 @@ int main(int argc, char* argv[])
 	fputs(terminator, stdout);
 
 	if ( ferror(stdout) || fflush(stdout) == EOF )
-		errx(1, "stdout");
+		err(1, "stdout");
 	return 0;
 }
