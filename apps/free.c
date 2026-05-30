@@ -6,7 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2015-2018 K. Lange
  */
-#include <assert.h>
+#include <err.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -48,10 +48,8 @@ int main(int argc, char * argv[]) {
 	const char * unit = "kB";
 
 	FILE * f = fopen("/proc/meminfo", "r");
-	if (f == NULL) {
-		perror("/proc/meminfo");
-		return 1;
-	}
+	if (f == NULL)
+		err(1, "meminfo");
 	int total, free, used;
 	char buf[1024] = {0};
 	fgets(buf, 1024, f);
@@ -72,8 +70,8 @@ int main(int argc, char * argv[]) {
 
 	fclose(f);
 	used = total - free;
-	assert(used > 0);
-
+	if (used <= 0)
+		errx(1, "impossible usage value");
 	if (!use_kilobytes) {
 		unit = "MB";
 		free /= 1024;
@@ -95,4 +93,3 @@ int main(int argc, char * argv[]) {
 
 	return 0;
 }
-
