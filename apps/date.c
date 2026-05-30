@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -79,7 +80,8 @@ int main(int argc, char * argv[]) {
 		}
 	}
 
-	gettimeofday(&now, NULL);
+	if (gettimeofday(&now, NULL) == -1)
+		err(1, "gettimeofday");
 	timeinfo = localtime((time_t *)&now.tv_sec);
 
 	if (optind < argc && *argv[optind] == '+') {
@@ -112,9 +114,7 @@ int main(int argc, char * argv[]) {
 			goto set_time;
 		}
 _invalid:
-		fprintf(stderr, "date: only 'MMDDhhmm', 'MMDDhhmm.ss', 'MMDDhhmmCCYY' and 'MMDDhhmmCCYY.ss' are supported for setting time.\n");
-		return 1;
-
+		errx(1, "only 'MMDDhhmm', 'MMDDhhmm.ss', 'MMDDhhmmCCYY' and 'MMDDhhmmCCYY.ss' are supported for setting time");
 set_time:
 		now.tv_usec = 0;
 		now.tv_sec = mktime(timeinfo);
