@@ -11,6 +11,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2026 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <termios.h>
@@ -928,15 +929,15 @@ int main(int argc, char * argv[]) {
 		switch (opt) {
 			case 'W':
 				width = atoi(optarg);
-				if (width <= 0) {
-					fprintf(stderr, "%s: width must be positive\n", argv[0]);
-					return 1;
-				}
+				if (width <= 0)
+					errx(1, "width must be positive");
 				w.ws_col = width;
 				break;
 			case 'S':
 				only_section = optarg;
 				initial_output = fopen("/dev/null","w");
+				if (initial_output == NULL)
+					err(1, "null device");
 				error_output = stderr;
 				break;
 			case 'E':
