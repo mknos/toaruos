@@ -6,11 +6,11 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2013-2018 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <errno.h>
 
 extern int _environ_size;
 
@@ -33,11 +33,8 @@ int main(int argc, char ** argv) {
 	}
 
 	if (start < argc) {
-		/* Execute command */
-		if (execvp(argv[start], &argv[start]) == -1) {
-			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[start], strerror(errno));
-			return 1;
-		}
+		execvp(argv[start], &argv[start]);
+		err(1, "failed to exec '%s'", argv[start]);
 	} else {
 		char ** env = environ;
 
