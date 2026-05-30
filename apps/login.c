@@ -9,6 +9,7 @@
  * Copyright (C) 2013-2014 K. Lange
  */
 
+#include <err.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -18,7 +19,6 @@
 #include <signal.h>
 #include <syscall.h>
 #include <termios.h>
-#include <errno.h>
 #include <pwd.h>
 #include <sys/wait.h>
 #include <sys/utsname.h>
@@ -39,9 +39,7 @@ void sig_pass(int sig) {
 }
 
 void sig_segv(int sig) {
-	printf("Segmentation fault.\n");
-	exit(127 + sig);
-	/* no return */
+	errx(127 + sig, "Segmentation fault");
 }
 
 int main(int argc, char ** argv) {
@@ -49,10 +47,8 @@ int main(int argc, char ** argv) {
 	int uid;
 	pid_t pid, f;
 
-	if (getuid() != 0) {
-		fprintf(stderr, "%s: only root can do that\n", argv[0]);
-		return 1;
-	}
+	if (getuid() != 0)
+		errx(1, "only root can do that");
 	int opt;
 	while ((opt = getopt(argc, argv, "f:")) != -1) {
 		switch (opt) {
@@ -64,13 +60,10 @@ int main(int argc, char ** argv) {
 
 	if (user) {
 		struct passwd * pw = getpwnam(user);
-		if (pw) {
-			uid = pw->pw_uid;
-			goto do_fork;
-		} else {
-			fprintf(stderr, "%s: no such user\n", argv[0]);
-			return 1;
-		}
+		if (pw == NULL)
+			errx(1, "%s: no such user");
+		uid = pw->pw_uid;
+		goto do_fork;
 	}
 
 	signal(SIGINT, sig_pass);
@@ -165,9 +158,8 @@ do_fork:
 			shell,
 			NULL
 		};
-		if (execvp(args[0], args) == -1)
-			perror(shell);
-		return 1;
+		execvp(args[0], args);
+		err(1, "failed to exec '%s'", args[0]);
 	} else {
 		child = f;
 		int result;
