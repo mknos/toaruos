@@ -17,6 +17,7 @@
  * Report or filter out repeated lines in a file
  */
 
+#include <err.h>
 #include <locale.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -234,7 +235,6 @@ int main(int argc, char* argv[])
 	free(prev_line);
 
 	if ( fflush(stdout) == EOF || ferror(stdout) )
-		return 1;
-
+		err(1, "stdout");
 	return 0;
 }
