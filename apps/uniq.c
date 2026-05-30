@@ -37,7 +37,7 @@ char* read_line(FILE* fp, const char* fpname, int delim)
 	{
 		free(line);
 		if ( ferror(fp) )
-			fprintf(stderr, "uniq: read: %s", fpname);
+			warn("failed to read '%s'", fpname);
 		return NULL;
 	}
 	if ( (unsigned char) line[amount-1] == (unsigned char) delim )
