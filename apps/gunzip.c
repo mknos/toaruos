@@ -57,7 +57,7 @@ static int decompress_one(char * argv[], char * file) {
 	}
 
 	if (!force && isatty(fileno(f))) {
-		fprintf(stderr, "%s: not decompressng from terminal; use -f to override\n", argv[0]);
+		fprintf(stderr, "%s: not decompressing from terminal; use -f to override\n", argv[0]);
 		if (f != stdin) fclose(f);
 		return 1;
 	}
