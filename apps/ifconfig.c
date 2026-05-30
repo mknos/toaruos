@@ -27,8 +27,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-extern char * _argv_0;
-
 static void ip_ntoa(const uint32_t src_addr, char * out) {
 	snprintf(out, 16, "%d.%d.%d.%d",
 		(src_addr & 0xFF000000) >> 24,
@@ -186,14 +184,13 @@ static int maybe_address(const char * s) {
 
 static int parse_address(const char * cmd, const char * addr, in_addr_t * out) {
 	if (!addr) {
-		fprintf(stderr, "%s: %s: expected argument\n", _argv_0, cmd);
+		warnx("%s: expected argument", cmd);
 		return 1;
 	}
 	if (!maybe_address(addr)) {
-		fprintf(stderr, "%s: %s: '%s' doesn't look like a valid address\n", _argv_0, cmd, addr);
+		warnx("%s: invalid address '%s'", cmd, addr);
 		return 1;
 	}
-
 	*out = inet_addr(addr);
 	return 0;
 }
@@ -229,10 +226,8 @@ int main(int argc, char * argv[]) {
 		/* Is this argument an address? */
 		if (maybe_address(argv[i])) {
 			/* Try to set IPv4 address */
-			if (collected_address) {
-				fprintf(stderr, "%s: expected at most one bare address, but found a second\n", argv[0]);
-				return 1;
-			}
+			if (collected_address)
+				errx(1, "extra address operand");
 			if (set_address("inet", argv[i], SIOCSIFADDR)) return 1;
 			collected_address = 1;
 		} else {
@@ -240,8 +235,7 @@ int main(int argc, char * argv[]) {
 			command_with_address("gw", SIOCSIFGATEWAY);
 			command_with_address("gateway", SIOCSIFGATEWAY);
 			command_with_address("inet", SIOCSIFADDR);
-			fprintf(stderr, "%s: '%s' is not an understood command\n", argv[0], argv[i]);
-			return 1;
+			errx(1, "%s: unknown command", argv[i]);
 		}
 	}
 	return 0;
