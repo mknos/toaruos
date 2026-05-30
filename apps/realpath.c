@@ -41,11 +41,6 @@ static void help(FILE* fp, const char* argv0)
 	fprintf(fp, "Convert the paths to canonicalized absolute paths.\n");
 }
 
-static void version(FILE* fp, const char* argv0)
-{
-	fprintf(fp, "%s (Sortix)\n", argv0);
-}
-
 int main(int argc, char* argv[])
 {
 	setlocale(LC_ALL, "");
@@ -74,8 +69,6 @@ int main(int argc, char* argv[])
 		}
 		else if ( !strcmp(arg, "--help") )
 			help(stdout, argv0), exit(0);
-		else if ( !strcmp(arg, "--version") )
-			version(stdout, argv0), exit(0);
 		else if ( !strcmp(arg, "--zero") )
 			eol = '\0';
 		else
