@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2020 K. Lange
  */
+#include <err.h>
 #include <libgen.h>
 #include <stdio.h>
 #include <stdint.h>
@@ -72,6 +73,8 @@ static int decompress_one(char * argv[], char * file) {
 		ctx.output_priv = stdout;
 	} else {
 		char * tmp = strdup(file);
+		if (tmp == NULL)
+			err(1, "strdup");
 		if (endswith(file,".gz")) {
 			tmp[strlen(tmp)-3] = '\0';
 		} else if (endswith(file,".z") || endswith(file,".Z")) {
