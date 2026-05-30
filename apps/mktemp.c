@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <err.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -43,15 +44,11 @@ int main(int argc, char * argv[]) {
 	else
 		template = strdup(argv[optind]);
 
-	if (template == NULL) {
-		fprintf(stderr, "%s: strdup: %s\n", argv[0], strerror(errno));
-		return 1;
-	}
+	if (template == NULL)
+		err(1, "strdup");
 	char * result = mktemp(template);
-	if (result == NULL || strlen(result) == 0) {
-		fprintf(stderr, "%s: %s\n", argv[0], strerror(errno));
-		return 1;
-	}
+	if (result == NULL || strlen(result) == 0)
+		err(1, "template string rejected");
 	if (!quiet)
 		fprintf(stdout, "%s\n", result);
 	if (dry_run) {
@@ -61,13 +58,13 @@ int main(int argc, char * argv[]) {
 	int rc = 0;
 	if (directory) {
 		if (mkdir(result, 0777) == -1) {
-			fprintf(stderr, "%s: mkdir: %s: %s\n", argv[0], result, strerror(errno));
+			warn("mkdir '%s'", result);
 			rc = 1;
 		}
 	} else {
 		FILE * f = fopen(result, "w");
 		if (f == NULL) {
-			fprintf(stderr, "%s: open: %s: %s\n", argv[0], result, strerror(errno));
+			warn("%s", result);
 			rc = 1;
 		}
 		fclose(f);
