@@ -6,13 +6,13 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 #include <getopt.h>
-#include <errno.h>
 #ifdef __toaru__
 #include <toaru/decodeutf8.h>
 #endif
@@ -72,13 +72,13 @@ int main(int argc, char * argv[]) {
 
 	for (int i = optind; i < argc; ++i) {
 		if (!*argv[i] && !just_stdin) {
-			fprintf(stderr, "%s: invalid zero-length file name\n", argv[0]);
+			warnx("invalid zero-length file name");
 			retval = 1;
 			continue;
 		}
 		FILE * f = (!strcmp(argv[i], "-") || just_stdin) ? stdin : fopen(argv[i], "r");
 		if (!f) {
-			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
+			warn("%s", argv[i]);
 			retval = 1;
 			continue;
 		}
@@ -92,8 +92,8 @@ int main(int argc, char * argv[]) {
 
 		while (!feof(f)) {
 			ch = getc(f);
-			if (ch < 0) break;
-
+			if (ch == EOF)
+				break;
 			if (show_chars) {
 #ifdef __toaru__
 				uint32_t state;
@@ -119,7 +119,10 @@ int main(int argc, char * argv[]) {
 				last_was_whitespace = 0;
 			}
 		}
-
+		if (ferror(f)) {
+			warn("%s", argv[i]);
+			retval = 1;
+		}
 		if (!last_was_whitespace && chars > 0) words++;
 
 		if (!show_words && !show_chars && !show_bytes && !show_lines) {
