@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2019 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -46,9 +47,12 @@ static void previous_month(struct tm * target) {
 static void print_calendars(struct tm *today, struct tm *target, int count, int highlight_today, int is_year) {
 	/* Now turn our time back into the actual time. */
 	time_t target_time;
-	struct tm * actual = calloc(sizeof(struct tm), count);
-	struct tm ** timeinfo = calloc(sizeof(struct tm*), count);
-
+	struct tm * actual = calloc(count, sizeof(struct tm));
+	if (actual == NULL)
+		err(1, "calloc");
+	struct tm ** timeinfo = calloc(count, sizeof(struct tm*));
+	if (timeinfo == NULL)
+		err(1, "calloc");
 	for (int i = 0; i < count; ++i) {
 		target_time = mktime(target);
 		timeinfo[i] = localtime_r(&target_time, &actual[i]);
@@ -72,9 +76,15 @@ static void print_calendars(struct tm *today, struct tm *target, int count, int 
 	}
 	printf("\n");
 
-	int * days_in_month = calloc(sizeof(int), count);
-	int * mday = calloc(sizeof(int), count);
-	int * wday = calloc(sizeof(int), count);
+	int * days_in_month = calloc(count, sizeof(int));
+	if (days_in_month == NULL)
+		err(1, "calloc");
+	int * mday = calloc(count, sizeof(int));
+	if (mday == NULL)
+		err(1, "calloc");
+	int * wday = calloc(count, sizeof(int));
+	if (wday == NULL)
+		err(1, "calloc");
 
 	/* Figure out how many days are in each of months we are going
 	 * to display, and what day of the week each starts on */
@@ -180,10 +190,8 @@ int main(int argc, char * argv[]) {
 
 	/* Get today as a reference point */
 	struct timeval now;
-	if (gettimeofday(&now, NULL) == -1) {
-		perror("gettimeofday");
-		return 1;
-	}
+	if (gettimeofday(&now, NULL) == -1)
+		err(1, "gettimeofday");
 	struct tm today;
 	localtime_r((time_t *)&now.tv_sec, &today);
 
