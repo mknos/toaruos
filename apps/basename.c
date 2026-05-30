@@ -6,19 +6,16 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <string.h>
 #include <libgen.h>
 
 int main(int argc, char * argv[]) {
-	if (argc < 2) {
-		fprintf(stderr, "%s: expected argument\n", argv[0]);
-		return 1;
-	} else if (argc > 3) {
-		fprintf(stderr, "%s: extra argument '%s'\n", argv[0], argv[3]);
-		return 1;
-	}
-
+	if (argc < 2)
+		errx(1, "missing argument");
+	if (argc > 3)
+		errx(1, "extra argument: '%s'", argv[3]);
 	char * c = basename(argv[1]);
 
 	if (argc > 2) {
@@ -28,7 +25,6 @@ int main(int argc, char * argv[]) {
 			*found = '\0';
 		}
 	}
-
 	fprintf(stdout, "%s\n", c);
 	return 0;
 }
