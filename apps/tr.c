@@ -504,12 +504,7 @@ static void compact_arguments(int* argc, char*** argv)
 
 static void help(FILE* fp, const char* argv0)
 {
-	fprintf(fp, "Usage: %s tr [OPTION]... SET1 [SET2]\n", argv0);
-}
-
-static void version(FILE* fp, const char* argv0)
-{
-	fprintf(fp, "%s (Sortix)\n", argv0);
+	fprintf(fp, "Usage: %s [OPTION]... SET1 [SET2]\n", argv0);
 }
 
 int main(int argc, char* argv[])
@@ -546,8 +541,6 @@ int main(int argc, char* argv[])
 		}
 		else if ( !strcmp(arg, "--help") )
 			help(stdout, argv0), exit(0);
-		else if ( !strcmp(arg, "--version") )
-			version(stdout, argv0), exit(0);
 		else
 		{
 			fprintf(stderr, "%s: unknown option: %s\n", argv0, arg);
@@ -651,13 +644,9 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if ( ferror(stdin) ) {
-		perror("stdin");
-		return 1;
-	}
-	if ( ferror(stdout) || fflush(stdout) == EOF ) {
-		perror("stdout");
-		return 1;
-	}
+	if ( ferror(stdin) )
+		err(1, "stdin");
+	if ( ferror(stdout) || fflush(stdout) == EOF )
+		err(1, "stdout");
 	return 0;
 }
