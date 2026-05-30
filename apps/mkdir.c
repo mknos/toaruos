@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2013-2014 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,10 +19,8 @@ int makedir(const char * dir, int mask, int parents) {
 	if (!parents) return mkdir(dir,mask);
 
 	char * tmp = strdup(dir);
-	if (tmp == NULL) {
-		perror("mkdir: strdup");
-		exit(1);
-	}
+	if (tmp == NULL)
+		err(1, "strdup");
 	char * c = tmp;
 	while ((c = strchr(c+1,'/'))) {
 		*c = '\0';
@@ -50,16 +49,13 @@ int main(int argc, char ** argv) {
 				return 1;
 		}
 	}
-
-	if (optind == argc) {
-		fprintf(stderr, "%s: expected argument\n", argv[0]);
-		return 1;
-	}
+	if (optind == argc)
+		errx(1, "missing argument");
 
 	for (int i = optind; i < argc; ++i) {
 		if (makedir(argv[i], 0777, parents) == -1) {
 			if (parents && errno == EEXIST) continue;
-			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
+			warn("%s", argv[i]);
 			retval = 1;
 		}
 	}
