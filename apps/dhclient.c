@@ -6,6 +6,7 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2021 K. Lange
  */
+#include <err.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -245,40 +246,37 @@ static void time_diff(struct timeval *start, struct timeval *end, time_t *sec_di
 	}
 }
 
-extern char * _argv_0;
-
 static int configure_interface(const char * if_name) {
 	if (strcmp(if_name, "lo") == 0)
 		return 0;
 
 	/* Open a raw socket. */
 	int sock = socket(AF_RAW, SOCK_RAW, 0);
-	if (sock < 0) {
-		perror(_argv_0);
+	if (sock == -1) {
+		warn("socket");
 		return 1;
 	}
 
 	/* Bind to this interface */
-	if (setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, if_name, strlen(if_name)+1)) {
-		perror(_argv_0);
+	if (setsockopt(sock, SOL_SOCKET, SO_BINDTODEVICE, if_name, strlen(if_name)+1) == -1) {
+		warn("setsockopt");
 		return 1;
 	}
 
 	/* Request the mac address */
 	int netdev = open(if_name, O_RDWR);
-	if (netdev < 0) {
-		perror(_argv_0);
+	if (netdev == -1) {
+		warn("%s", if_name);
 		return 1;
 	}
 
 	int res = ioctl(netdev, SIOCGIFHWADDR, &mac_addr);
-
-	if (res == 1) return 0; /* Loopback, skip */
-	if (res) {
-		fprintf(stderr, "%s: %s: could not get mac address\n", _argv_0, if_name);
+	if (res == 1)
+		return 0; /* Loopback, skip */
+	if (res == -1) {
+		warnx("%s: could not get mac address", if_name);
 		return 1;
 	}
-
 	xid = rand();
 
 	/* Try to frob the whatsit */
@@ -324,9 +322,8 @@ static int configure_interface(const char * if_name) {
 			return 1;
 		}
 		ssize_t rsize = recv(sock, &buf, 4096, 0);
-
-		if (rsize <= 0) {
-			fprintf(stderr, "%s: %s: bad size? %zd\n", _argv_0, if_name, rsize);
+		if (rsize == -1) {
+			warnx("%s: bad size? %zd", if_name, rsize);
 			continue;
 		}
 
@@ -366,11 +363,10 @@ static int configure_interface(const char * if_name) {
 			yiaddr = response->dhcp_header.yiaddr;
 			char yiaddr_ip[16];
 			ip_ntoa(ntohl(yiaddr), yiaddr_ip);
-			if (!ioctl(netdev, SIOCSIFADDR, &yiaddr)) {
-				printf("%s: %s: configured for %s\n", _argv_0, if_name, yiaddr_ip);
-			} else {
-				perror(_argv_0);
-			}
+			if (ioctl(netdev, SIOCSIFADDR, &yiaddr) == -1)
+				warn("%s", if_name);
+			else
+				printf("%s: configured for %s\n", if_name, yiaddr_ip);
 
 			/* See if we got a gateway and subnet out of it as well, those are cool... */
 			uint8_t * opt = response->dhcp_header.options;
@@ -383,7 +379,7 @@ static int configure_interface(const char * if_name) {
 					memcpy(&ip_data, opt, 4);
 					char addr[16];
 					ip_ntoa(ntohl(ip_data), addr);
-					printf("%s: %s: subnet mask %s\n", _argv_0, if_name, addr);
+					printf("%s: subnet mask %s\n", if_name, addr);
 					ioctl(netdev, SIOCSIFNETMASK, &ip_data);
 				} else if (opt_type == 3) {
 					/* Gateway address - add this to a route table? */
@@ -391,7 +387,7 @@ static int configure_interface(const char * if_name) {
 					memcpy(&ip_data, opt, 4);
 					char addr[16];
 					ip_ntoa(ntohl(ip_data), addr);
-					printf("%s: %s: gateway %s\n", _argv_0, if_name, addr);
+					printf("%s: gateway %s\n", if_name, addr);
 					ioctl(netdev, SIOCSIFGATEWAY, &ip_data);
 				} else if (opt_type == 6) {
 					/* DNS server */
@@ -399,7 +395,7 @@ static int configure_interface(const char * if_name) {
 					memcpy(&ip_data, opt, 4);
 					char addr[16];
 					ip_ntoa(ntohl(ip_data), addr);
-					printf("%s: %s: nameserver %s\n", _argv_0, if_name, addr);
+					printf("%s: nameserver %s\n", if_name, addr);
 					FILE * resolve = fopen("/etc/resolv.conf","w");
 					if (!resolve) resolve = fopen("/var/resolv.conf","w");
 					if (resolve) {
@@ -434,18 +430,14 @@ int main(int argc, char * argv[]) {
 	int retval = 0;
 
 	/* Read /dev/net for interfaces */
-	if (chdir("/dev/net") == -1) {
-		fprintf(stderr, "%s: no network?\n", _argv_0);
-		return 1;
-	}
+	if (chdir("/dev/net") == -1)
+		errx(1, "no network?");
 	if (argc > 1) {
 		return configure_interface(argv[1]);
 	} else {
 		DIR * d = opendir(".");
-		if (!d) {
-			perror("opendir");
-			return 1;
-		}
+		if (d == NULL)
+			err(1, "opendir");
 		struct dirent * ent;
 		while ((ent = readdir(d))) {
 			if (ent->d_name[0] == '.') continue;
