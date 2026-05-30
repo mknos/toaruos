@@ -11,15 +11,14 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2013-2018 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <string.h>
-#include <errno.h>
 
 #define CHUNK_SIZE 4096
 
-static char * _argv_0;
 static char * _file;
 
 int doit(int fd) {
@@ -29,7 +28,7 @@ int doit(int fd) {
 	while ((r = read(fd, buf, sizeof(buf))) > 0)
 		write(STDOUT_FILENO, buf, r);
 	if (r == -1) {
-		fprintf(stderr, "%s: %s: %s\n", _argv_0, _file, strerror(errno));
+		warn("%s: write error", _file);
 		return 1;
 	}
 	return 0;
@@ -37,8 +36,6 @@ int doit(int fd) {
 
 int main(int argc, char ** argv) {
 	int ret = 0;
-
-	_argv_0 = argv[0];
 
 	if (argc == 1) {
 		_file = "stdin";
@@ -54,7 +51,7 @@ int main(int argc, char ** argv) {
 		_file = argv[i];
 		int fd = open(argv[i], O_RDONLY);
 		if (fd == -1) {
-			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[i], strerror(errno));
+			warn("%s", argv[i]);
 			ret = 1;
 			continue;
 		}
