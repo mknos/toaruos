@@ -6,13 +6,12 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <err.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <dirent.h>
 #include <unistd.h>
-#include <errno.h>
-
 #include <fcntl.h>
 #include <sys/stat.h>
 
@@ -42,21 +41,21 @@ static int copy_file(char * source, char * dest, int mode,int uid, int gid) {
 
 	int s_fd = open(source, O_RDONLY);
 	if (s_fd == -1) {
-		fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
+		warn("%s", source);
 		return 1;
 	}
 	int d_fd = open(dest, O_WRONLY | O_CREAT, mode);
 	if (d_fd == -1) {
-		fprintf(stderr, APP_NAME ": %s: %s\n", dest, strerror(errno));
+		warn("%s", dest);
 		return 1;
 	}
 	ssize_t length = lseek(s_fd, 0, SEEK_END);
 	if (length == -1) {
-		fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
+		warn("%s", source);
 		return 1;
 	}
 	if (lseek(s_fd, 0, SEEK_SET) == -1) {
-		fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
+		warn("%s", source);
 		return 1;
 	}
 
@@ -67,17 +66,17 @@ static int copy_file(char * source, char * dest, int mode,int uid, int gid) {
 	while (length > 0) {
 		ssize_t r = read(s_fd, buf, CHUNK_SIZE);
 		if (r == -1) {
-			fprintf(stderr, APP_NAME ": %s: %s\n", source, strerror(errno));
+			warn("%s", source);
 			return 1;
 		}
 		//fprintf(stderr, "copying %d bytes from %s to %s\n", r, source, dest);
 		ssize_t w = write(d_fd, buf, r);
 		if (w == -1) {
-			fprintf(stderr, APP_NAME ": %s: %s\n", dest, strerror(errno));
+			warn("%s", dest);
 			return 1;
 		}
 		if (w < r) {
-			fprintf(stderr, APP_NAME ": %s: short write\n", dest);
+			warnx("%s: short write", dest);
 			return 1;
 		}
 		length -= r; /* Actually should be -w, but let's not get into that now... this should probably use stdio anyway */
@@ -129,21 +128,21 @@ static int copy_thing(char * tmp, char * tmp2) {
 	struct stat statbuf;
 	int ret = symlinks ? lstat(tmp, &statbuf) : stat(tmp, &statbuf);
 	if (ret == -1) {
-		fprintf(stderr, APP_NAME ": %s: %s\n", tmp, strerror(errno));
+		warn("%s", tmp);
 		return 1;
 	}
 	if (S_ISLNK(statbuf.st_mode)) {
 		return copy_link(tmp, tmp2, statbuf.st_mode & 07777, statbuf.st_uid, statbuf.st_gid);
 	} else if (S_ISDIR(statbuf.st_mode)) {
 		if (!recursive) {
-			fprintf(stderr, APP_NAME ": %s: omitting directory\n", tmp);
+			warnx("%s: omitting directory", tmp);
 			return 1;
 		}
 		return copy_directory(tmp, tmp2, statbuf.st_mode & 07777, statbuf.st_uid, statbuf.st_gid);
 	} else if (S_ISREG(statbuf.st_mode)) {
 		return copy_file(tmp, tmp2, statbuf.st_mode & 07777, statbuf.st_uid, statbuf.st_gid);
 	} else {
-		fprintf(stderr, APP_NAME ": %s is not any of the required file types?\n", tmp);
+		warnx("%s: unexpected file type", tmp);
 		return 1;
 	}
 }
@@ -168,7 +167,7 @@ static int copy_top_level(char **argv, int argc, int optind) {
 		}
 	} else {
 		if (optind < argc - 2) {
-			fprintf(stderr, APP_NAME ": target '%s' is not a directory\n", destination);
+			warnx("target '%s' is not a directory", destination);
 			return 1;
 		}
 		ret |= copy_thing(argv[optind], destination);
