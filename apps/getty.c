@@ -13,6 +13,7 @@
  * Copyright (C) 2018 K. Lange
  */
 #include <sys/ioctl.h>
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -24,11 +25,8 @@ int main(int argc, char * argv[]) {
 	char * file = "/dev/ttyS0";
 	char * user = NULL;
 
-	if (getuid() != 0) {
-		fprintf(stderr, "%s: only root can do that\n", argv[0]);
-		return 1;
-	}
-
+	if (getuid() != 0)
+		errx(1, "only root can do that");
 	int opt;
 	while ((opt = getopt(argc, argv, "a:")) != -1) {
 		switch (opt) {
@@ -44,11 +42,8 @@ int main(int argc, char * argv[]) {
 	}
 
 	fd_serial = open(file, O_RDWR);
-	if (fd_serial == -1) {
-		perror(file);
-		return 1;
-	}
-
+	if (fd_serial == -1)
+		err(1, "%s", file);
 	setsid();
 	dup2(fd_serial, 0);
 	dup2(fd_serial, 1);
@@ -81,8 +76,6 @@ int main(int argc, char * argv[]) {
 		tokens[1] = "-f";
 		tokens[2] = user;
 	}
-
-	if (execvp(tokens[0], tokens) == -1)
-		perror("/bin/login");
-	return 1;
+	execvp(tokens[0], tokens);
+	err(1, "failed to exec '%s'", tokens[0]);
 }
