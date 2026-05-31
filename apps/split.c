@@ -62,6 +62,8 @@ loop:
 	do {
 		c = getc(is);
 		if(c == EOF) {
+			if (ferror(is))
+				err(1, "%s", ifil);
 			if(f == 0)
 				fclose(os);
 			return 0;
