@@ -265,10 +265,8 @@ struct process * process_entry(struct dirent *dent) {
 
 	sprintf(tmp, "/proc/%s/status", dent->d_name);
 	f = fopen(tmp, "r");
-
-	if (!f) {
+	if (f == NULL)
 		return NULL;
-	}
 
 	line[0] = 0;
 
@@ -342,6 +340,12 @@ struct process * process_entry(struct dirent *dent) {
 
 	sprintf(tmp, "/proc/%s/cmdline", dent->d_name);
 	f = fopen(tmp, "r");
+	if (f == NULL) {
+		free(out->state);
+		free(out->process);
+		free(out);
+		return NULL;
+	}
 	char foo[1024];
 	int s = fread(foo, 1, 1024, f);
 	if (s > 0) {
@@ -430,6 +434,8 @@ static void get_mem_info(int * total, int * used) {
  */
 static void get_cpu_info(int cpus[]) {
 	FILE * f = fopen("/proc/idle","r");
+	if (f == NULL)
+		err(1, "/proc/idle");
 	char buf[4096];
 	fread(buf, 4096, 1, f);
 
