@@ -7,24 +7,23 @@
  * Copyright (C) 2014-2018 K. Lange
  */
 
+#include <err.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <sys/mount.h>
 
 int main(int argc, char ** argv) {
-	if (argc != 4) {
-		fprintf(stderr, "Usage: %s type device mountpoint\n", argv[0]);
-		return 1;
-	}
-	if (getuid() != 0) {
-		fprintf(stderr, "%s: only root should run this\n", argv[0]);
-		return 1;
-	}
-	int ret = mount(argv[2], argv[3], argv[1], 0, NULL);
-	if (ret < 0) {
-		perror(argv[2]);
-		return ret;
-	}
-
+	if (argc > 4) {
+		warnx("extra operand: '%s'", argv[4]);
+		goto usage;
+	} else if (argc != 4)
+		goto usage;
+	if (getuid() != 0)
+		errx(1, "only root should run this");
+	if (mount(argv[2], argv[3], argv[1], 0, NULL) == -1)
+		err(1, "%s", argv[2]);
 	return 0;
+usage:
+	fprintf(stderr, "Usage: %s type device mountpoint\n", argv[0]);
+	return 1;
 }
