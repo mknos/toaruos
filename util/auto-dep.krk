@@ -181,5 +181,7 @@ if __name__ == "__main__":
             libraries=" ".join([x for x in _libs]),
             includes=" ".join([x for x in c.includes if x is not None])
             ))
-
+    else:
+        print("auto-dep.krk: unknown command: " + command)
+        os.exit(1)
 
