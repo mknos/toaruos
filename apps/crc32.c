@@ -6,10 +6,9 @@
  * of the NCSA / University of Illinois License - see LICENSE.md
  * Copyright (C) 2018 K. Lange
  */
+#include <err.h>
 #include <stdio.h>
-#include <errno.h>
 #include <stdlib.h>
-#include <string.h>
 
 static unsigned int crctab[256] = {
 	0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419, 0x706af48f,
@@ -69,10 +68,8 @@ int main(int argc, char * argv[]) {
 		break;
 	case 2:
 		f = fopen(argv[1], "r");
-		if (f == NULL) {
-			fprintf(stderr, "%s: %s: %s\n", argv[0], argv[1], strerror(errno));
-			return 1;
-		}
+		if (f == NULL)
+			err(1, "%s", argv[1]);
 		fname = argv[1];
 		break;
 	default:
@@ -80,17 +77,13 @@ int main(int argc, char * argv[]) {
 		return 1;
 	}
 	char *buf = malloc(RBUF_SIZE);
-	if (buf == NULL) {
-		perror("malloc");
-		return 1;
-	}
+	if (buf == NULL)
+		err(1, "malloc");
 	unsigned int crc32 = 0xffffffff;
 	while (!feof(f)) {
 		size_t r = fread(buf, 1, RBUF_SIZE, f);
-		if (r == 0 && ferror(f)) {
-			fprintf(stderr, "%s: %s: %s\n", argv[0], fname, strerror(errno));
-			return 1;
-		}
+		if (r == 0 && ferror(f))
+			err(1, "%s", fname);
 		for (size_t i = 0; i < r; ++i) {
 			int ind = (crc32 ^ buf[i]) & 0xFF;
 			crc32 = (crc32 >> 8) ^ (crctab[ind]);
