@@ -2,6 +2,7 @@
 static char *sccsid = "@(#)split.c	4.2 (Berkeley) 4/29/83";
 #endif
 
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -50,8 +51,7 @@ main(int argc, char *argv[])
 		is = stdin;
 	else
 		if((is=fopen(ifil,"r")) == NULL) {
-			perror(ifil);
-			exit(1);
+			err(1, "%s", ifil);
 		}
 	if(ofil == 0)
 		ofil = "x";
@@ -64,7 +64,7 @@ loop:
 		if(c == EOF) {
 			if(f == 0)
 				fclose(os);
-			exit(0);
+			return 0;
 		}
 		if(f) {
 			for(f=0; ofil[f]; f++)
@@ -73,10 +73,9 @@ loop:
 			fname[f++] = fnumber%26 + 'a';
 			fname[f] = '\0';
 			fnumber++;
-			if((os=fopen(fname,"w")) == NULL) {
-				perror(fname);
-				exit(1);
-			}
+			os = fopen(fname, "w");
+			if (os == NULL)
+				err(1, "%s", fname);
 			f = 0;
 		}
 		putc(c, os);
