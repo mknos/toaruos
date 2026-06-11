@@ -883,7 +883,7 @@ long sys_fcntl(int fd, int cmd, long arg) {
 
 	switch (cmd) {
 		case F_GETFD: {
-			int flags = 0;
+			int flags = FD_MODE(fd) & 03;
 			return flags;
 		}
 		case F_SETFD: {
