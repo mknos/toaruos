@@ -882,6 +882,15 @@ long sys_fcntl(int fd, int cmd, long arg) {
 	if (!FD_CHECK(fd)) return -EBADF;
 
 	switch (cmd) {
+		case F_GETFD: {
+			int flags = 0;
+			return flags;
+		}
+		case F_SETFD: {
+			int new_mode = FD_MODE(fd) & 03;
+			FD_MODE(fd) = new_mode;
+			return 0;
+		}
 		case F_GETFL: {
 			int mode = 0;
 			if (FD_MODE(fd) & 03) mode = O_RDWR;
@@ -892,15 +901,14 @@ long sys_fcntl(int fd, int cmd, long arg) {
 		}
 		case F_DUPFD: {
 			if (arg < 0 || arg > 256) return -EINVAL; /* We expect a value of, like, 10 from dash. */
-			extern long process_fd_dup_least(process_t *, long, long);
 			return process_fd_dup_least((process_t*)this_core->current_process, fd, arg);
 		}
 		case F_SETFL: /* TODO NONBLOCK, APPEND, SYNC... */
-		case F_GETFD:
-		case F_SETFD:
+			return 0;
 		case F_GETLK:
 		case F_SETLK:
 		case F_SETLKW:
+			/* No lock support */
 			return -ENOTSUP;
 	}
 	return -EINVAL;
