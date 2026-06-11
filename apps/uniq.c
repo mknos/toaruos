@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Jonas 'Sortie' Termansen.
+ * Copyright (c) 2014, 2026 Jonas 'Sortie' Termansen.
  *
  * Permission to use, copy, modify, and distribute this software for any
  * purpose with or without fee is hereby granted, provided that the above
@@ -24,9 +24,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 // TODO: Implement all the features mandated by POSIX.
-// TODO: Implement the useful GNU extensions.
 
 char* read_line(FILE* fp, const char* fpname, int delim)
 {
@@ -37,67 +37,12 @@ char* read_line(FILE* fp, const char* fpname, int delim)
 	{
 		free(line);
 		if ( ferror(fp) )
-			warn("failed to read '%s'", fpname);
+			err(1, "read: %s", fpname);
 		return NULL;
 	}
 	if ( (unsigned char) line[amount-1] == (unsigned char) delim )
 		line[amount-1] = '\0';
 	return line;
-}
-
-static void compact_arguments(int* argc, char*** argv)
-{
-	for ( int i = 0; i < *argc; i++ )
-	{
-		while ( i < *argc && !(*argv)[i] )
-		{
-			for ( int n = i; n < *argc; n++ )
-				(*argv)[n] = (*argv)[n+1];
-			(*argc)--;
-		}
-	}
-}
-
-static void help(FILE* fp, const char* argv0)
-{
-	fprintf(fp, "Usage: %s [OPTION]... [INPUT [OUTPUT]]\n", argv0);
-	fprintf(fp, "Filter adjacent matching lines from INPUT (or standard input),\n");
-	fprintf(fp, "writing to OUTPUT (or standard output).\n");
-	fprintf(fp, "\n");
-	fprintf(fp, "With no options, matching lines are merged to the first occurrence.\n");
-	fprintf(fp, "\n");
-	fprintf(fp, "Mandatory arguments to long options are mandatory for short options too.\n");
-	fprintf(fp, "  -c, --count           prefix lines by the number of occurrences\n");
-	fprintf(fp, "  -d, --repeated        only print duplicate lines\n");
-#if 0
-	fprintf(fp, "  -D, --all-repeated[=delimit-method]  print all duplicate lines\n");
-	fprintf(fp, "                        delimit-method={none(default),prepend,separate}\n");
-	fprintf(fp, "                        Delimiting is done with blank lines\n");
-	fprintf(fp, "  -f, --skip-fields=N   avoid comparing the first N fields\n");
-	fprintf(fp, "  -i, --ignore-case     ignore differences in case when comparing\n");
-	fprintf(fp, "  -s, --skip-chars=N    avoid comparing the first N characters\n");
-#endif
-	fprintf(fp, "  -u, --unique          only print unique lines\n");
-	fprintf(fp, "  -z, --zero-terminated  end lines with 0 byte, not newline\n");
-#if 0
-	fprintf(fp, "  -w, --check-chars=N   compare no more than N characters in lines\n");
-#endif
-	fprintf(fp, "      --help     display this help and exit\n");
-	fprintf(fp, "      --version  output version information and exit\n");
-	fprintf(fp, "\n");
-#if 0
-	fprintf(fp, "A field is a run of blanks (usually spaces and/or TABs), then non-blank\n");
-	fprintf(fp, "characters.  Fields are skipped before chars.\n");
-	fprintf(fp, "\n");
-#endif
-	fprintf(fp, "Note: 'uniq' does not detect repeated lines unless they are adjacent.\n");
-	fprintf(fp, "You may want to sort the input first, or use `sort -u' without `uniq'.\n");
-	fprintf(fp, "Also, comparisons honor the rules specified by `LC_COLLATE'.\n");
-}
-
-static void version(FILE* fp, const char* argv0)
-{
-	fprintf(fp, "%s (Sortix)\n", argv0);
 }
 
 int main(int argc, char* argv[])
@@ -109,67 +54,32 @@ int main(int argc, char* argv[])
 	bool delete_duplicates = false;
 	bool zero_terminated = false;
 
-	const char* argv0 = argv[0];
-	for ( int i = 1; i < argc; i++ )
+	int opt;
+	while ( (opt = getopt(argc, argv, "cduz")) != -1 )
 	{
-		const char* arg = argv[i];
-		if ( arg[0] != '-' || !arg[1] )
-			continue;
-		argv[i] = NULL;
-		if ( !strcmp(arg, "--") )
-			break;
-		if ( arg[1] != '-' )
+		switch ( opt )
 		{
-			char c;
-			while ( (c = *++arg) ) switch ( c )
-			{
-			case 'c': count = true; break;
-			case 'd': delete_singulars = true; break;
-			case 'u': delete_duplicates = true; break;
-			case 'z': zero_terminated = true; break;
-			default:
-				fprintf(stderr, "%s: unknown option -- '%c'\n", argv0, c);
-				help(stderr, argv0);
-				exit(1);
-			}
-		}
-		else if ( !strcmp(arg, "--help") )
-			help(stdout, argv0), exit(0);
-		else if ( !strcmp(arg, "--version") )
-			version(stdout, argv0), exit(0);
-		else if ( !strcmp(arg, "--count") )
-			count = true;
-		else if ( !strcmp(arg, "--repeated") )
-			delete_singulars = true;
-		else if ( !strcmp(arg, "--unique") )
-			delete_duplicates = true;
-		else if ( !strcmp(arg, "--zero-terminated") )
-			zero_terminated = true;
-		else
-		{
-			fprintf(stderr, "%s: unknown option: %s\n", argv0, arg);
-			help(stderr, argv0);
-			exit(1);
+		case 'c': count = true; break;
+		case 'd': delete_singulars = true; break;
+		case 'u': delete_duplicates = true; break;
+		case 'z': zero_terminated = true; break;
+		default: return 1;
 		}
 	}
 
-	compact_arguments(&argc, &argv);
+	if ( 3 <= argc - optind )
+		errx(1, "unexpected extra operand: %s", argv[optind + 2]);
 
-	if ( 4 <= argc )
-	{
-		fprintf(stderr, "%s: extra operand: %s\n", argv0, argv[3]);
-		fprintf(stderr, "Try `%s --help' for more information.\n", argv0);
-		exit(1);
-	}
+	const char* inname = "stdin";
+	const char* outname = "stdout";
 
-	const char* inname = "<stdin>";
-	const char* outname = "<stdout>";
+	if ( 2 <= argc - optind &&
+	     !freopen(outname = argv[optind + 1], "w", stdout) )
+		err(1, "%s", outname);
 
-	if ( 3 <= argc && !freopen(outname = argv[2], "w", stdout) )
-		perror(outname), exit(1);
-
-	if ( 2 <= argc && !freopen(inname = argv[1], "r", stdin) )
-		perror(inname), exit(1);
+	if ( 1 <= argc - optind &&
+	     !freopen(inname = argv[optind + 0], "r", stdin) )
+		err(1, "%s", inname);
 
 	int delim = zero_terminated ? '\0' : '\n';
 
@@ -226,6 +136,8 @@ int main(int argc, char* argv[])
 		{
 			fputs(line, stdout);
 			fputc(delim, stdout);
+			if ( ferror(stdout) )
+				err(1, "write: %s", outname);
 		}
 
 		free(prev_line);
@@ -235,6 +147,7 @@ int main(int argc, char* argv[])
 	free(prev_line);
 
 	if ( fflush(stdout) == EOF || ferror(stdout) )
-		err(1, "stdout");
+		err(1, "write: %s", outname);
+
 	return 0;
 }
